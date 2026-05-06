@@ -6,65 +6,13 @@ import { BsGithub, BsArrowUpRight } from "react-icons/bs";
 import Link from "next/link";
 import Image from "next/image";
 
-const projects = [
-  {
-    id: 1,
-    title: "VirtuAI",
-    category: "AI",
-    description: "A comprehensive suite of Generative AI tools wrapped in a modern web interface.",
-    stack: ["Next.js", "TypeScript", "Clerk"],
-    image: "/assets/work/virtuai/landing.png",
-    links: {
-      github: "https://github.com/Yadui/ProdigyAI",
-      live: "https://virtuai.vercel.app/",
-    },
-  },
-  {
-    id: 2,
-    title: "Automify",
-    category: "Web",
-    description: "Workflow automation platform designed to streamline business processes.",
-    stack: ["Next.js", "NeonDB", "Tailwind"],
-    image: "/assets/work/automify/landing.png",
-    links: {
-      github: "https://github.com/Yadui/automify",
-      live: "https://automify.vercel.app/",
-    },
-  },
-  {
-    id: 3,
-    title: "Enterprise Migration",
-    category: "Cloud",
-    description: "Migrated a legacy monolithic application to a microservices architecture on AWS, reducing downtime by 99%.",
-    stack: ["AWS", "Docker", "Kubernetes"],
-    image: null,
-    links: { github: "", live: "" },
-  },
-  {
-    id: 4,
-    title: "Serverless Pipeline",
-    category: "Cloud",
-    description: "Built a real-time data processing pipeline using Azure Functions and Event Hubs for a fintech client.",
-    stack: ["Azure", "Serverless", "Python"],
-    image: null,
-    links: { github: "", live: "" },
-  },
-  {
-    id: 5,
-    title: "AI Model Training",
-    category: "AI",
-    description: "Extensive work on training and fine-tuning LLMs (RLHF & SFT) to improve reasoning and coding capabilities.",
-    stack: ["RLHF", "Python", "PyTorch"],
-    image: null,
-    links: { github: "", live: "" },
-  },
-];
+import { projects } from "@/data/projectsMenuData";
 
 const Work = () => {
   const [filter, setFilter] = useState("all");
 
-  const filteredProjects = projects.filter((project) => 
-    filter === "all" ? true : project.category.toLowerCase() === filter
+    const filteredProjects = projects.filter((project) =>
+        filter === "all" ? true : project.workCategory.toLowerCase() === filter
   );
 
   const tabs = ["all", "cloud", "web", "ai"];
@@ -120,7 +68,7 @@ const Work = () => {
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-white/5 to-transparent">
                                     <h3 className="text-4xl font-bold text-white/10 group-hover:text-accent/20 transition-colors">
-                                        {project.category}
+                                            {project.workCategory}
                                     </h3>
                                 </div>
                             )}
@@ -147,12 +95,12 @@ const Work = () => {
                                     {project.title}
                                 </h3>
                                 <span className="text-xs font-bold px-2 py-1 rounded bg-white/5 text-white/60 uppercase">
-                                    {project.category}
+                                    {project.workCategory}
                                 </span>
                             </div>
                             
                             <p className="text-white/60 mb-6 flex-1">
-                                {project.description}
+                                {project.thesis}
                             </p>
 
                             <div className="flex flex-wrap gap-2 mt-auto">

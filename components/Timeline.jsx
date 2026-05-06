@@ -2,9 +2,15 @@
 
 import { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { FiBriefcase, FiAward, FiCalendar, FiPlus, FiArrowDownRight } from "react-icons/fi";
+import {
+  FiArrowUpRight,
+  FiAward,
+  FiBriefcase,
+  FiCalendar,
+} from "react-icons/fi";
 import WorkDetailModal from "./WorkDetailModal";
 import { workDetails } from "@/data/workDetails";
+import ScrambledText from "@/components/ScrambledText";
 
 const experience = [
   {
@@ -46,6 +52,21 @@ const education = [
   },
 ];
 
+const timelineStats = [
+  {
+    value: `${experience.length}`.padStart(2, "0"),
+    label: "roles shipped",
+  },
+  {
+    value: `${education.length}`.padStart(2, "0"),
+    label: "degrees listed",
+  },
+  {
+    value: "2024",
+    label: "career pivot",
+  },
+];
+
 const TimelineLabel = ({ title, containerRef, scrollYProgress, className = "" }) => {
   const labelRef = useRef(null);
   const [isActive, setIsActive] = useState(false);
@@ -83,23 +104,34 @@ const TimelineLabel = ({ title, containerRef, scrollYProgress, className = "" })
   }, [containerRef, scrollYProgress]);
 
   return (
-    <div ref={labelRef} className={`relative flex items-center justify-center z-20 ${className}`}>
+    <div ref={labelRef} className={`relative z-20 pl-16 md:pl-20 ${className}`}>
       <motion.div
         animate={{
-          boxShadow: isActive ? "0 0 20px rgba(0,255,153,0.5)" : "none",
-          scale: isActive ? 1.1 : 1,
+          scale: isActive ? 1.02 : 1,
+          y: isActive ? 0 : 2,
+          borderColor: isActive
+            ? "rgba(0,255,153,0.28)"
+            : "rgba(16,24,40,0.1)",
+          backgroundColor: isActive
+            ? "rgba(255,255,255,0.86)"
+            : "rgba(255,255,255,0.68)",
+          boxShadow: isActive
+            ? "0 22px 60px rgba(16,24,40,0.12)"
+            : "0 14px 38px rgba(16,24,40,0.08)",
         }}
-        transition={{ duration: 0.3 }}
-        className="bg-black border border-accent text-accent px-6 py-2 rounded-full font-bold text-sm uppercase tracking-widest transition-all duration-300"
+        transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+        className="inline-flex items-center gap-3 rounded-full border px-4 py-2.5 md:px-5"
       >
-        {title}
+        <span className="h-2.5 w-2.5 rounded-full bg-[var(--portfolio-accent)]" />
+        <span className="portfolio-kicker !text-[var(--portfolio-ink)]">
+          {title}
+        </span>
       </motion.div>
     </div>
   );
 };
 
 const TimelineItem = ({ item, index, icon, containerRef, scrollYProgress, onOpenModal }) => {
-  const isEven = index % 2 === 0;
   const itemRef = useRef(null);
   const [isActive, setIsActive] = useState(false);
 
@@ -133,100 +165,87 @@ const TimelineItem = ({ item, index, icon, containerRef, scrollYProgress, onOpen
     };
   }, [containerRef, scrollYProgress]);
 
+  const skillList = item.skills ? item.skills.split(", ") : [];
+
   return (
-    <div 
-        ref={itemRef} 
-        className={`relative flex items-center justify-between w-full mb-8 ${isEven ? "flex-row-reverse" : ""}`}
-    >
-      {/* Spacer for opposite side */}
-      <div className="w-5/12" />
-
-      {/* Center Dot */}
-      <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center justify-center z-10">
-        <motion.div 
-            animate={{
-                boxShadow: isActive ? "0 0 15px #00ff99" : "none",
-            }}
-            transition={{ duration: 0.4 }}
-            className="w-4 h-4 rounded-full bg-accent"
-            style={{ backgroundColor: '#00ff99' }}
-        >
-            {isActive && <div className="absolute -inset-2 rounded-full bg-accent/20 animate-pulse"></div>}
-        </motion.div>
-      </div>
-
-      {/* Content Card */}
-      <motion.div 
-        initial={{ opacity: 0, x: isEven ? -50 : 50 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className="w-5/12 relative"
+    <div ref={itemRef} className="relative pb-8 pl-16 md:pl-20">
+      <motion.div
+        animate={{
+          scale: isActive ? 1.04 : 1,
+          boxShadow: isActive
+            ? "0 0 0 10px rgba(0,255,153,0.08)"
+            : "0 0 0 0 rgba(0,255,153,0)",
+        }}
+        transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+        className="absolute left-0 top-9 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(16,24,40,0.12)] bg-white/90 text-[var(--portfolio-accent)] shadow-[0_16px_36px_rgba(16,24,40,0.1)]"
       >
-        <div className="bg-[#18181b] border border-white/10 p-6 md:p-8 rounded-2xl hover:border-accent/50 transition-all duration-300 shadow-lg group relative overflow-hidden">
-          {/* Hover Gradient */}
-          <div className="absolute inset-0 bg-gradient-to-r from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-          
-          <div className="relative z-10 flex flex-col gap-3">
-            <div className="flex flex-wrap items-center justify-between gap-4 mb-2">
-                <div className="flex items-center gap-3">
-                    <span className="text-2xl text-accent bg-accent/10 p-2 rounded-lg">
-                        {icon}
-                    </span>
-                    <h3 className="text-xl font-bold text-white group-hover:text-accent transition-colors">
-                        {item.position || item.degree}
-                    </h3>
+        {icon}
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 36 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.58, delay: Math.min(index * 0.06, 0.24), ease: [0.22, 1, 0.36, 1] }}
+      >
+        <article className="portfolio-card p-6 md:p-7 xl:p-8">
+          <div className="absolute inset-0 opacity-0 transition-opacity duration-500 hover:opacity-100" />
+
+          <div className="relative z-10 flex flex-col gap-5">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div className="space-y-3">
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <span className="portfolio-chip !bg-[var(--portfolio-accent-soft)] !text-[var(--portfolio-accent)] !border-[rgba(0,255,153,0.24)]">
+                    {item.type}
+                  </span>
+                  <span className="portfolio-chip">
+                    <FiCalendar className="text-[var(--portfolio-ink-faint)]" />
+                    {item.duration}
+                  </span>
                 </div>
-                
-                {/* Type Badge */}
-                {item.type && (
-                    <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-white/5 text-white/80 border border-white/10">
-                        {item.type}
-                    </span>
-                )}
+
+                <div className="space-y-3">
+                  <p className="portfolio-kicker">
+                    {item.company ? "Career Entry" : "Education Entry"} {String(index + 1).padStart(2, "0")}
+                  </p>
+                  <h3 className="portfolio-title text-3xl md:text-[2.35rem]">
+                    {item.position || item.degree}
+                  </h3>
+                  <p className="text-base font-semibold tracking-[-0.02em] text-[var(--portfolio-ink)] md:text-lg">
+                    {item.company || item.institution}
+                  </p>
+                </div>
+              </div>
+
+              {item.slug ? (
+                <button
+                  onClick={() => onOpenModal(item.slug)}
+                  className="inline-flex items-center gap-2 rounded-full border border-[var(--portfolio-line)] bg-white/80 px-4 py-2 text-sm font-semibold tracking-[0.08em] text-[var(--portfolio-ink)] transition-colors hover:border-[rgba(0,255,153,0.24)] hover:text-[var(--portfolio-accent)]"
+                >
+                  View full work
+                  <FiArrowUpRight className="transition-transform group-hover/link:-translate-y-0.5 group-hover/link:translate-x-0.5" />
+                </button>
+              ) : null}
             </div>
 
-            <div className="flex items-center gap-2 text-accent font-medium text-sm">
-                <FiCalendar />
-                {item.duration}
-            </div>
-
-            <h4 className="text-white/90 font-semibold text-lg">
-                {item.company || item.institution}
-            </h4>
-            
-            {/* One-line Description */}
-            <p className="text-white/60 text-base leading-relaxed mt-2">
-                {item.description}
+            <p className="portfolio-body max-w-2xl text-sm md:text-base">
+              {item.description}
             </p>
 
-            {item.skills && (
-                <div className="mt-3 pt-3 border-t border-white/5">
-                    <div className="flex flex-wrap gap-2">
-                        {item.skills.split(', ').map((skill, idx) => (
-                            <span 
-                                key={idx}
-                                className="px-2.5 py-1 bg-accent/10 border border-accent/30 rounded-md text-accent text-xs font-medium"
-                            >
-                                {skill}
-                            </span>
-                        ))}
-                    </div>
-                </div>
-            )}
-
-            {/* View Full Work Button */}
-            {item.slug && (
-                <button 
-                    onClick={() => onOpenModal(item.slug)}
-                    className="mt-4 inline-flex items-center gap-2 text-accent hover:text-white text-sm font-semibold group/link transition-colors"
-                >
-                    View full work
-                    <FiArrowDownRight className="group-hover/link:translate-x-0.5 group-hover/link:translate-y-0.5 transition-transform" />
-                </button>
-            )}
+            {skillList.length > 0 ? (
+              <div className="flex flex-wrap gap-2.5 border-t border-[rgba(16,24,40,0.08)] pt-4">
+                {skillList.map((skill) => (
+                  <span
+                    key={skill}
+                    className="portfolio-chip !bg-white/84 !px-3 !py-2 !text-[0.64rem] !tracking-[0.18em]"
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            ) : null}
           </div>
-        </div>
+        </article>
       </motion.div>
     </div>
   );
@@ -260,82 +279,112 @@ const Timeline = () => {
 
   return (
     <>
-      <section id="timeline" className="py-24 bg-black relative z-20">
-        <div className="container mx-auto px-4 max-w-6xl">
-          
-          {/* Section Header */}
-          <motion.div 
-              initial={{ opacity: 0, y: 20 }}
+      <section id="timeline" className="portfolio-section portfolio-paper-stage">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute inset-0 opacity-40" style={{
+            backgroundImage:
+              "linear-gradient(rgba(16,24,40,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(16,24,40,0.04) 1px, transparent 1px)",
+            backgroundSize: "92px 92px",
+            maskImage: "linear-gradient(180deg, rgba(0,0,0,0.42), transparent 100%)",
+          }} />
+          <div className="absolute left-[8%] top-20 h-52 w-52 rounded-full bg-[var(--portfolio-accent-soft)] blur-3xl" />
+          <div className="absolute right-[10%] top-28 h-56 w-56 rounded-full bg-[var(--portfolio-sun-soft)] blur-3xl" />
+        </div>
+
+        <div className="relative z-10 mx-auto max-w-7xl px-4 md:px-6">
+          <div className="grid gap-8 xl:grid-cols-[0.8fr_1.2fr] xl:items-start">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="sticky top-0 z-30 flex flex-col items-center justify-center bg-black/90 backdrop-blur-sm py-10 mb-10 origin-top"
-          >
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">My Journey</h2>
-          </motion.div>
-
-          <div ref={containerRef} className="relative">
-              {/* Main Vertical Line */}
-              <div className="absolute left-1/2 transform -translate-x-1/2 top-0 bottom-0 w-[2px] bg-white/10 h-full">
-                  <motion.div 
-                      style={{ height: lineHeight }}
-                      className="w-full bg-accent shadow-[0_0_20px_#00ff99]"
-                  />
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              className="portfolio-shell p-8 md:p-10 xl:sticky xl:top-24"
+            >
+              <div className="inline-flex items-center gap-3 rounded-full border border-[var(--portfolio-line)] bg-white/72 px-4 py-2.5">
+                <span className="text-xl">↳</span>
+                <span className="portfolio-kicker !text-[var(--portfolio-ink)]">Career Ledger</span>
               </div>
 
-              <div className="flex flex-col gap-12 pb-12">
-                  
-                  {/* Experience Label */}
-                  <TimelineLabel 
-                      title="Experience" 
-                      containerRef={containerRef} 
-                      scrollYProgress={scrollYProgress} 
-                      className="mb-8"
-                  />
+              <ScrambledText
+                as="h2"
+                text="My Journey"
+                triggerOnView
+                duration={1.05}
+                speed={0.7}
+                className="portfolio-title mt-6 text-4xl md:text-5xl xl:text-6xl"
+              />
+              <p className="portfolio-body mt-5 max-w-xl text-base md:text-lg">
+                Experience and education translated into a cleaner desktop rail: less dead space, stronger hierarchy, and direct access to the work details that matter.
+              </p>
 
-                  {/* Experience Section */}
-                  <div className="space-y-12">
-                      {experience.map((item, index) => (
-                          <TimelineItem 
-                              key={`exp-${index}`} 
-                              item={item} 
-                              index={index} 
-                              icon={<FiBriefcase />} 
-                              containerRef={containerRef}
-                              scrollYProgress={scrollYProgress}
-                              onOpenModal={handleOpenModal}
-                          />
-                      ))}
+              <div className="mt-8 grid gap-3 sm:grid-cols-3 xl:grid-cols-1 2xl:grid-cols-3">
+                {timelineStats.map((item) => (
+                  <div key={item.label} className="portfolio-metric">
+                    <p className="text-3xl font-semibold tracking-[-0.06em] text-[var(--portfolio-ink)] md:text-4xl">
+                      {item.value}
+                    </p>
+                    <p className="portfolio-meta-label mt-2">{item.label}</p>
                   </div>
-
-                  {/* Education Label */}
-                  <TimelineLabel 
-                      title="Education" 
-                      containerRef={containerRef} 
-                      scrollYProgress={scrollYProgress} 
-                      className="my-8"
-                  />
-
-                  {/* Education Section */}
-                  <div className="space-y-12">
-                      {education.map((item, index) => (
-                          <TimelineItem 
-                              key={`edu-${index}`} 
-                              item={item} 
-                              index={index + experience.length} 
-                              icon={<FiAward />} 
-                              containerRef={containerRef}
-                              scrollYProgress={scrollYProgress}
-                              onOpenModal={handleOpenModal}
-                          />
-                      ))}
-                  </div>
+                ))}
               </div>
+            </motion.div>
+
+            <div ref={containerRef} className="relative">
+              <div className="absolute bottom-0 left-5 top-0 hidden w-px bg-[rgba(16,24,40,0.08)] md:block" />
+              <motion.div
+                style={{ height: lineHeight }}
+                className="absolute left-5 top-0 hidden w-px bg-[linear-gradient(180deg,var(--portfolio-accent),rgba(0,255,153,0.18))] md:block"
+              />
+
+              <div className="space-y-10 pb-4 md:space-y-12">
+                <TimelineLabel
+                  title="Experience"
+                  containerRef={containerRef}
+                  scrollYProgress={scrollYProgress}
+                  className="pt-2"
+                />
+
+                <div className="space-y-1">
+                  {experience.map((item, index) => (
+                    <TimelineItem
+                      key={`exp-${index}`}
+                      item={item}
+                      index={index}
+                      icon={<FiBriefcase />}
+                      containerRef={containerRef}
+                      scrollYProgress={scrollYProgress}
+                      onOpenModal={handleOpenModal}
+                    />
+                  ))}
+                </div>
+
+                <TimelineLabel
+                  title="Education"
+                  containerRef={containerRef}
+                  scrollYProgress={scrollYProgress}
+                  className="pt-4"
+                />
+
+                <div className="space-y-1">
+                  {education.map((item, index) => (
+                    <TimelineItem
+                      key={`edu-${index}`}
+                      item={item}
+                      index={index + experience.length}
+                      icon={<FiAward />}
+                      containerRef={containerRef}
+                      scrollYProgress={scrollYProgress}
+                      onOpenModal={handleOpenModal}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Work Detail Modal */}
-      <WorkDetailModal 
+      <WorkDetailModal
         work={selectedWork}
         isOpen={isModalOpen}
         onClose={handleCloseModal}

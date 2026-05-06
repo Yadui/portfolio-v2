@@ -4,21 +4,26 @@ import { desc } from "drizzle-orm";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { verifyAuth } from "@/lib/auth";
+import { isCurrentRequestFromAllowedAdminIp } from "@/lib/adminAccess";
 import DeleteButton from "@/components/DeleteButton";
 import LogoutButton from "@/components/LogoutButton";
+import { mergeBlogPosts } from "@/data/blogPosts";
 
 export const dynamic = 'force-dynamic';
 
 export default async function BlogList() {
-  let allPosts = [];
+  let storedPosts = [];
   try {
-    allPosts = await db.select().from(posts).orderBy(desc(posts.createdAt));
+    storedPosts = await db.select().from(posts).orderBy(desc(posts.createdAt));
   } catch (error) {
     console.error("Failed to fetch posts:", error);
   }
 
+  const allPosts = mergeBlogPosts(storedPosts);
+
   const user = await verifyAuth();
   const isAdmin = !!user;
+  const canShowLogin = !isAdmin && await isCurrentRequestFromAllowedAdminIp();
 
   return (
     <div className="min-h-screen bg-primary pt-32 px-4 md:px-12">
@@ -42,11 +47,11 @@ export default async function BlogList() {
                 </Link>
                 <LogoutButton />
               </>
-            ) : (
+            ) : canShowLogin ? (
                 <Link href="/login">
                   <Button variant="outline" className="text-white border-white/20 hover:bg-white/10">Login</Button>
                 </Link>
-            )}
+            ) : null}
           </div>
         </div>
 
@@ -85,7 +90,7 @@ export default async function BlogList() {
                 </div>
               </Link>
               
-              {isAdmin && (
+              {isAdmin && post.sourceType === "database" && (
                 <DeleteButton id={post.id} />
               )}
             </div>

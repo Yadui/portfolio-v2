@@ -3,11 +3,14 @@ import { posts } from "@/lib/schema";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import slugify from "slugify";
+import { verifyAuth } from "@/lib/auth";
 
 export async function POST(req) {
-  // Removed Clerk auth check temporarily as requested
-  // const { userId } = await auth();
-  // if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const user = await verifyAuth();
+
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const { id, title, content, tags, coverImage } = await req.json();
   const slug = slugify(title, { lower: true, strict: true });

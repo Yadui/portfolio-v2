@@ -27,8 +27,8 @@ const info = [
   },
   {
     icon: <FaEnvelope />,
-    description: "abhinavyadav8+port@gmail.com",
-    link: "mailto:abhinavyadav8+port@gmail.com",
+    description: "abhinavyadav8@gmail.com",
+    link: "mailto:abhinavyadav8@gmail.com",
     isExternal: false,
   },
   {

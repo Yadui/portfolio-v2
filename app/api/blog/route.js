@@ -3,11 +3,14 @@ import { db } from "@/lib/db";
 import { posts } from "@/lib/schema";
 import slugify from "slugify";
 import { eq } from "drizzle-orm"; // Ensure we have eq for the duplicate check code
+import { verifyAuth } from "@/lib/auth";
 
 export async function POST(req) {
-  // Removed Clerk auth check temporarily
-  // const { userId } = await auth();
-  // if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const user = await verifyAuth();
+
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const { title, content, tags, coverImage } = await req.json();
   let slug = slugify(title, { lower: true, strict: true });

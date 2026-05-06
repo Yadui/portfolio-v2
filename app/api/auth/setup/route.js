@@ -2,9 +2,14 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { sql, eq } from "drizzle-orm";
 import { users } from "@/lib/schema";
+import { isRequestFromAllowedAdminIp } from "@/lib/adminAccess";
 
-export async function GET() {
+export async function GET(req) {
   try {
+    if (!isRequestFromAllowedAdminIp(req.headers)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     // Create users table if not exists (SQLite syntax)
     await db.run(sql`
       CREATE TABLE IF NOT EXISTS users (

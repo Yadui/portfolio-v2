@@ -1,6 +1,6 @@
 import 'dotenv/config';
 
-export default {
+const config = {
   schema: './lib/schema.js',
   out: './drizzle',
   dialect: 'sqlite',
@@ -8,3 +8,5 @@ export default {
     url: process.env.TURSO_DATABASE_URL,
   },
 };
+
+export default config;

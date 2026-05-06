@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { FiHeart, FiBookmark, FiShare2, FiGithub, FiTwitter, FiLinkedin, FiLink, FiInfo, FiAlertCircle, FiCheckCircle } from "react-icons/fi";
 import Image from "next/image";
 import { verifyAuth } from "@/lib/auth";
+import { getSeededBlogPostBySlug, normalizeStoredPost } from "@/data/blogPosts";
 
 // Helper to generate IDs for headings
 function generateId(text) {
@@ -160,8 +161,18 @@ export const dynamic = 'force-dynamic';
 
 export default async function BlogPost({ params }) {
   const { slug } = await params;
-  
-  const post = await db.select().from(posts).where(eq(posts.slug, slug)).get();
+
+  let post = getSeededBlogPostBySlug(slug);
+
+  try {
+    const storedPost = await db.select().from(posts).where(eq(posts.slug, slug)).get();
+
+    if (storedPost) {
+      post = normalizeStoredPost(storedPost);
+    }
+  } catch (error) {
+    console.error("Failed to fetch blog post:", error);
+  }
 
   if (!post) {
     notFound();
@@ -269,7 +280,7 @@ export default async function BlogPost({ params }) {
                     </ReactMarkdown>
                 </article>
                 
-                {isAdmin && (
+                {isAdmin && post.sourceType === "database" && (
                   <div className="flex justify-end pt-10 border-t border-white/10">
                     <Link href={`/blog/edit/${post.id}`}>
                       <Button variant="outline" className="text-white border-white/20 hover:bg-white/10">

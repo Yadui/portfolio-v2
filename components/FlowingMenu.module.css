@@ -1,0 +1,209 @@
+.menuWrap {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.menuItem {
+  position: relative;
+  flex: 1;
+  min-height: 96px;
+  overflow: hidden;
+  border-top: 1px solid;
+}
+
+.menuItem:first-child {
+  border-top: none;
+}
+
+.menuItemLink {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.4rem clamp(1.25rem, 3vw, 3rem);
+  text-decoration: none;
+}
+
+.menuItemCopy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.55rem;
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+
+.menuItemEyebrow {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  opacity: 0.58;
+}
+
+.menuItemTitle {
+  font-size: clamp(1.5rem, 4vw, 3.8rem);
+  font-weight: 700;
+  letter-spacing: -0.06em;
+  line-height: 0.92;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.menuItemMeta {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 1rem;
+  text-transform: uppercase;
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+
+.menuItemContentHidden {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+.menuItem:hover .menuItemCopy,
+.menuItem:hover .menuItemMeta,
+.menuItem:focus-within .menuItemCopy,
+.menuItem:focus-within .menuItemMeta {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+.menuItemMetaText {
+  max-width: 28ch;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  opacity: 0.56;
+}
+
+.menuItemArrow {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  padding: 0.85rem 1.15rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+}
+
+.marquee {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transform: translate3d(0, 101%, 0);
+}
+
+.marqueeInnerWrap {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.marqueeInner {
+  display: flex;
+  align-items: center;
+  position: relative;
+  height: 100%;
+  width: fit-content;
+  will-change: transform;
+}
+
+.marqueePart {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.marqueeLabel {
+  white-space: nowrap;
+  font-size: clamp(1.2rem, 3.3vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  text-transform: uppercase;
+  padding: 0 1vw;
+}
+
+.marqueeImage,
+.marqueeFallback {
+  width: min(220px, 22vw);
+  height: clamp(52px, 7vh, 82px);
+  margin: 0 1.6vw;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.marqueeImage {
+  background-size: cover;
+  background-position: 50% 50%;
+  box-shadow: 0 18px 44px rgba(18, 15, 23, 0.18);
+}
+
+.marqueeFallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1rem;
+  background: linear-gradient(135deg, rgba(18, 15, 23, 0.1), rgba(0, 255, 153, 0.22));
+  border: 1px solid rgba(18, 15, 23, 0.1);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 900px) {
+  .menuItemLink {
+    padding: 1.2rem 1.1rem;
+    gap: 1rem;
+  }
+
+  .menuItemTitle {
+    white-space: normal;
+  }
+
+  .menuItemMeta {
+    display: none;
+  }
+
+  .marqueeImage,
+  .marqueeFallback {
+    width: 150px;
+  }
+}
+
+@media (max-width: 640px) {
+  .menuItem {
+    min-height: 88px;
+  }
+
+  .menuItemEyebrow {
+    font-size: 0.6rem;
+  }
+
+  .marqueeLabel {
+    font-size: 1.05rem;
+  }
+
+  .marqueeImage,
+  .marqueeFallback {
+    width: 116px;
+    height: 48px;
+    margin: 0 3vw;
+  }
+}

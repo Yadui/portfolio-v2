@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 import { useScroll, useTransform } from "motion/react";
 
 const AnimatedPathText = ({
@@ -39,21 +39,27 @@ const AnimatedPathText = ({
   scrollTransformValues = [0, 100]
 }) => {
   const textPathRefs = useRef([])
+  const generatedId = useId().replace(/:/g, "-")
 
-  // naive id for the path. you should rather use yours :)
-  const id =
-    pathId || `animated-path-${Math.random().toString(36).substring(7)}`
+  const id = pathId || `animated-path-${generatedId}`
 
-  const { scrollYProgress } = useScroll({
-    ...(scrollContainer && { container: scrollContainer }),
-    offset: scrollOffset,
-  })
+  const { scrollYProgress } = useScroll(
+    animationType === "scroll"
+      ? {
+          ...(scrollContainer && { container: scrollContainer }),
+          offset: scrollOffset,
+        }
+      : undefined
+  )
 
   const t = useTransform(scrollYProgress, [0, 1], scrollTransformValues)
 
   useEffect(() => {
-    // Re-initialize scroll handler when container ref changes
-    const handleChange = (e) => {
+    if (animationType !== "scroll") {
+      return undefined
+    }
+
+    const handleChange = () => {
       textPathRefs.current.forEach((textPath) => {
         if (textPath) {
           textPath.setAttribute("startOffset", `${t.get()}%`)
@@ -61,12 +67,10 @@ const AnimatedPathText = ({
       })
     }
 
-    scrollYProgress.on("change", handleChange)
+    handleChange()
 
-    return () => {
-      scrollYProgress.clearListeners()
-    };
-  }, [scrollYProgress, t])
+    return scrollYProgress.on("change", handleChange)
+  }, [animationType, scrollYProgress, t])
 
   const animationProps =
     animationType === "auto"

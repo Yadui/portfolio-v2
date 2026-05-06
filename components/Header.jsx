@@ -1,29 +1,64 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import {
-  AppleHelloEnglishEffect,
-  AppleHelloVietnameseEffect,
-} from "@/components/ui/shadcn-io/apple-hello-effect";
 import AnimatedPathText from "@/components/fancy/text/text-along-path";
+import ScrambledText from "@/components/ScrambledText";
+import FaultyTerminal from "@/components/FaultyTerminal";
 
-gsap.registerPlugin(ScrollTrigger);
+const createCapsuleRingGeometry = (pillWidth, pillHeight, gap, textPadding) => {
+  const ringWidth = Math.max(pillWidth + gap * 2, 1);
+  const ringHeight = Math.max(pillHeight + gap * 2, 1);
+  const radius = ringHeight / 2;
+  const inset = Math.max(textPadding, 0);
+  const width = ringWidth + inset * 2;
+  const height = ringHeight + inset * 2;
+  const path = [
+    `M ${inset + radius} ${inset}`,
+    `H ${inset + ringWidth - radius}`,
+    `A ${radius} ${radius} 0 0 1 ${inset + ringWidth} ${inset + radius}`,
+    `V ${inset + ringHeight - radius}`,
+    `A ${radius} ${radius} 0 0 1 ${inset + ringWidth - radius} ${inset + ringHeight}`,
+    `H ${inset + radius}`,
+    `A ${radius} ${radius} 0 0 1 ${inset} ${inset + ringHeight - radius}`,
+    `V ${inset + radius}`,
+    `A ${radius} ${radius} 0 0 1 ${inset + radius} ${inset}`,
+    "Z",
+  ].join(" ");
 
-const Header = () => {
+  return {
+    path,
+    viewBox: `0 0 ${width} ${height}`,
+    style: {
+      width: `${width}px`,
+      height: `${height}px`,
+      left: `${-(gap + inset)}px`,
+      top: `${-(gap + inset)}px`,
+    },
+  };
+};
+
+const Header = ({ projectsSectionRef, projectsSurfaceRef, disableScrollTransition = false }) => {
   const containerRef = useRef(null);
+  const heroStageRef = useRef(null);
+  const pillShellRef = useRef(null);
   const pillRef = useRef(null);
+  const pillContentRef = useRef(null);
   const nameRef = useRef(null);
-  const textPathRef = useRef(null);
+  const ringRef = useRef(null);
+  const navRailRef = useRef(null);
+  const sunriseRef = useRef(null);
+  const sunriseGlowRef = useRef(null);
+  const whiteWashRef = useRef(null);
+  const transitionStartedRef = useRef(false);
 
-  // State to track sequence progress
   const [stage, setStage] = useState(0);
-  // 0: Init, 1: Pill, 2: Hello, 3: Name, 4: Ring
   const [helloComplete, setHelloComplete] = useState(false);
-  const [greetingIndex, setGreetingIndex] = useState(0); // 0: English, 1: Vietnamese
+  const [ringGeometry, setRingGeometry] = useState(() =>
+    createCapsuleRingGeometry(400, 160, 72, 40)
+  );
 
   const navItems = [
     { label: "Projects", href: "#projects" },
@@ -32,12 +67,10 @@ const Header = () => {
   ];
 
   const nameText = "I'm Abhinav";
-  // Repeat for full path coverage - 8x for dual textPath seamless loop
   const ringTextBase =
     "Cloud Architect · AI Solutions · Data Engineering · UI/UX · Platform Engineering · Automation · DevOps · Cloud Security · Product Systems · Integrations · Scalable APIs ·";
   const ringText = ringTextBase.repeat(1);
 
-  // Initial pill animation - fade in only, no scale (preserves pill shape)
   useGSAP(
     () => {
       gsap.fromTo(
@@ -55,10 +88,380 @@ const Header = () => {
     { scope: containerRef }
   );
 
-  // Animation AFTER hello animation completes
   useGSAP(
     () => {
-      if (!helloComplete) return;
+      if (!pillRef.current || !navRailRef.current) return undefined;
+
+      const alignNavRail = () => {
+        gsap.set(navRailRef.current, { y: 0 });
+
+        const pillRect = pillRef.current.getBoundingClientRect();
+        const navRect = navRailRef.current.getBoundingClientRect();
+        const pillCenter = pillRect.top + pillRect.height / 2;
+        const navCenter = navRect.top + navRect.height / 2;
+
+        gsap.set(navRailRef.current, { y: pillCenter - navCenter });
+      };
+
+      alignNavRail();
+      window.addEventListener("resize", alignNavRail);
+      ScrollTrigger.addEventListener("refreshInit", alignNavRail);
+
+      return () => {
+        window.removeEventListener("resize", alignNavRail);
+        ScrollTrigger.removeEventListener("refreshInit", alignNavRail);
+      };
+    },
+    { scope: containerRef }
+  );
+
+  useGSAP(
+    () => {
+      if (!pillRef.current) {
+        return undefined;
+      }
+
+      const updateRingGeometry = () => {
+        const rect = pillRef.current.getBoundingClientRect();
+        const gap = window.innerWidth < 768 ? 56 : 72;
+        const textPadding = window.innerWidth < 768 ? 24 : 40;
+        const next = createCapsuleRingGeometry(
+          rect.width,
+          rect.height,
+          gap,
+          textPadding
+        );
+
+        setRingGeometry((current) => {
+          if (
+            current.path === next.path &&
+            current.viewBox === next.viewBox &&
+            current.style.width === next.style.width &&
+            current.style.height === next.style.height &&
+            current.style.left === next.style.left &&
+            current.style.top === next.style.top
+          ) {
+            return current;
+          }
+
+          return next;
+        });
+      };
+
+      updateRingGeometry();
+      const observer = new ResizeObserver(() => {
+        updateRingGeometry();
+      });
+      observer.observe(pillRef.current);
+      window.addEventListener("resize", updateRingGeometry);
+
+      return () => {
+        observer.disconnect();
+        window.removeEventListener("resize", updateRingGeometry);
+      };
+    },
+    { scope: containerRef }
+  );
+
+  useGSAP(
+    () => {
+      if (disableScrollTransition) {
+        return undefined;
+      }
+
+      let frameId;
+      let activeTimeline;
+      let removeListeners;
+      let unlockScroll;
+      let forceFinalizeTimeoutId;
+
+      const setup = () => {
+        if (
+          !containerRef.current ||
+          !pillShellRef.current ||
+          !pillRef.current ||
+          !projectsSectionRef?.current ||
+          !projectsSurfaceRef?.current ||
+          !sunriseRef.current ||
+          !sunriseGlowRef.current ||
+          !whiteWashRef.current
+        ) {
+          frameId = window.requestAnimationFrame(setup);
+          return;
+        }
+
+        const projectsSurface = projectsSurfaceRef.current;
+        const projectsSection = projectsSectionRef.current;
+
+        gsap.set(projectsSurface, { autoAlpha: 0, y: 88 });
+        gsap.set(sunriseRef.current, {
+          autoAlpha: 0,
+          scale: 1,
+          yPercent: 46,
+          transformOrigin: "center bottom",
+        });
+        gsap.set(sunriseGlowRef.current, {
+          autoAlpha: 0,
+          scaleY: 0,
+          transformOrigin: "center bottom",
+        });
+        gsap.set(whiteWashRef.current, { autoAlpha: 0 });
+
+        const getDropDistance = () => {
+          const heroHeight = containerRef.current.offsetHeight;
+          const pillRect = pillShellRef.current.getBoundingClientRect();
+          const dropMargin = window.innerWidth < 768 ? 28 : 40;
+
+          return heroHeight / 2 - pillRect.height / 2 - dropMargin;
+        };
+
+        const lockScroll = () => {
+          const html = document.documentElement;
+          const body = document.body;
+          const prevHtmlOverflow = html.style.overflow;
+          const prevBodyOverflow = body.style.overflow;
+
+          html.style.overflow = "hidden";
+          body.style.overflow = "hidden";
+
+          return () => {
+            html.style.overflow = prevHtmlOverflow;
+            body.style.overflow = prevBodyOverflow;
+          };
+        };
+
+        const playTransition = () => {
+          if (transitionStartedRef.current) return;
+
+          transitionStartedRef.current = true;
+          window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+          unlockScroll = lockScroll();
+
+          const resetHeroVisualState = () => {
+            gsap.set(containerRef.current, { autoAlpha: 1 });
+            gsap.set(whiteWashRef.current, { autoAlpha: 0 });
+            gsap.set(sunriseRef.current, {
+              autoAlpha: 0,
+              scale: 1,
+              yPercent: 46,
+            });
+            gsap.set(sunriseGlowRef.current, {
+              autoAlpha: 0,
+              scaleY: 0,
+            });
+            gsap.set(heroStageRef.current, { autoAlpha: 1 });
+            gsap.set(pillShellRef.current, { autoAlpha: 1, y: 0 });
+            gsap.set(pillRef.current, {
+              autoAlpha: 1,
+              width: "",
+              minWidth: "",
+              height: "",
+              paddingLeft: "",
+              paddingRight: "",
+              borderRadius: "",
+              rotation: 0,
+              scaleX: 1,
+              scaleY: 1,
+              boxShadow: "",
+            });
+            gsap.set([pillContentRef.current, ringRef.current, navRailRef.current], {
+              autoAlpha: 1,
+              y: 0,
+            });
+          };
+
+          let finalized = false;
+          const finalizeTransition = () => {
+            if (finalized) return;
+            finalized = true;
+
+            if (forceFinalizeTimeoutId) {
+              window.clearTimeout(forceFinalizeTimeoutId);
+              forceFinalizeTimeoutId = null;
+            }
+
+            unlockScroll?.();
+            unlockScroll = null;
+            resetHeroVisualState();
+          };
+
+          activeTimeline = gsap.timeline({
+            onComplete: finalizeTransition,
+            onInterrupt: finalizeTransition,
+          });
+
+          forceFinalizeTimeoutId = window.setTimeout(finalizeTransition, 5200);
+
+          const jumpToProjects = () => {
+            if (projectsSection) {
+              window.scrollTo({ top: projectsSection.offsetTop, left: 0, behavior: "auto" });
+            }
+          };
+
+          activeTimeline
+            .to(
+              [pillContentRef.current, ringRef.current, navRailRef.current],
+              {
+                autoAlpha: 0,
+                y: -18,
+                duration: 0.34,
+                ease: "power2.out",
+              },
+              0
+            )
+            .to(
+              pillRef.current,
+              {
+                width: () => (window.innerWidth < 768 ? 72 : 86),
+                minWidth: () => (window.innerWidth < 768 ? 72 : 86),
+                height: () => (window.innerWidth < 768 ? 72 : 86),
+                paddingLeft: 0,
+                paddingRight: 0,
+                borderRadius: "9999px",
+                rotation: 0,
+                boxShadow: "0 26px 70px rgba(255,255,255,0.24)",
+                duration: 0.48,
+                ease: "power2.inOut",
+              },
+              0.18
+            )
+            .to(
+              pillShellRef.current,
+              {
+                y: () => getDropDistance(),
+                duration: 1.06,
+                ease: "power2.in",
+              },
+              0.34
+            )
+            .to(
+              pillRef.current,
+              {
+                scaleX: 1.2,
+                scaleY: 0.72,
+                transformOrigin: "center bottom",
+                duration: 0.07,
+                ease: "power1.in",
+                overwrite: "auto",
+              },
+              1.4
+            )
+            .to(
+              [pillRef.current, pillShellRef.current],
+              {
+                autoAlpha: 0,
+                duration: 0.04,
+                ease: "none",
+                overwrite: "auto",
+              },
+              1.47
+            )
+            .to(
+              sunriseRef.current,
+              {
+                autoAlpha: 1,
+                yPercent: -12,
+                duration: 1.34,
+                ease: "power2.inOut",
+              },
+              1.6
+            )
+            .to(
+              heroStageRef.current,
+              {
+                autoAlpha: 0,
+                duration: 0.28,
+                ease: "power2.out",
+              },
+              3.04
+            )
+            .add(jumpToProjects, 3.22)
+            .to(
+              projectsSurface,
+              {
+                autoAlpha: 1,
+                y: 0,
+                duration: 0.56,
+                ease: "power2.out",
+              },
+              3.24
+            )
+            .to(
+              whiteWashRef.current,
+              {
+                autoAlpha: 0,
+                duration: 0.58,
+                ease: "power1.out",
+              },
+              3.28
+            );
+        };
+
+        let touchStartY = 0;
+
+        const onWheel = (event) => {
+          if (transitionStartedRef.current || event.deltaY <= 0) return;
+          event.preventDefault();
+          playTransition();
+        };
+
+        const onTouchStart = (event) => {
+          touchStartY = event.touches[0]?.clientY ?? 0;
+        };
+
+        const onTouchMove = (event) => {
+          if (transitionStartedRef.current) return;
+
+          const currentY = event.touches[0]?.clientY ?? touchStartY;
+          if (touchStartY - currentY > 10) {
+            event.preventDefault();
+            playTransition();
+          }
+        };
+
+        const onKeyDown = (event) => {
+          if (transitionStartedRef.current) return;
+
+          if (["ArrowDown", "PageDown", "Space"].includes(event.code)) {
+            event.preventDefault();
+            playTransition();
+          }
+        };
+
+        window.addEventListener("wheel", onWheel, { passive: false });
+        window.addEventListener("touchstart", onTouchStart, { passive: true });
+        window.addEventListener("touchmove", onTouchMove, { passive: false });
+        window.addEventListener("keydown", onKeyDown);
+
+        removeListeners = () => {
+          window.removeEventListener("wheel", onWheel);
+          window.removeEventListener("touchstart", onTouchStart);
+          window.removeEventListener("touchmove", onTouchMove);
+          window.removeEventListener("keydown", onKeyDown);
+        };
+      };
+
+      setup();
+
+      return () => {
+        if (frameId) {
+          window.cancelAnimationFrame(frameId);
+        }
+
+        removeListeners?.();
+        unlockScroll?.();
+        if (forceFinalizeTimeoutId) {
+          window.clearTimeout(forceFinalizeTimeoutId);
+        }
+        activeTimeline?.kill();
+      };
+    },
+    { scope: containerRef, dependencies: [disableScrollTransition] }
+  );
+
+  useGSAP(
+    () => {
+      if (!helloComplete) return undefined;
 
       const tl = gsap.timeline({
         onComplete: () => {
@@ -66,7 +469,6 @@ const Header = () => {
         },
       });
 
-      // Name container expands + letters enter
       tl.to(nameRef.current, {
         width: "auto",
         opacity: 1,
@@ -75,23 +477,11 @@ const Header = () => {
         onStart: () => setStage(3),
       })
         .fromTo(
-          ".char",
-          { x: 15, opacity: 0 },
-          {
-            x: 0,
-            opacity: 1,
-            stagger: 0.025,
-            duration: 0.35,
-            ease: "power2.out",
-          },
-          "-=0.3"
-        )
-        .fromTo(
-          "#header-pill-ring",
+          ringRef.current,
           { opacity: 0 },
-          { opacity: 1, duration: 0.8, ease: "power2.out" }
+          { opacity: 1, duration: 0.8, ease: "power2.out" },
+          "-=0.1"
         )
-        // Nav Links reveal (Curtain from top to bottom)
         .to(
           ".nav-curtain",
           {
@@ -102,156 +492,156 @@ const Header = () => {
           },
           "-=0.8"
         );
+
+      return () => {
+        tl.kill();
+      };
     },
     { scope: containerRef, dependencies: [helloComplete] }
   );
 
-  // Callback when hello animation finishes
   const handleHelloComplete = () => {
-    // First ever completion triggers the rest of the intro
     if (!helloComplete) {
       setHelloComplete(true);
     }
-
-    // Cycle to next language after a short pause
-    setTimeout(() => {
-      setGreetingIndex((prev) => (prev === 0 ? 1 : 0));
-    }, 2000);
   };
 
   return (
     <div
       ref={containerRef}
-      className="h-screen w-full bg-black relative overflow-hidden flex items-center justify-center"
+      className="relative z-20 flex h-screen w-full items-center justify-center overflow-hidden bg-black"
     >
-      {/* --- CENTRAL STAGE --- */}
-      <div className="relative transform-gpu">
-        {/* Animated Pill Container */}
-        <div
-          ref={pillRef}
-          className="pill-container relative bg-white text-black h-[120px] md:h-[160px] min-w-[280px] md:min-w-[400px] rounded-full flex items-center justify-center overflow-hidden z-20 origin-center opacity-0 shadow-2xl px-10 md:px-16"
-        >
-          {/* Content container - flexbox for side-by-side layout */}
-          <div className="flex items-center justify-center gap-3 md:gap-5">
-            {/* Greeting Area - Cycled infinitely with AnimatePresence */}
-            <div className="hello-container flex-shrink-0 min-h-[40px] md:min-h-[56px] min-w-[100px] md:min-w-[140px] flex items-center justify-center">
-              {stage >= 2 && (
-                <AnimatePresence mode="wait">
-                  {/* {greetingIndex === 0 ? ( */}
-                    <motion.div
-                      key="en"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 1 }}
-                    >
-                      <AppleHelloEnglishEffect
-                        className="h-10 md:h-14 text-black"
-                        speed={0.8}
-                        onAnimationComplete={handleHelloComplete}
-                      />
-                    </motion.div>
-                  {/* // ) : (
-                  //   <motion.div
-                  //     key="vi"
-                  //     initial={{ opacity: 0 }}
-                  //     animate={{ opacity: 1 }}
-                  //     exit={{ opacity: 0 }}
-                  //     transition={{ duration: 1 }}
-                  //   >
-                  //     <AppleHelloVietnameseEffect
-                  //       className="h-10 md:h-14 text-black"
-                  //       speed={0.}
-                  //       onAnimationComplete={handleHelloComplete}
-                  //     />
-                  //   </motion.div> */}
-                </AnimatePresence>
-              )}
-            </div>
+      <div className="absolute inset-0 z-0">
+        <FaultyTerminal
+          className="h-full w-full"
+          scale={1.5}
+          gridMul={[2, 1]}
+          digitSize={1.2}
+          timeScale={0.5}
+          pause={false}
+          dpr={1}
+          scanlineIntensity={0.5}
+          glitchAmount={1}
+          flickerAmount={1}
+          noiseAmp={1}
+          chromaticAberration={0}
+          dither={0}
+          curvature={0.1}
+          tint="#A7EF9E"
+          mouseReact
+          mouseStrength={0.5}
+          pageLoadAnimation
+          brightness={0.6}
+        />
+      </div>
+      <div className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(circle_at_top,rgba(167,239,158,0.08),transparent_36%),linear-gradient(180deg,rgba(0,0,0,0.08)_0%,rgba(0,0,0,0.45)_100%)]" />
+      <div
+        ref={sunriseGlowRef}
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-[42vh] bg-gradient-to-t from-white via-white/90 to-transparent opacity-0"
+      />
+      <div
+        ref={sunriseRef}
+        className="pointer-events-none absolute bottom-[-72vw] left-1/2 z-20 h-[150vw] w-[150vw] -translate-x-1/2 rounded-full bg-white opacity-0"
+      />
+      <div
+        ref={whiteWashRef}
+        className="pointer-events-none absolute inset-0 z-30 bg-white opacity-0"
+      />
 
-            {/* "I'm Abhinav" text - hidden initially, enters from right */}
+      <div ref={heroStageRef} className="relative z-10 px-10 py-10 transform-gpu md:px-14 md:py-14">
+        <div
+          ref={pillShellRef}
+          className="relative transform-gpu will-change-transform"
+        >
+          <div
+            ref={pillRef}
+            className="pill-container relative z-20 flex h-[120px] min-w-[280px] items-center justify-center overflow-hidden rounded-full border border-white/12 bg-black px-10 text-white opacity-0 shadow-[0_32px_120px_rgba(0,0,0,0.72)] origin-center md:h-[160px] md:min-w-[400px] md:px-16"
+          >
             <div
-              ref={nameRef}
-              className="name-container flex items-center opacity-0"
-              style={{ width: 0, overflow: "hidden" }}
+              ref={pillContentRef}
+              className="flex items-center justify-center gap-3 md:gap-5"
             >
-              <h1 className="text-2xl md:text-4xl font-bold tracking-tight text-black flex items-center whitespace-nowrap">
-                {nameText.split("").map((char, i) => (
-                  <span
-                    key={i}
-                    className="char inline-block"
-                    style={{ minWidth: char === " " ? "0.2em" : "auto" }}
-                  >
-                    {char}
-                  </span>
-                ))}
-              </h1>
+              <div className="hello-container flex min-h-[40px] min-w-[100px] flex-shrink-0 items-center justify-center md:min-h-[56px] md:min-w-[140px]">
+                {stage >= 2 && (
+                  <ScrambledText
+                    as="span"
+                    text="Hello"
+                    active={stage >= 2}
+                    duration={0.95}
+                    speed={0.8}
+                    onComplete={handleHelloComplete}
+                    className="font-primary inline-flex items-center whitespace-nowrap text-[1.1rem] font-medium tracking-[0.08em] text-white md:text-[1.55rem]"
+                  />
+                )}
+              </div>
+
+              <div
+                ref={nameRef}
+                className="name-container flex items-center opacity-0"
+                style={{ width: 0, overflow: "hidden" }}
+              >
+                <ScrambledText
+                  as="h1"
+                  text={nameText}
+                  active={stage >= 3}
+                  duration={1.1}
+                  speed={0.75}
+                  className="font-primary flex items-center whitespace-nowrap text-[1.55rem] font-semibold tracking-[0.08em] text-white md:text-[2.35rem] lg:text-[2.7rem]"
+                />
+              </div>
             </div>
           </div>
-        </div>
 
-        <div
-          id="header-pill-ring"
-          className="absolute inset-[-80px] pointer-events-none opacity-0 z-10"
-        >
-          <AnimatedPathText
-            path="M 170, 30 L 590, 30 A 140,140 0 0 1 590, 310 L 170, 310 A 140,140 0 0 1 170, 30 Z"
-            viewBox="0 0 760 340"
-            text={ringText}
-            textClassName="text-[14px] font-semibold tracking-[0.12em] uppercase"
-            duration={25}
-            svgClassName="w-full h-full text-white/40"
-            preserveAspectRatio="xMidYMid meet"
-            textAnchor="start"
-          />
+          <div
+            ref={ringRef}
+            id="header-pill-ring"
+            className="pointer-events-none absolute z-10 origin-center scale-[0.88] opacity-0 sm:scale-[0.93] md:scale-100"
+            style={ringGeometry.style}
+          >
+            <AnimatedPathText
+              path={ringGeometry.path}
+              viewBox={ringGeometry.viewBox}
+              text={ringText}
+              textClassName="text-[11px] font-semibold tracking-[0.12em] uppercase sm:text-[12px] md:text-[14px]"
+              duration={25}
+              svgClassName="h-full w-full overflow-visible text-white"
+              preserveAspectRatio="xMidYMid meet"
+              textAnchor="start"
+            />
+          </div>
         </div>
       </div>
 
-      {/* --- NAV LINKS (Right Side) --- */}
-      <div className="fixed right-12 top-1/2 -translate-y-1/2 flex flex-col items-end gap-6 z-50 mix-blend-difference text-white">
-        {navItems.map((item, index) => (
-          <ScrollMaskLink key={index} label={item.label} href={item.href} />
-        ))}
+      <div
+        ref={navRailRef}
+        className="absolute right-6 top-1/2 z-20 hidden -translate-y-1/2 flex-col items-end gap-6 text-white/88 will-change-transform md:flex md:right-12"
+      >
+        <div className="rounded-[1.9rem] border border-white/14 bg-black/88 px-6 py-6 shadow-[0_24px_70px_rgba(0,0,0,0.45)] backdrop-blur-sm">
+          <div className="flex flex-col items-end gap-5">
+            {navItems.map((item) => (
+              <ScrollMaskLink key={item.label} label={item.label} href={item.href} />
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
 };
 
-// Component for Link with Scroll-Curtain Effect
 const ScrollMaskLink = ({ label, href }) => {
   const linkRef = useRef(null);
   const curtainRef = useRef(null);
-
-  useGSAP(
-    () => {
-      ScrollTrigger.create({
-        trigger: document.body,
-        start: "top top",
-        end: "500px top",
-        scrub: true,
-        onUpdate: (self) => {
-          if (curtainRef.current) {
-            gsap.set(curtainRef.current, {
-              scaleY: self.progress,
-              transformOrigin: "bottom",
-            });
-          }
-        },
-      });
-    },
-    { scope: linkRef }
-  );
 
   return (
     <a
       ref={linkRef}
       href={href}
-      className="relative block text-lg font-light tracking-wide hover:text-white/80 transition-colors overflow-hidden group"
+      className="group relative block overflow-hidden text-lg font-light tracking-wide transition-colors hover:text-white/80"
     >
-      <span className="block relative z-10">{label}</span>
+      <span className="relative z-10 block">{label}</span>
       <div
         ref={curtainRef}
-        className="nav-curtain absolute inset-0 bg-black z-20 scale-y-100 origin-bottom"
+        className="nav-curtain absolute inset-0 z-20 origin-bottom scale-y-100 bg-black"
       />
     </a>
   );
