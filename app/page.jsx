@@ -10,7 +10,6 @@ import Achievements from "@/components/Achievements";
 import Contact from "@/components/Contact";
 import Timeline from "@/components/Timeline";
 import Skills from "@/components/Skills";
-import ImageRailShowcase from "@/components/ImageRailShowcase";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -39,47 +38,6 @@ const Home = () => {
           projectsSectionRef={projectsSectionRef}
           projectsSurfaceRef={projectsSurfaceRef}
         />
-      ),
-    },
-    {
-      key: "monitor",
-      node: (
-        <section
-          id="monitor"
-          className="relative flex min-h-screen w-full items-center bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.18),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(249,115,22,0.22),transparent_22%),linear-gradient(180deg,#050816_0%,#0f172a_100%)] px-6 py-16 text-white md:px-10"
-        >
-          <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col justify-center gap-8 py-6 md:gap-10">
-            <div className="max-w-3xl">
-              <p className="text-xs font-semibold uppercase tracking-[0.32em] text-white/45">
-                Monitor
-              </p>
-              <h2 className="mt-3 text-4xl font-semibold tracking-tight md:text-6xl">
-                The live showcase now sits inside the portfolio.
-              </h2>
-              <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/68 md:text-base">
-                The rail is embedded here as part of the main site instead of only living on its isolated showcase route.
-              </p>
-            </div>
-
-            <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[rgba(8,12,20,0.78)] p-3 shadow-[0_28px_120px_rgba(0,0,0,0.48)] backdrop-blur-sm md:p-4">
-              <div className="mb-3 flex items-center gap-2 px-2 text-white/45 md:mb-4">
-                <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
-                <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
-                <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
-                <span className="ml-3 text-[11px] font-medium uppercase tracking-[0.28em] text-white/38">
-                  Portfolio Monitor
-                </span>
-              </div>
-
-              <div className="h-[56vh] min-h-[360px] overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#f8f4eb]">
-                <ImageRailShowcase
-                  enableWheel={false}
-                  title="Portfolio monitor showcase"
-                />
-              </div>
-            </div>
-          </div>
-        </section>
       ),
     },
     { key: "achievements", node: <Achievements /> },
