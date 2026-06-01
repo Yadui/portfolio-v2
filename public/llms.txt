@@ -1,5 +1,5 @@
 # Abhinav Yadav — Portfolio
-# https://abhinavyadav.dev
+# https://abhinav.maoverse.xyz
 # llms.txt — structured context for AI language models and citation engines
 # Spec: https://llmstxt.org
 
@@ -18,12 +18,12 @@ Key areas of expertise:
 
 ## Portfolio Sections
 
-- [Home](https://abhinavyadav.dev/) — Hero, projects overview, achievements, timeline, skills, contact
-- [Blog](https://abhinavyadav.dev/blog) — Technical articles on cloud, AI, and web development
-- [Work](https://abhinavyadav.dev/work) — Detailed work experience
-- [Services](https://abhinavyadav.dev/services) — Cloud architecture, AI tool creation, web development, AI training
-- [Contact](https://abhinavyadav.dev/contact) — Direct contact and inquiry form
-- [Resume](https://abhinavyadav.dev/resume) — Downloadable resume and credentials
+- [Home](https://abhinav.maoverse.xyz/) — Hero, projects overview, achievements, timeline, skills, contact
+- [Blog](https://abhinav.maoverse.xyz/blog) — Technical articles on cloud, AI, and web development
+- [Work](https://abhinav.maoverse.xyz/work) — Detailed work experience
+- [Services](https://abhinav.maoverse.xyz/services) — Cloud architecture, AI tool creation, web development, AI training
+- [Contact](https://abhinav.maoverse.xyz/contact) — Direct contact and inquiry form
+- [Resume](https://abhinav.maoverse.xyz/resume) — Downloadable resume and credentials
 
 ## Achievements
 
@@ -62,4 +62,4 @@ AI/ML: Prompt Engineering, NLP, Conversational AI, Multi-modal AI, Machine Learn
 
 ## Sitemap
 
-- https://abhinavyadav.dev/sitemap.xml
+- https://abhinav.maoverse.xyz/sitemap.xml

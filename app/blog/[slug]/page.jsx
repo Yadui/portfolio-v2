@@ -11,6 +11,51 @@ import Image from "next/image";
 import { verifyAuth } from "@/lib/auth";
 import { getSeededBlogPostBySlug, normalizeStoredPost } from "@/data/blogPosts";
 
+const BASE_URL = "https://abhinav.maoverse.xyz";
+
+async function getPost(slug) {
+  let post = getSeededBlogPostBySlug(slug);
+  try {
+    const storedPost = await db.select().from(posts).where(eq(posts.slug, slug)).get();
+    if (storedPost) post = normalizeStoredPost(storedPost);
+  } catch {}
+  return post;
+}
+
+export async function generateMetadata({ params }) {
+  const { slug } = await params;
+  const post = await getPost(slug);
+
+  if (!post) return {};
+
+  const title = post.title;
+  const description = post.excerpt || post.content.replace(/[#*`>\[\]]/g, "").slice(0, 155).trim();
+  const url = `${BASE_URL}/blog/${slug}`;
+  const image = post.coverImage && !post.coverImage.startsWith("data:") ? post.coverImage : `${BASE_URL}/og-image.png`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: "article",
+      url,
+      title,
+      description,
+      images: [{ url: image, width: 1200, height: 630, alt: title }],
+      publishedTime: new Date(post.createdAt).toISOString(),
+      authors: ["Abhinav Yadav"],
+      tags: post.tags ? post.tags.split(",").map((t) => t.trim()) : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+    },
+  };
+}
+
 // Helper to generate IDs for headings
 function generateId(text) {
   return text
@@ -162,30 +207,41 @@ export const dynamic = 'force-dynamic';
 export default async function BlogPost({ params }) {
   const { slug } = await params;
 
-  let post = getSeededBlogPostBySlug(slug);
-
-  try {
-    const storedPost = await db.select().from(posts).where(eq(posts.slug, slug)).get();
-
-    if (storedPost) {
-      post = normalizeStoredPost(storedPost);
-    }
-  } catch (error) {
-    console.error("Failed to fetch blog post:", error);
-  }
+  const post = await getPost(slug);
 
   if (!post) {
     notFound();
   }
 
-  // Extract headings for TOC
-  // ...
-  
+  const postUrl = `${BASE_URL}/blog/${slug}`;
+  const postImage = post.coverImage && !post.coverImage.startsWith("data:") ? post.coverImage : `${BASE_URL}/og-image.png`;
+  const description = post.excerpt || post.content.replace(/[#*`>\[\]]/g, "").slice(0, 155).trim();
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description,
+    url: postUrl,
+    datePublished: new Date(post.createdAt).toISOString(),
+    dateModified: new Date(post.createdAt).toISOString(),
+    image: postImage,
+    author: {
+      "@type": "Person",
+      name: "Abhinav Yadav",
+      url: BASE_URL,
+    },
+    publisher: {
+      "@type": "Person",
+      name: "Abhinav Yadav",
+      url: BASE_URL,
+    },
+    mainEntityOfPage: { "@type": "WebPage", "@id": postUrl },
+    keywords: post.tags ? post.tags.split(",").map((t) => t.trim()).join(", ") : "",
+  };
+
   const user = await verifyAuth();
   const isAdmin = !!user;
-
-  // Extract headings for TOC
-  // ...
 
   // Extract headings for TOC
   const headings = [];
@@ -202,6 +258,11 @@ export default async function BlogPost({ params }) {
   });
 
   return (
+    <>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
     <div className="min-h-screen bg-primary pt-32 px-4 md:px-8 pb-20">
       <div className="container mx-auto max-w-[1400px]">
         
@@ -346,5 +407,6 @@ export default async function BlogPost({ params }) {
         </div>
       </div>
     </div>
+    </>
   );
 }

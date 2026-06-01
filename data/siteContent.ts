@@ -128,7 +128,7 @@ export const siteMeta: SiteMeta = {
   ],
   authorName: "Abhinav Yadav",
   creatorName: "Abhinav Yadav",
-  url: "https://abhinavyadav.dev",
+  url: "https://abhinav.maoverse.xyz",
   siteName: "Abhinav Yadav Portfolio",
   ogTitle: "Abhinav Yadav | Software Engineer & Creative Developer",
   ogDescription:

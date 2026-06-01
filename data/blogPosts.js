@@ -36,7 +36,7 @@ const createCoverImage = ({ eyebrow, lines, from, to, glow }) => {
       <rect x="88" y="88" width="1424" height="16" fill="url(#accent)" />
       <text x="88" y="176" fill="rgba(248,250,252,0.72)" font-family="JetBrains Mono, Arial, sans-serif" font-size="28" font-weight="700" letter-spacing="6">${escapeXml(eyebrow.toUpperCase())}</text>
       ${lineMarkup}
-      <text x="88" y="770" fill="rgba(248,250,252,0.52)" font-family="JetBrains Mono, Arial, sans-serif" font-size="26" letter-spacing="3">abhinavyadav.dev / blog</text>
+      <text x="88" y="770" fill="rgba(248,250,252,0.52)" font-family="JetBrains Mono, Arial, sans-serif" font-size="26" letter-spacing="3">abhinav.maoverse.xyz / blog</text>
     </svg>
   `;
 

@@ -1,5 +1,5 @@
 # robots.txt — Abhinav Yadav Portfolio
-# https://abhinavyadav.dev
+# https://abhinav.maoverse.xyz
 
 User-agent: *
 Allow: /
@@ -13,7 +13,7 @@ Disallow: /_next/
 Allow: /api/og
 
 # Sitemap
-Sitemap: https://abhinavyadav.dev/sitemap.xml
+Sitemap: https://abhinav.maoverse.xyz/sitemap.xml
 
 # LLMs / AI crawlers
 User-agent: GPTBot

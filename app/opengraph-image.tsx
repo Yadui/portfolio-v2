@@ -74,7 +74,7 @@ export default function Image() {
               textTransform: "uppercase",
             }}
           >
-            abhinavyadav.dev
+            abhinav.maoverse.xyz
           </span>
         </div>
 

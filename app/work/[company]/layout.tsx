@@ -9,12 +9,12 @@ export async function generateMetadata({ params }) {
     title: `${work.company} — ${work.position}`,
     description: work.summary,
     alternates: {
-      canonical: `https://abhinavyadav.dev/work/${params.company}`,
+      canonical: `https://abhinav.maoverse.xyz/work/${params.company}`,
     },
     openGraph: {
       title: `${work.company} | Abhinav Yadav`,
       description: work.summary,
-      url: `https://abhinavyadav.dev/work/${params.company}`,
+      url: `https://abhinav.maoverse.xyz/work/${params.company}`,
     },
   };
 }

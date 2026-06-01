@@ -3,13 +3,13 @@ export const metadata = {
   description:
     "Explore projects by Abhinav Yadav — cloud tools, AI applications, full-stack web apps, and creative engineering work.",
   alternates: {
-    canonical: "https://abhinavyadav.dev/work",
+    canonical: "https://abhinav.maoverse.xyz/work",
   },
   openGraph: {
     title: "Projects | Abhinav Yadav",
     description:
       "Cloud, AI, and web development projects by Abhinav Yadav.",
-    url: "https://abhinavyadav.dev/work",
+    url: "https://abhinav.maoverse.xyz/work",
   },
 };
 

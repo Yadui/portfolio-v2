@@ -13,6 +13,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata = {
+  metadataBase: new URL("https://abhinav.maoverse.xyz"),
   title: {
     default: "Abhinav · · · Yadav",
     template: "%s | Abhinav Yadav",
@@ -35,7 +36,7 @@ export const metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://abhinavyadav.dev",
+    url: "https://abhinav.maoverse.xyz",
     siteName: "Abhinav Yadav Portfolio",
     title: "Abhinav Yadav | Software Engineer & Creative Developer",
     description:

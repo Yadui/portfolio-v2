@@ -9,6 +9,18 @@ import DeleteButton from "@/components/DeleteButton";
 import LogoutButton from "@/components/LogoutButton";
 import { mergeBlogPosts } from "@/data/blogPosts";
 
+export const metadata = {
+  title: "Blog",
+  description: "Articles on full-stack development, AI, system design, and building software — by Abhinav Yadav.",
+  alternates: { canonical: "https://abhinav.maoverse.xyz/blog" },
+  openGraph: {
+    type: "website",
+    url: "https://abhinav.maoverse.xyz/blog",
+    title: "Blog | Abhinav Yadav",
+    description: "Articles on full-stack development, AI, system design, and building software — by Abhinav Yadav.",
+  },
+};
+
 export const dynamic = 'force-dynamic';
 
 export default async function BlogList() {
