@@ -1,8 +1,12 @@
 import { MetadataRoute } from "next";
+import { db } from "@/lib/db";
+import { posts } from "@/lib/schema";
+import { desc } from "drizzle-orm";
+import { seededBlogPosts } from "@/data/blogPosts";
 
-const BASE_URL = "https://abhinavyadav.dev";
+const BASE_URL = "https://abhinav.maoverse.xyz";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
   // Static pages
@@ -48,5 +52,26 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }));
 
-  return [...staticRoutes, ...workRoutes];
+  // Blog post pages — fetch from DB, fall back to seeded slugs
+  let blogSlugs: { slug: string; createdAt: Date | number }[] = seededBlogPosts.map(
+    (p: { slug: string; createdAt: string }) => ({ slug: p.slug, createdAt: new Date(p.createdAt) })
+  );
+  try {
+    const dbPosts = await (db as any).select({ slug: posts.slug, createdAt: posts.createdAt }).from(posts).orderBy(desc(posts.createdAt));
+    if (dbPosts.length > 0) {
+      // Merge: DB posts override seeded ones, then append any seeded not in DB
+      const dbSlugsSet = new Set(dbPosts.map((p) => p.slug));
+      const seededOnly = blogSlugs.filter((p) => !dbSlugsSet.has(p.slug));
+      blogSlugs = [...dbPosts, ...seededOnly];
+    }
+  } catch {}
+
+  const blogRoutes: MetadataRoute.Sitemap = blogSlugs.map(({ slug, createdAt }) => ({
+    url: `${BASE_URL}/blog/${slug}`,
+    lastModified: createdAt instanceof Date ? createdAt : new Date(createdAt),
+    changeFrequency: "yearly" as const,
+    priority: 0.6,
+  }));
+
+  return [...staticRoutes, ...workRoutes, ...blogRoutes];
 }
