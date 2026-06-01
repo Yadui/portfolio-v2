@@ -1,0 +1,65 @@
+# Abhinav Yadav — Portfolio
+# https://abhinavyadav.dev
+# llms.txt — structured context for AI language models and citation engines
+# Spec: https://llmstxt.org
+
+> Abhinav Yadav is a Software Engineer and Cloud & AI Engineer based in Gurgaon, India. He specialises in Azure cloud architecture, AI pipelines, full-stack web development (React, Next.js, Node.js), and creative frontend engineering. He has won multiple national and international hackathons including Microsoft and Smart India Hackathon.
+
+## About
+
+Abhinav Yadav is a passionate Software Engineer with expertise spanning cloud infrastructure, artificial intelligence, and modern web development. He currently works as a Cloud and AI Engineer at Foetron, where he architects Azure infrastructure, builds AI pipelines, and leads hybrid-cloud deployments. He also works as a Prompt Engineer for Outlier on the Google Genesis project (VTT, ATT, ITT).
+
+Key areas of expertise:
+- **Cloud Architecture**: Microsoft Azure, hybrid-cloud deployments, Azure OpenAI, Azure Cognitive Services
+- **AI Engineering**: AI pipeline design, prompt engineering, multi-modal AI, NLP, conversational AI
+- **Full-Stack Web Development**: React, Next.js, Node.js, TypeScript, TailwindCSS
+- **Data Engineering**: SQL Server, data pipelines, ETL processes
+- **DevOps & Security**: Sophos Firewall, cloud security, CI/CD
+
+## Portfolio Sections
+
+- [Home](https://abhinavyadav.dev/) — Hero, projects overview, achievements, timeline, skills, contact
+- [Blog](https://abhinavyadav.dev/blog) — Technical articles on cloud, AI, and web development
+- [Work](https://abhinavyadav.dev/work) — Detailed work experience
+- [Services](https://abhinavyadav.dev/services) — Cloud architecture, AI tool creation, web development, AI training
+- [Contact](https://abhinavyadav.dev/contact) — Direct contact and inquiry form
+- [Resume](https://abhinavyadav.dev/resume) — Downloadable resume and credentials
+
+## Achievements
+
+- **1st Place** — Midnight Summit Hackathon (2025), Midnight Foundation
+- **1st Place** — Microsoft Hackathon & Ideathon (2025), Microsoft
+- **2nd Place** — Smart India Hackathon (2023), IIT Bombay (National Competition)
+
+## Work Experience
+
+- **Cloud and AI Engineer** at Foetron (Sep 2024 – Present) — Full-Time
+- **Prompt Engineer** at Outlier (Jun 2024 – Present) — Freelance
+- **Frontend Developer** at Vm Coders (Jan 2024 – Jun 2024) — Internship
+
+## Education
+
+- **Computer Engineering**, JC Bose University YMCA (2020–2024)
+
+## Social Profiles
+
+- GitHub: https://github.com/Yadui
+- LinkedIn: https://www.linkedin.com/in/abhinavyadav88
+- Twitter/X: https://x.com/abhinav2302055
+
+## Contact
+
+- Email: abhinavyadav8@gmail.com
+- Location: Gurgaon, India
+
+## Technical Stack
+
+Languages: JavaScript, TypeScript, Python, SQL
+Frameworks: React, Next.js, Node.js, TailwindCSS
+Cloud: Microsoft Azure, Azure OpenAI, Azure Cognitive Services
+Tools: Figma, Git, Docker, Sophos Firewall
+AI/ML: Prompt Engineering, NLP, Conversational AI, Multi-modal AI, Machine Learning
+
+## Sitemap
+
+- https://abhinavyadav.dev/sitemap.xml

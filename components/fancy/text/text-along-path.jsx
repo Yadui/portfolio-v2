@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef } from "react";
-import { useScroll, useTransform } from "motion/react";
+import { useScroll, useTransform } from "framer-motion";
 
 const AnimatedPathText = ({
   // Path defaults

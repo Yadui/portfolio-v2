@@ -298,4 +298,50 @@ export const projects = [
       live: "",
     },
   },
+  {
+    id: 14,
+    title: "ConfidentialLottery",
+    category: "Hackathon",
+    workCategory: "AI",
+    thesis:
+      "Provably fair, privacy-preserving lottery on the Midnight blockchain using zero-knowledge proofs — built for MLH Hackathon.",
+    implemented: [
+      "Zero-knowledge proof circuit ensuring winner selection is fair and verifiable without revealing participant data.",
+      "Midnight blockchain smart contract (Compact) for lottery state management and prize disbursement.",
+      "React frontend for ticket purchase, proof submission, and winner reveal.",
+    ],
+    nonTrivial: [
+      "Fairness and privacy are in tension; the ZK circuit must guarantee both hold simultaneously.",
+      "On-chain randomness must be unbiasable; poor randomness design lets the operator manipulate the outcome.",
+    ],
+    stack: ["Midnight", "Compact", "Zero-Knowledge Proofs", "React"],
+    image: null,
+    links: {
+      github: "https://github.com/Yadui/ConfidentialLottery",
+      live: "",
+    },
+  },
+  {
+    id: 15,
+    title: "Midnight_Alphashield",
+    category: "Hackathon",
+    workCategory: "AI",
+    thesis:
+      "Privacy-first identity-protection tool on the Midnight blockchain — built for the INTO The MIDNIGHT Hackathon ($6,000 prize pool).",
+    implemented: [
+      "Identity-shielding layer using Midnight's confidential smart contract model.",
+      "Selective disclosure mechanism letting users prove attributes without exposing raw identity data.",
+      "React interface for credential management and proof generation.",
+    ],
+    nonTrivial: [
+      "Selective disclosure must be cryptographically sound; weak implementation leaks the very data users want shielded.",
+      "On-chain credential state must stay consistent with off-chain proofs to prevent replay or forgery attacks.",
+    ],
+    stack: ["Midnight", "Compact", "Zero-Knowledge Proofs", "React"],
+    image: null,
+    links: {
+      github: "https://github.com/Yadui/Midnight_Alphashield",
+      live: "",
+    },
+  },
 ];

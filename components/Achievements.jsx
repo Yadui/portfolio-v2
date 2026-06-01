@@ -1,44 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { FiAward, FiCalendar, FiMapPin } from "react-icons/fi";
+import { FiAward, FiCalendar, FiMapPin, FiGithub } from "react-icons/fi";
 import ScrambledText from "@/components/ScrambledText";
-
-const achievements = [
-  {
-    id: 1,
-    title: "Midnight Summit Hackathon",
-    rank: "1st Place",
-    organization: "Midnight Foundation",
-    type: "In-Person",
-    year: "2025",
-    summary:
-      "Top-finish recognition for fast execution, product clarity, and a strong live delivery under hackathon constraints.",
-    accent: "#ffbf73",
-  },
-  {
-    id: 2,
-    title: "Microsoft Hackathon & Ideathon",
-    rank: "1st Place",
-    organization: "Microsoft",
-    type: "Hackathon",
-    year: "2025",
-    summary:
-      "Recognized for pairing concept strength with technical execution and a polished end-to-end presentation.",
-    accent: "#00ff99",
-  },
-  {
-    id: 3,
-    title: "Smart India Hackathon",
-    rank: "2nd Place",
-    organization: "Indian Institute of Technology Bombay",
-    type: "National",
-    year: "2023",
-    summary:
-      "Runner-up placement in a high-pressure national competition focused on practical problem solving and delivery quality.",
-    accent: "#cad4e3",
-  },
-];
+import { achievements } from "@/data/siteContent";
 
 const AchievementCard = ({ achievement, index }) => {
   return (
@@ -93,7 +58,7 @@ const AchievementCard = ({ achievement, index }) => {
 
         <div className="mt-auto flex items-start gap-3 border-t border-[rgba(16,24,40,0.08)] pt-4 text-[var(--portfolio-ink)]">
           <FiMapPin className="mt-1 text-[var(--portfolio-ink-faint)]" />
-          <div>
+          <div className="flex-1">
             <p className="portfolio-meta-label mb-2">Organization</p>
             <p className="text-sm font-medium leading-relaxed md:text-base">
               {achievement.organization}
@@ -101,6 +66,17 @@ const AchievementCard = ({ achievement, index }) => {
             <p className="mt-1 text-xs font-medium uppercase tracking-[0.18em] text-[var(--portfolio-ink-faint)] md:text-[0.78rem]">
               {achievement.type}
             </p>
+            {achievement.projectUrl && (
+              <a
+                href={achievement.projectUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-[var(--portfolio-ink-soft)] underline-offset-2 hover:underline"
+              >
+                <FiGithub className="text-[var(--portfolio-ink-faint)]" />
+                View Project
+              </a>
+            )}
           </div>
         </div>
       </div>
