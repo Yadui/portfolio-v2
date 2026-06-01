@@ -45,12 +45,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Work detail pages (slugs from siteContent.ts experience array)
   const workSlugs = ["foetron", "outlier", "vmcoders"];
-  const workRoutes: MetadataRoute.Sitemap = workSlugs.map((slug) => ({
-    url: `${BASE_URL}/work/${slug}`,
-    lastModified: now,
-    changeFrequency: "yearly" as const,
-    priority: 0.7,
-  }));
+  const workRoutes: MetadataRoute.Sitemap = workSlugs
+    .filter((slug) => typeof slug === "string" && slug.trim().length > 0)
+    .map((slug) => ({
+      url: `${BASE_URL}/work/${slug}`,
+      lastModified: now,
+      changeFrequency: "yearly" as const,
+      priority: 0.7,
+    }));
 
   // Blog post pages — fetch from DB, fall back to seeded slugs
   let blogSlugs: { slug: string; createdAt: Date | number }[] = seededBlogPosts.map(
@@ -66,12 +68,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   } catch {}
 
-  const blogRoutes: MetadataRoute.Sitemap = blogSlugs.map(({ slug, createdAt }) => ({
-    url: `${BASE_URL}/blog/${slug}`,
-    lastModified: createdAt instanceof Date ? createdAt : new Date(createdAt),
-    changeFrequency: "yearly" as const,
-    priority: 0.6,
-  }));
+  const blogRoutes: MetadataRoute.Sitemap = blogSlugs
+    .filter(({ slug }) => typeof slug === "string" && slug.trim().length > 0)
+    .map(({ slug, createdAt }) => ({
+      url: `${BASE_URL}/blog/${slug.trim()}`,
+      lastModified: createdAt instanceof Date ? createdAt : new Date(createdAt),
+      changeFrequency: "yearly" as const,
+      priority: 0.6,
+    }));
 
   return [...staticRoutes, ...workRoutes, ...blogRoutes];
 }
