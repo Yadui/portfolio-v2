@@ -214,9 +214,9 @@ export default function CreateBlog() {
                             >
                                 <div className="font-mono text-xs text-accent mb-1">JS Block</div>
                                 <code className="block text-xs text-white/50">
-                                    ```javascript<br/>
-                                    // code...<br/>
-                                    ```
+                                    {"```javascript"}<br/>
+                                    {"// code..."}<br/>
+                                    {"```"}
                                 </code>
                             </div>
                         </div>
