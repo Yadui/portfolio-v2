@@ -37,6 +37,17 @@ export default function Projects({ projectsSectionRef, projectsSurfaceRef }) {
         }}
         className="relative z-10 flex min-h-screen flex-col gap-0"
       >
+        <div className="w-full bg-black px-[clamp(1.25rem,3vw,3rem)] pt-[clamp(2.25rem,7vh,5.5rem)] pb-1">
+          <ScrambledText
+            as="h1"
+            text="I'm Abhinav"
+            triggerOnView
+            duration={1.1}
+            speed={0.75}
+            className="portfolio-title text-6xl text-white md:text-7xl xl:text-8xl"
+          />
+        </div>
+
         <div className="w-full bg-black px-[clamp(1.25rem,3vw,3rem)] py-3 md:py-4">
           <ScrambledText
             as="h2"

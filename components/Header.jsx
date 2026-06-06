@@ -312,9 +312,9 @@ const Header = ({ projectsSectionRef, projectsSurfaceRef, disableScrollTransitio
             .to(
               pillRef.current,
               {
-                width: () => (window.innerWidth < 768 ? 72 : 86),
-                minWidth: () => (window.innerWidth < 768 ? 72 : 86),
-                height: () => (window.innerWidth < 768 ? 72 : 86),
+                width: () => (window.innerWidth < 768 ? 64 : Math.min(80, window.innerHeight * 0.1)),
+                minWidth: () => (window.innerWidth < 768 ? 64 : Math.min(80, window.innerHeight * 0.1)),
+                height: () => (window.innerWidth < 768 ? 64 : Math.min(80, window.innerHeight * 0.1)),
                 paddingLeft: 0,
                 paddingRight: 0,
                 borderRadius: "9999px",
@@ -555,13 +555,14 @@ const Header = ({ projectsSectionRef, projectsSurfaceRef, disableScrollTransitio
         >
           <div
             ref={pillRef}
-            className="pill-container relative z-20 flex h-[120px] min-w-[280px] items-center justify-center overflow-hidden rounded-full border border-white/12 bg-black px-10 text-white opacity-0 shadow-[0_32px_120px_rgba(0,0,0,0.72)] origin-center md:h-[160px] md:min-w-[400px] md:px-16"
+            className="pill-container relative z-20 flex items-center justify-center overflow-hidden rounded-full border border-white/12 bg-black px-10 text-white opacity-0 shadow-[0_32px_120px_rgba(0,0,0,0.72)] origin-center md:px-16"
+            style={{ height: "clamp(90px, 11vh, 150px)", minWidth: "clamp(220px, 28vw, 420px)" }}
           >
             <div
               ref={pillContentRef}
               className="flex items-center justify-center gap-3 md:gap-5"
             >
-              <div className="hello-container flex min-h-[40px] min-w-[100px] flex-shrink-0 items-center justify-center md:min-h-[56px] md:min-w-[140px]">
+              <div className="hello-container flex flex-shrink-0 items-center justify-center" style={{ minHeight: "clamp(36px, 5vh, 56px)", minWidth: "clamp(90px, 10vw, 140px)" }}>
                 {stage >= 2 && (
                   <ScrambledText
                     as="span"
@@ -570,7 +571,7 @@ const Header = ({ projectsSectionRef, projectsSurfaceRef, disableScrollTransitio
                     duration={0.95}
                     speed={0.8}
                     onComplete={handleHelloComplete}
-                    className="font-primary inline-flex items-center whitespace-nowrap text-[1.1rem] font-medium tracking-[0.08em] text-white md:text-[1.55rem]"
+                    className="font-primary inline-flex items-center whitespace-nowrap text-[clamp(0.9rem,1.4vw,1.55rem)] font-medium tracking-[0.08em] text-white"
                   />
                 )}
               </div>
@@ -586,7 +587,7 @@ const Header = ({ projectsSectionRef, projectsSurfaceRef, disableScrollTransitio
                   active={stage >= 3}
                   duration={1.1}
                   speed={0.75}
-                  className="font-primary flex items-center whitespace-nowrap text-[1.55rem] font-semibold tracking-[0.08em] text-white md:text-[2.35rem] lg:text-[2.7rem]"
+                  className="font-primary flex items-center whitespace-nowrap text-[clamp(1.2rem,2.2vw,2.7rem)] font-semibold tracking-[0.08em] text-white"
                 />
               </div>
             </div>

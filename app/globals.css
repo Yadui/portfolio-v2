@@ -25,6 +25,7 @@
     scroll-behavior: smooth;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    font-size: clamp(13px, 1.1vw, 16px);
   }
 
   html::-webkit-scrollbar,
@@ -41,13 +42,19 @@
   }
 
   .h1 {
-    @apply text-[48px] xl:text-[80px] leading-[1.1] font-semibold;
+    font-size: clamp(2rem, 5vw, 5rem);
+    line-height: 1.1;
+    font-weight: 600;
   }
   .h2 {
-    @apply text-[36px] xl:text-[48px] leading-[1.1] font-semibold;
+    font-size: clamp(1.75rem, 3.5vw, 3.5rem);
+    line-height: 1.1;
+    font-weight: 600;
   }
   .h3 {
-    @apply text-[20px] xl:text-[24px] leading-[1.1] font-semibold;
+    font-size: clamp(1.1rem, 1.8vw, 1.75rem);
+    line-height: 1.1;
+    font-weight: 600;
   }
 
   .text-outline {
@@ -82,8 +89,8 @@
   .portfolio-section {
     position: relative;
     overflow: hidden;
-    padding-top: 6rem;
-    padding-bottom: 6rem;
+    padding-top: clamp(3rem, 6vh, 6rem);
+    padding-bottom: clamp(3rem, 6vh, 6rem);
   }
 
   .portfolio-paper-stage {

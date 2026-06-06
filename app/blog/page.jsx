@@ -9,6 +9,8 @@ import DeleteButton from "@/components/DeleteButton";
 import LogoutButton from "@/components/LogoutButton";
 import { mergeBlogPosts } from "@/data/blogPosts";
 
+const BASE_URL = "https://abhinav.maoverse.xyz";
+
 export const metadata = {
   title: "Blog",
   description: "Articles on full-stack development, AI, system design, and building software — by Abhinav Yadav.",
@@ -37,8 +39,43 @@ export default async function BlogList() {
   const isAdmin = !!user;
   const canShowLogin = !isAdmin && await isCurrentRequestFromAllowedAdminIp();
 
+  const blogJsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Blog",
+        "@id": `${BASE_URL}/blog#blog`,
+        url: `${BASE_URL}/blog`,
+        name: "Abhinav Yadav — Blog",
+        description:
+          "Articles on full-stack development, AI, system design, and building software — by Abhinav Yadav.",
+        inLanguage: "en-US",
+        isPartOf: { "@id": `${BASE_URL}/#website` },
+        author: { "@id": `${BASE_URL}/#person` },
+        blogPost: allPosts.slice(0, 20).map((post) => ({
+          "@type": "BlogPosting",
+          headline: post.title,
+          url: `${BASE_URL}/blog/${post.slug}`,
+          datePublished: new Date(post.createdAt).toISOString(),
+          ...(post.excerpt ? { description: post.excerpt } : {}),
+        })),
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: BASE_URL },
+          { "@type": "ListItem", position: 2, name: "Blog", item: `${BASE_URL}/blog` },
+        ],
+      },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-primary pt-32 px-4 md:px-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(blogJsonLd) }}
+      />
       <div className="container mx-auto">
         <div className="flex justify-between items-center mb-12">
           {/* ... Home Link and Title */}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 
 import styles from "./FlowingMenu.module.css";
@@ -81,6 +81,7 @@ function MenuItem({
   onActivate,
 }) {
   const itemRef = useRef(null);
+  const linkRef = useRef(null);
   const marqueeRef = useRef(null);
   const marqueeInnerRef = useRef(null);
   const animationRef = useRef(null);
@@ -160,6 +161,44 @@ function MenuItem({
     };
   }, [text, image, category, metaText, repetitions, speed]);
 
+  // Return the item to its resting state. Project links open in a new tab
+  // (target="_blank"), which steals window focus but leaves the clicked <a>
+  // still focused in this document. The :focus-within CSS rule (and the
+  // highlight state) then keep the title/meta at opacity:0, so the content
+  // looks "gone" until a reload. Clearing focus + collapsing the marquee when
+  // the tab is left fixes the content disappearing on return.
+  const resetToResting = useCallback(() => {
+    setIsHighlighted(false);
+    if (marqueeRef.current) {
+      gsap.set(marqueeRef.current, { y: "101%" });
+    }
+    if (marqueeInnerRef.current) {
+      gsap.set(marqueeInnerRef.current, { y: "-101%" });
+    }
+    const link = linkRef.current;
+    if (link && document.activeElement === link) {
+      link.blur();
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleHidden = () => {
+      if (document.visibilityState === "hidden") {
+        resetToResting();
+      }
+    };
+
+    window.addEventListener("blur", resetToResting);
+    window.addEventListener("pagehide", resetToResting);
+    document.addEventListener("visibilitychange", handleHidden);
+
+    return () => {
+      window.removeEventListener("blur", resetToResting);
+      window.removeEventListener("pagehide", resetToResting);
+      document.removeEventListener("visibilitychange", handleHidden);
+    };
+  }, [resetToResting]);
+
   const runEnter = (edge) => {
     if (!marqueeRef.current || !marqueeInnerRef.current) {
       return;
@@ -222,6 +261,7 @@ function MenuItem({
       style={{ borderColor }}
     >
       <a
+        ref={linkRef}
         className={styles.menuItemLink}
         href={link}
         target="_blank"

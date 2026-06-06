@@ -8,6 +8,7 @@ import {
   FiBriefcase,
   FiCalendar,
 } from "react-icons/fi";
+import Link from "next/link";
 import WorkDetailModal from "./WorkDetailModal";
 import { workDetails } from "@/data/workDetails";
 import ScrambledText from "@/components/ScrambledText";
@@ -218,13 +219,30 @@ const TimelineItem = ({ item, index, icon, containerRef, scrollYProgress, onOpen
               </div>
 
               {item.slug ? (
-                <button
-                  onClick={() => onOpenModal(item.slug)}
+                <Link
+                  href={`/work/${item.slug}`}
+                  onClick={(event) => {
+                    // Progressive enhancement: the real href makes each case
+                    // study a crawlable internal link (and supports open-in-new
+                    // -tab / direct navigation), while a plain left-click keeps
+                    // the rich in-page modal experience.
+                    if (
+                      event.metaKey ||
+                      event.ctrlKey ||
+                      event.shiftKey ||
+                      event.altKey ||
+                      event.button === 1
+                    ) {
+                      return;
+                    }
+                    event.preventDefault();
+                    onOpenModal(item.slug);
+                  }}
                   className="inline-flex items-center gap-2 rounded-full border border-[var(--portfolio-line)] bg-white/80 px-4 py-2 text-sm font-semibold tracking-[0.08em] text-[var(--portfolio-ink)] transition-colors hover:border-[rgba(0,255,153,0.24)] hover:text-[var(--portfolio-accent)]"
                 >
                   View full work
                   <FiArrowUpRight className="transition-transform group-hover/link:-translate-y-0.5 group-hover/link:translate-x-0.5" />
-                </button>
+                </Link>
               ) : null}
             </div>
 

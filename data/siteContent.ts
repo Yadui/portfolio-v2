@@ -133,7 +133,7 @@ export const siteMeta: SiteMeta = {
   ogTitle: "Abhinav Yadav | Software Engineer & Creative Developer",
   ogDescription:
     "Explore the portfolio of Abhinav Yadav, featuring creative web projects and software engineering expertise.",
-  ogImage: "/og-image.png",
+  ogImage: "/opengraph-image",
   twitterHandle: "@abhinavyadav88",
 };
 
@@ -200,6 +200,7 @@ export const achievements: AchievementItem[] = [
     summary:
       "Top-finish recognition for fast execution, product clarity, and a strong live delivery under hackathon constraints.",
     accent: "#ffbf73",
+    projectUrl: "https://www.linkedin.com/posts/abhinavyadav88_won-the-ai-track-at-the-midnight-summit-ugcPost-7402665579876130816-zEGT/?utm_source=share&utm_medium=member_desktop&rcm=ACoAADoUy9kBPrSDtId-q9nijZMHv7Gx6ajvTOs",
   },
   {
     id: 2,
@@ -211,30 +212,18 @@ export const achievements: AchievementItem[] = [
     summary:
       "Recognized for pairing concept strength with technical execution and a polished end-to-end presentation.",
     accent: "#00ff99",
+    projectUrl: "https://www.linkedin.com/posts/abhinavyadav88_an-idea-turning-into-impact-always-feels-activity-7409116391037140992-hQQS?utm_source=share&utm_medium=member_desktop&rcm=ACoAADoUy9kBPrSDtId-q9nijZMHv7Gx6ajvTOs",
   },
   {
     id: 3,
-    title: "Midnight | MLH Hackathon",
-    rank: "Winner",
-    organization: "Midnight Foundation × MLH",
-    type: "Online",
-    year: "2026",
-    summary:
-      "Built ConfidentialLottery — a provably fair, privacy-preserving lottery on the Midnight blockchain using zero-knowledge proofs.",
-    accent: "#a78bfa",
-    projectUrl: "https://github.com/Yadui/ConfidentialLottery",
-  },
-  {
-    id: 4,
-    title: "INTO The MIDNIGHT Hackathon",
-    rank: "Prize Winner",
+    title: "The Hilo Hackathon",
+    rank: "Finalist",
     organization: "Midnight Foundation",
-    type: "Online",
+    type: "Virtual",
     year: "2026",
     summary:
-      "Built Midnight_Alphashield — a privacy-first identity-protection tool; competed in a $6,000 prize pool hackathon.",
-    accent: "#38bdf8",
-    projectUrl: "https://github.com/Yadui/Midnight_Alphashield",
+      "Built a privacy-preserving new employee background verification system on the Midnight blockchain — enabling confidential credential checks using zero-knowledge proofs. Invited as a finalist in Midnight's closed second-chance event.",
+    accent: "#a78bfa",
   },
 ];
 

@@ -2,9 +2,16 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { FiX, FiTarget, FiTrendingUp, FiBriefcase, FiCode, FiCalendar } from "react-icons/fi";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 export default function WorkDetailModal({ work, isOpen, onClose }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Close on Escape key
   useEffect(() => {
     const handleEscape = (e) => {
@@ -20,9 +27,9 @@ export default function WorkDetailModal({ work, isOpen, onClose }) {
     };
   }, [isOpen, onClose]);
 
-  if (!work) return null;
+  if (!work || !mounted) return null;
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <>
@@ -210,6 +217,7 @@ export default function WorkDetailModal({ work, isOpen, onClose }) {
           </div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

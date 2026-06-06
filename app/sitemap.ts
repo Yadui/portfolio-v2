@@ -6,55 +6,35 @@ import { seededBlogPosts } from "@/data/blogPosts";
 
 const BASE_URL = "https://abhinav.maoverse.xyz";
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const now = new Date();
+// Regenerate the sitemap at most once an hour so blog posts added to the DB
+// after a deploy are picked up automatically (without a full rebuild).
+export const revalidate = 3600;
 
-  // Static pages
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // Evergreen pages.
+  //
+  // `lastModified` is intentionally omitted here: we have no authentic
+  // per-page modified date, and an unverifiable / "always today" date is worse
+  // than none — Google only uses lastmod it can trust, and a fudged date is a
+  // hindrance. `changeFrequency` and `priority` are omitted for the same
+  // reason (Google ignores them). Honest URLs only.
   const staticRoutes: MetadataRoute.Sitemap = [
-    {
-      url: BASE_URL,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 1.0,
-    },
-    {
-      url: `${BASE_URL}/blog`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.9,
-    },
-    {
-      url: `${BASE_URL}/services`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
-    {
-      url: `${BASE_URL}/contact`,
-      lastModified: now,
-      changeFrequency: "yearly",
-      priority: 0.6,
-    },
-    {
-      url: `${BASE_URL}/resume`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
+    { url: BASE_URL },
+    { url: `${BASE_URL}/blog` },
+    { url: `${BASE_URL}/services` },
+    { url: `${BASE_URL}/contact` },
+    { url: `${BASE_URL}/resume` },
   ];
 
-  // Work detail pages (slugs from siteContent.ts experience array)
+  // Work case-study pages (slugs from the experience data).
   const workSlugs = ["foetron", "outlier", "vmcoders"];
   const workRoutes: MetadataRoute.Sitemap = workSlugs
     .filter((slug) => typeof slug === "string" && slug.trim().length > 0)
-    .map((slug) => ({
-      url: `${BASE_URL}/work/${slug}`,
-      lastModified: now,
-      changeFrequency: "yearly" as const,
-      priority: 0.7,
-    }));
+    .map((slug) => ({ url: `${BASE_URL}/work/${slug}` }));
 
-  // Blog post pages — fetch from DB, fall back to seeded slugs
+  // Blog post pages. The publish date (createdAt) is the one authentic date we
+  // have, so it is the only place we attach `lastModified`. Fetch from DB, fall
+  // back to seeded slugs when the DB is unavailable.
   let blogSlugs: { slug: string; createdAt: Date | number }[] = seededBlogPosts.map(
     (p: { slug: string; createdAt: string }) => ({ slug: p.slug, createdAt: new Date(p.createdAt) })
   );
@@ -73,8 +53,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .map(({ slug, createdAt }) => ({
       url: `${BASE_URL}/blog/${slug.trim()}`,
       lastModified: createdAt instanceof Date ? createdAt : new Date(createdAt),
-      changeFrequency: "yearly" as const,
-      priority: 0.6,
     }));
 
   return [...staticRoutes, ...workRoutes, ...blogRoutes];

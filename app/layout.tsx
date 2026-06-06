@@ -1,25 +1,25 @@
-import { JetBrains_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
 // Components
 import PageTransition from "@/components/PageTransition";
 import TabPacman from "@/components/TabPacman";
-import ResourceMonitor from "@/components/ResourceMonitor";
 
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800"],
-  variable: "--font-jetbrainsMono",
+const morsa = localFont({
+  src: "../public/fonts/MORSA.ttf",
+  variable: "--font-morsa",
+  display: "swap",
+  fallback: ["ui-sans-serif", "system-ui", "Helvetica Neue", "Arial", "sans-serif"],
 });
 
 export const metadata = {
   metadataBase: new URL("https://abhinav.maoverse.xyz"),
   title: {
-    default: "Abhinav · · · Yadav",
+    default: "Abhinav Yadav — Software Engineer & Creative Developer",
     template: "%s | Abhinav Yadav",
   },
   description:
-    "Portfolio of Abhinav · · · Yadav, a passionate Software Engineer and Creative Developer.",
+    "Abhinav Yadav is a Software Engineer and Creative Developer building cloud, AI, and full-stack web applications with React, Next.js, and Azure.",
   keywords: [
     "Software Engineer",
     "Web Developer",
@@ -43,7 +43,7 @@ export const metadata = {
       "Explore the portfolio of Abhinav Yadav, featuring creative web projects and software engineering expertise.",
     images: [
       {
-        url: "/og-image.png",
+        url: "/opengraph-image",
         width: 1200,
         height: 630,
         alt: "Abhinav Yadav Portfolio",
@@ -55,7 +55,7 @@ export const metadata = {
     title: "Abhinav Yadav | Software Engineer & Creative Developer",
     description: "Check out my latest projects and skills in web development.",
     creator: "@abhinavyadav88",
-    images: ["/og-image.png"],
+    images: ["/opengraph-image"],
   },
   icons: {
     icon: "/pacman.svg",
@@ -64,11 +64,63 @@ export const metadata = {
   },
 };
 
+// Site-wide structured data (JSON-LD). A Person + WebSite graph helps Google
+// understand the entity behind the site (knowledge-graph / rich-result signals)
+// and is especially valuable for a personal brand / portfolio.
+const SITE_URL = "https://abhinav.maoverse.xyz";
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": `${SITE_URL}/#person`,
+      name: "Abhinav Yadav",
+      url: SITE_URL,
+      image: `${SITE_URL}/assets/Abhinav_Yadav.png`,
+      jobTitle: "Software Engineer",
+      description:
+        "Software Engineer and Creative Developer building cloud, AI, and full-stack web applications.",
+      knowsAbout: [
+        "Software Engineering",
+        "Web Development",
+        "React",
+        "Next.js",
+        "Cloud Architecture",
+        "Microsoft Azure",
+        "Artificial Intelligence",
+        "Full-Stack Development",
+      ],
+      sameAs: [
+        "https://github.com/Yadui",
+        "https://www.linkedin.com/in/abhinavyadav88",
+        "https://x.com/abhinav2302055",
+      ],
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${SITE_URL}/#website`,
+      url: SITE_URL,
+      name: "Abhinav Yadav Portfolio",
+      description:
+        "Portfolio of Abhinav Yadav — Software Engineer & Creative Developer.",
+      publisher: { "@id": `${SITE_URL}/#person` },
+      inLanguage: "en-US",
+    },
+  ],
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
       {/* Disable browser scroll-restoration so every page load starts at the hero */}
       <head>
+        {/* RSS feed discovery for readers, aggregators, and crawlers */}
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title="Abhinav Yadav — Blog"
+          href="/rss.xml"
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -127,8 +179,11 @@ export default function RootLayout({ children }) {
           }}
         />
       </head>
-      <body className={jetbrainsMono.variable}>
-        <ResourceMonitor />
+      <body className={morsa.variable}>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
         <TabPacman />
         <PageTransition>{children}</PageTransition>
       </body>

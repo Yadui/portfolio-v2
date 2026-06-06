@@ -24,9 +24,9 @@ module.exports = {
       xl: "1200px",
     },
     fontFamily: {
-      primary: "var(--font-jetbrainsMono)",
-      electro: ["Electroharmonix", "sans-serif"],
-      qubiko: ["Qubiko", "sans-serif"],
+      primary: ["var(--font-morsa)", "ui-sans-serif", "system-ui", "sans-serif"],
+      electro: ["var(--font-morsa)", "ui-sans-serif", "system-ui", "sans-serif"],
+      qubiko: ["var(--font-morsa)", "ui-sans-serif", "system-ui", "sans-serif"],
     },
     extend: {
       colors: {

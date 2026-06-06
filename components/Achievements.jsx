@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { FiAward, FiCalendar, FiMapPin, FiGithub } from "react-icons/fi";
+import { FiAward, FiCalendar, FiMapPin, FiGithub, FiLinkedin } from "react-icons/fi";
 import ScrambledText from "@/components/ScrambledText";
 import { achievements } from "@/data/siteContent";
 
@@ -17,7 +17,7 @@ const AchievementCard = ({ achievement, index }) => {
         delay: index * 0.06,
         ease: [0.22, 1, 0.36, 1],
       }}
-      className="portfolio-card h-full p-6 md:p-7 xl:p-8"
+      className="portfolio-card h-full p-4 md:p-5"
     >
       <div
         className="absolute left-0 top-0 h-full w-1 rounded-full"
@@ -48,7 +48,7 @@ const AchievementCard = ({ achievement, index }) => {
           <p className="portfolio-kicker">
             Recognition Entry {String(index + 1).padStart(2, "0")}
           </p>
-          <h3 className="portfolio-title text-[2rem] md:text-[2.25rem]">
+          <h3 className="portfolio-title" style={{ fontSize: "clamp(1.5rem, 2.2vw, 2.5rem)" }}>
             {achievement.title}
           </h3>
           <p className="portfolio-body text-sm md:text-base">
@@ -73,8 +73,12 @@ const AchievementCard = ({ achievement, index }) => {
                 rel="noopener noreferrer"
                 className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-[var(--portfolio-ink-soft)] underline-offset-2 hover:underline"
               >
-                <FiGithub className="text-[var(--portfolio-ink-faint)]" />
-                View Project
+                {achievement.projectUrl.includes("linkedin.com") ? (
+                  <FiLinkedin className="text-[var(--portfolio-ink-faint)]" />
+                ) : (
+                  <FiGithub className="text-[var(--portfolio-ink-faint)]" />
+                )}
+                {achievement.projectUrl.includes("linkedin.com") ? "View Post" : "View Project"}
               </a>
             )}
           </div>
@@ -88,7 +92,7 @@ const Achievements = () => {
   return (
     <section
       id="achievements"
-      className="portfolio-section portfolio-paper-stage flex min-h-screen items-start"
+      className="portfolio-section portfolio-paper-stage flex h-screen flex-col overflow-hidden"
     >
       <div
         className="absolute inset-0 pointer-events-none opacity-35"
@@ -100,13 +104,13 @@ const Achievements = () => {
         }}
       />
 
-      <div className="relative z-10 mx-auto -mt-4 w-full max-w-7xl px-4 md:-mt-6 md:px-6">
+      <div className="relative z-10 mx-auto -mt-4 flex h-full w-full max-w-7xl flex-col px-4 md:-mt-6 md:px-6">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-          className="mx-auto mb-10 max-w-3xl text-center md:mb-12"
+          className="mx-auto mb-6 max-w-3xl flex-shrink-0 text-center md:mb-8"
         >
           <span className="portfolio-kicker">Selected Recognition</span>
           <ScrambledText
@@ -115,14 +119,15 @@ const Achievements = () => {
             triggerOnView
             duration={1.05}
             speed={0.7}
-            className="portfolio-title mt-4 text-4xl md:text-5xl lg:text-6xl"
+            className="portfolio-title mt-4"
+            style={{ fontSize: "clamp(2rem, 4.5vw, 4.5rem)" }}
           />
           <p className="portfolio-body mx-auto mt-4 max-w-2xl text-base md:text-lg">
             A quieter record of key wins and placements across hackathons and product builds.
           </p>
         </motion.div>
 
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid min-h-0 flex-1 gap-4 md:grid-cols-2 xl:grid-cols-3 pb-6">
           {achievements.map((achievement, index) => (
             <AchievementCard
               key={achievement.id}

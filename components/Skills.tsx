@@ -639,7 +639,7 @@ export default function Skills() {
   return (
     <section
       id="skills"
-      className="portfolio-section portfolio-paper-stage flex min-h-screen flex-col items-center justify-center"
+      className="portfolio-section portfolio-paper-stage flex h-screen flex-col items-center overflow-hidden justify-center"
     >
       <div className="absolute inset-0 pointer-events-none">
         <div
@@ -655,20 +655,20 @@ export default function Skills() {
         <div className="absolute right-[12%] top-28 h-56 w-56 rounded-full bg-[rgba(202,212,227,0.24)] blur-3xl" />
       </div>
 
-      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col items-center px-4 md:px-6">
+      <div className="relative z-10 mx-auto flex h-full w-full max-w-7xl flex-col items-center px-4 md:px-6 pb-6">
         <ScrambledText
           as="h2"
           text="Skills"
           triggerOnView
           duration={1.05}
           speed={0.7}
-          className="portfolio-title text-center text-4xl md:text-5xl"
+          className="portfolio-title flex-shrink-0 text-center text-4xl md:text-5xl"
         />
 
-        <div className="portfolio-card mt-8 w-full p-6 md:p-7 xl:p-8">
+        <div className="portfolio-card mt-6 flex min-h-0 flex-1 w-full flex-col p-4 md:p-5">
             <div
               ref={containerRef}
-              className="relative mx-auto flex h-[430px] w-full items-center justify-center overflow-hidden rounded-[1.75rem] border border-[rgba(16,24,40,0.08)] bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(248,244,236,0.76))] sm:h-[500px] md:h-[620px] xl:h-[760px]"
+              className="relative mx-auto flex min-h-0 flex-1 w-full items-center justify-center overflow-hidden rounded-[1.75rem] border border-[rgba(16,24,40,0.08)] bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(248,244,236,0.76))]"
               style={{
                 transform: "translateZ(0) scale(1)",
                 transformOrigin: "center center",

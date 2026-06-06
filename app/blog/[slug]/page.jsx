@@ -31,11 +31,14 @@ export async function generateMetadata({ params }) {
   const title = post.title;
   const description = post.excerpt || post.content.replace(/[#*`>\[\]]/g, "").slice(0, 155).trim();
   const url = `${BASE_URL}/blog/${slug}`;
-  const image = post.coverImage && !post.coverImage.startsWith("data:") ? post.coverImage : `${BASE_URL}/og-image.png`;
+  const image = post.coverImage && !post.coverImage.startsWith("data:") ? post.coverImage : `${BASE_URL}/opengraph-image`;
+  const tags = post.tags ? post.tags.split(",").map((t) => t.trim()).filter(Boolean) : [];
 
   return {
     title,
     description,
+    keywords: tags,
+    authors: [{ name: "Abhinav Yadav", url: BASE_URL }],
     alternates: { canonical: url },
     openGraph: {
       type: "article",
@@ -45,7 +48,7 @@ export async function generateMetadata({ params }) {
       images: [{ url: image, width: 1200, height: 630, alt: title }],
       publishedTime: new Date(post.createdAt).toISOString(),
       authors: ["Abhinav Yadav"],
-      tags: post.tags ? post.tags.split(",").map((t) => t.trim()) : [],
+      tags,
     },
     twitter: {
       card: "summary_large_image",
@@ -214,30 +217,59 @@ export default async function BlogPost({ params }) {
   }
 
   const postUrl = `${BASE_URL}/blog/${slug}`;
-  const postImage = post.coverImage && !post.coverImage.startsWith("data:") ? post.coverImage : `${BASE_URL}/og-image.png`;
+  const postImage = post.coverImage && !post.coverImage.startsWith("data:") ? post.coverImage : `${BASE_URL}/opengraph-image`;
   const description = post.excerpt || post.content.replace(/[#*`>\[\]]/g, "").slice(0, 155).trim();
+  const tagList = post.tags ? post.tags.split(",").map((t) => t.trim()).filter(Boolean) : [];
+  const wordCount = post.content ? post.content.trim().split(/\s+/).filter(Boolean).length : 0;
+  const publishedIso = new Date(post.createdAt).toISOString();
 
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "BlogPosting",
-    headline: post.title,
-    description,
-    url: postUrl,
-    datePublished: new Date(post.createdAt).toISOString(),
-    dateModified: new Date(post.createdAt).toISOString(),
-    image: postImage,
-    author: {
-      "@type": "Person",
-      name: "Abhinav Yadav",
-      url: BASE_URL,
-    },
-    publisher: {
-      "@type": "Person",
-      name: "Abhinav Yadav",
-      url: BASE_URL,
-    },
-    mainEntityOfPage: { "@type": "WebPage", "@id": postUrl },
-    keywords: post.tags ? post.tags.split(",").map((t) => t.trim()).join(", ") : "",
+    "@graph": [
+      {
+        "@type": "BlogPosting",
+        "@id": `${postUrl}#article`,
+        headline: post.title,
+        name: post.title,
+        description,
+        url: postUrl,
+        datePublished: publishedIso,
+        dateModified: publishedIso,
+        image: [postImage],
+        inLanguage: "en-US",
+        wordCount,
+        ...(tagList.length > 0
+          ? { keywords: tagList.join(", "), articleSection: tagList[0] }
+          : {}),
+        author: {
+          "@type": "Person",
+          "@id": `${BASE_URL}/#person`,
+          name: "Abhinav Yadav",
+          url: BASE_URL,
+          sameAs: [
+            "https://github.com/Yadui",
+            "https://www.linkedin.com/in/abhinavyadav88",
+            "https://x.com/abhinav2302055",
+          ],
+        },
+        publisher: {
+          "@type": "Person",
+          "@id": `${BASE_URL}/#person`,
+          name: "Abhinav Yadav",
+          url: BASE_URL,
+        },
+        isPartOf: { "@id": `${BASE_URL}/#website` },
+        mainEntityOfPage: { "@type": "WebPage", "@id": postUrl },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: BASE_URL },
+          { "@type": "ListItem", position: 2, name: "Blog", item: `${BASE_URL}/blog` },
+          { "@type": "ListItem", position: 3, name: post.title, item: postUrl },
+        ],
+      },
+    ],
   };
 
   const user = await verifyAuth();

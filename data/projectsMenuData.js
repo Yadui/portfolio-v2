@@ -24,29 +24,6 @@ export const projects = [
   },
   {
     id: 2,
-    title: "Automify",
-    category: "Flagship",
-    workCategory: "Web",
-    thesis:
-      "Workflow execution system that runs trigger-based node graphs with persisted run state and retry semantics.",
-    implemented: [
-      "Trigger-node-first graph model with one enforced entry trigger per workflow.",
-      "Step execution engine supporting time-based blocking (wait-duration, wait-until).",
-      "Persisted execution history with step-level logs and retry state tracking.",
-    ],
-    nonTrivial: [
-      "Workflow graphs must remain composable while execution stays deterministic; incorrect ordering causes inconsistent runs.",
-      "Retries and rate limits must compose predictably; if wrong, side effects duplicate or runs are silently dropped.",
-    ],
-    stack: ["Next.js", "TypeScript", "Prisma", "Stripe", "Webhooks"],
-    image: "/assets/work/automify/landing.png",
-    links: {
-      github: "https://github.com/Yadui/automify",
-      live: "https://fuzzie-saas-lac.vercel.app/",
-    },
-  },
-  {
-    id: 3,
     title: "VirtuAI",
     category: "Flagship",
     workCategory: "Cloud",
@@ -69,53 +46,30 @@ export const projects = [
     },
   },
   {
+    id: 3,
+    title: "Automify",
+    category: "Flagship",
+    workCategory: "Web",
+    thesis:
+      "Workflow execution system that runs trigger-based node graphs with persisted run state and retry semantics.",
+    implemented: [
+      "Trigger-node-first graph model with one enforced entry trigger per workflow.",
+      "Step execution engine supporting time-based blocking (wait-duration, wait-until).",
+      "Persisted execution history with step-level logs and retry state tracking.",
+    ],
+    nonTrivial: [
+      "Workflow graphs must remain composable while execution stays deterministic; incorrect ordering causes inconsistent runs.",
+      "Retries and rate limits must compose predictably; if wrong, side effects duplicate or runs are silently dropped.",
+    ],
+    stack: ["Next.js", "TypeScript", "Prisma", "Stripe", "Webhooks"],
+    image: "/assets/work/automify/landing.png",
+    links: {
+      github: "https://github.com/Yadui/automify",
+      live: "https://fuzzie-saas-lac.vercel.app/",
+    },
+  },
+  {
     id: 4,
-    title: "adaptive-tetris",
-    category: "Secondary",
-    workCategory: "Cloud",
-    thesis:
-      "Adaptive control-loop experiment that adjusts runtime difficulty from validated telemetry without blocking simulation.",
-    implemented: [
-      "Asynchronous adaptation loop applies model feedback on timed intervals.",
-      "Telemetry ingestion with schema validation and backend rate limiting.",
-      "Deterministic, stateless game engine with test-validated mechanics.",
-    ],
-    nonTrivial: [
-      "Adaptation must run concurrently with real-time simulation; blocking feedback introduces frame drops and input lag.",
-      "Feedback cadence is slower than gameplay events; poor loop design yields contradictory or delayed adaptation.",
-    ],
-    stack: ["React", "Vite", "Node", "Express", "Gemini", "Firestore"],
-    image: null,
-    links: {
-      github: "https://github.com/Yadui/adaptive-tetris",
-      live: "",
-    },
-  },
-  {
-    id: 5,
-    title: "powerbi-visuals",
-    category: "Secondary",
-    workCategory: "AI",
-    thesis:
-      "Data interface layer for external tools interacting with BI datasets and query layers.",
-    implemented: [
-      "Execution paths spanning Python services and JS/TS/Svelte clients with shared data contracts.",
-      "Containerized local and production runtimes via multiple Docker Compose definitions.",
-      "Tool-facing integration modules for query and analytics interaction workflows.",
-    ],
-    nonTrivial: [
-      "Tool and client layers must preserve stable dataset/query contracts; contract drift breaks integrations.",
-      "Multi-runtime deployment needs strict environment alignment; mismatch causes runtime-specific failures.",
-    ],
-    stack: ["Python", "JavaScript", "TypeScript", "Svelte", "Docker Compose"],
-    image: null,
-    links: {
-      github: "https://github.com/Yadui/powerbi-visuals",
-      live: "",
-    },
-  },
-  {
-    id: 6,
     title: "Business OS",
     category: "Enterprise Only",
     workCategory: "Cloud",
@@ -138,7 +92,30 @@ export const projects = [
     },
   },
   {
-    id: 7,
+    id: 5,
+    title: "structra",
+    category: "Product",
+    workCategory: "Cloud",
+    thesis:
+      "Full-stack TRF report engine with strictly isolated local and UAT environments, Postgres persistence, and guardrails that refuse to start on env or database mismatch.",
+    implemented: [
+      "FastAPI and React/TypeScript platform generating structured TRF reports over a Postgres data layer.",
+      "Fully isolated local and UAT environments where databases, API URLs, and credentials never cross over.",
+      "Startup safety guards that refuse to boot if the runtime ENV and database URL do not match the declared environment.",
+    ],
+    nonTrivial: [
+      "Report correctness depends on never mixing environments; the guard layer has to fail closed rather than risk writing across local and UAT data.",
+      "A report engine must keep generated output consistent as the schema and templates evolve, or historical reports stop reproducing.",
+    ],
+    stack: ["FastAPI", "Python", "React", "TypeScript", "PostgreSQL", "Private"],
+    image: null,
+    links: {
+      github: "",
+      live: "",
+    },
+  },
+  {
+    id: 6,
     title: "Biforze",
     category: "Enterprise Only",
     workCategory: "Web",
@@ -161,53 +138,7 @@ export const projects = [
     },
   },
   {
-    id: 8,
-    title: "Azure Pricing Calculator",
-    category: "Tooling",
-    workCategory: "Cloud",
-    thesis:
-      "Azure estimation tool that lets users build BOQs in a cleaner UI, generate them with AI, save quotes, and compare VM options side by side.",
-    implemented: [
-      "Manual BOQ builder for assembling Azure estimates without relying on the official pricing UX.",
-      "AI-assisted BOQ generation to accelerate quote creation from higher-level requirements.",
-      "Saved quotes and side-by-side VM comparisons for faster decision-making.",
-    ],
-    nonTrivial: [
-      "Azure pricing has a large SKU and configuration surface; generated quotes still have to resolve to concrete comparable options.",
-      "Comparison only helps if the underlying BOQ structure is normalized consistently across manual and AI-generated paths.",
-    ],
-    stack: ["React", "Azure", "AI", "BOQ", "VM Comparison"],
-    image: null,
-    links: {
-      github: "",
-      live: "",
-    },
-  },
-  {
-    id: 9,
-    title: "MSPulse",
-    category: "Product",
-    workCategory: "Web",
-    thesis:
-      "Personal dashboard that automatically fetches and surfaces Microsoft product and security updates as a clean scheduled feed.",
-    implemented: [
-      "Scheduled fetch jobs that pull updates instead of relying on manual browsing.",
-      "Dashboard UI designed to surface the newest product and security changes in one place.",
-      "Normalized feed presentation to keep update streams readable and scannable.",
-    ],
-    nonTrivial: [
-      "Microsoft updates span multiple sources and formats, so the feed has to normalize noisy inputs into one stable surface.",
-      "Scheduled collection only helps if duplicate, stale, or low-signal updates are filtered cleanly enough to stay usable.",
-    ],
-    stack: ["React", "Automation", "Microsoft", "Scheduled Fetch", "Dashboard"],
-    image: null,
-    links: {
-      github: "",
-      live: "",
-    },
-  },
-  {
-    id: 10,
+    id: 7,
     title: "Only4You",
     category: "Platform",
     workCategory: "Web",
@@ -230,30 +161,53 @@ export const projects = [
     },
   },
   {
-    id: 11,
-    title: "ReelTrace",
+    id: 8,
+    title: "itinerary-planner",
     category: "AI Product",
     workCategory: "AI",
     thesis:
-      "Tool that takes an Instagram reel link, infers the filming location, and can generate a travel itinerary around the places featured in the reel.",
+      "AI travel planner that turns a free-form trip prompt into an editable, drag-and-drop day-by-day itinerary with persisted trips.",
     implemented: [
-      "Reel-link intake flow centered on short-form travel discovery.",
-      "Location-detection pipeline that maps reel content to likely places.",
-      "Itinerary generation built from the locations surfaced by the reel analysis.",
+      "Dual-provider generation (OpenAI + Anthropic) behind an Express service layer that converts trip prompts into structured day-by-day itineraries.",
+      "Drag-and-drop itinerary editing with dnd-kit and Supabase-backed persistence of saved trips.",
+      "Serverless deployment on Vercel with a separate React client and an Express route/service backend.",
     ],
     nonTrivial: [
-      "Short-form video rarely provides clean location signals, so place inference has to work under incomplete and ambiguous context.",
-      "Travel planning only feels credible if the system can turn uncertain location clues into a usable route or itinerary.",
+      "LLM output is free-form; it must be coerced into a stable, reorderable itinerary schema or the editing UI breaks.",
+      "Two providers expose different contracts; the service layer must normalize them so generation behaves the same regardless of model.",
     ],
-    stack: ["AI", "React", "Location Detection", "Travel", "Instagram"],
+    stack: ["React", "Express", "Supabase", "OpenAI", "Anthropic", "Vercel"],
     image: null,
     links: {
-      github: "",
+      github: "https://github.com/Yadui/itinerary-planner",
+      live: "https://itinerary-planner-liard.vercel.app",
+    },
+  },
+  {
+    id: 9,
+    title: "powerbi-visuals",
+    category: "Secondary",
+    workCategory: "AI",
+    thesis:
+      "Data interface layer for external tools interacting with BI datasets and query layers.",
+    implemented: [
+      "Execution paths spanning Python services and JS/TS/Svelte clients with shared data contracts.",
+      "Containerized local and production runtimes via multiple Docker Compose definitions.",
+      "Tool-facing integration modules for query and analytics interaction workflows.",
+    ],
+    nonTrivial: [
+      "Tool and client layers must preserve stable dataset/query contracts; contract drift breaks integrations.",
+      "Multi-runtime deployment needs strict environment alignment; mismatch causes runtime-specific failures.",
+    ],
+    stack: ["Python", "JavaScript", "TypeScript", "Svelte", "Docker Compose"],
+    image: null,
+    links: {
+      github: "https://github.com/Yadui/powerbi-visuals",
       live: "",
     },
   },
   {
-    id: 12,
+    id: 10,
     title: "Reportix",
     category: "Enterprise Only",
     workCategory: "Cloud",
@@ -276,22 +230,22 @@ export const projects = [
     },
   },
   {
-    id: 13,
-    title: "Yojana AI",
-    category: "AI Product",
-    workCategory: "AI",
+    id: 11,
+    title: "Azure Pricing Calculator",
+    category: "Tooling",
+    workCategory: "Cloud",
     thesis:
-      "Eligibility-matching tool that turns a simple self-description into relevant government schemes without forcing users to search scattered portals manually.",
+      "Azure estimation tool that lets users build BOQs in a cleaner UI, generate them with AI, save quotes, and compare VM options side by side.",
     implemented: [
-      "Free-form user input flow for describing eligibility context in plain language.",
-      "NLP-assisted scheme matching across many fragmented listings.",
-      "Result surface designed to reduce manual scheme browsing and filtering.",
+      "Manual BOQ builder for assembling Azure estimates without relying on the official pricing UX.",
+      "AI-assisted BOQ generation to accelerate quote creation from higher-level requirements.",
+      "Saved quotes and side-by-side VM comparisons for faster decision-making.",
     ],
     nonTrivial: [
-      "Government scheme criteria live across many inconsistent sources, so the matching layer has to normalize fragmented rule descriptions.",
-      "User descriptions are messy and incomplete; turning them into dependable eligibility signals is the core difficulty.",
+      "Azure pricing has a large SKU and configuration surface; generated quotes still have to resolve to concrete comparable options.",
+      "Comparison only helps if the underlying BOQ structure is normalized consistently across manual and AI-generated paths.",
     ],
-    stack: ["AI", "React", "Government Schemes", "NLP", "Public Utility"],
+    stack: ["React", "Azure", "AI", "BOQ", "VM Comparison"],
     image: null,
     links: {
       github: "",
@@ -299,7 +253,30 @@ export const projects = [
     },
   },
   {
-    id: 14,
+    id: 12,
+    title: "MSPulse",
+    category: "Product",
+    workCategory: "Web",
+    thesis:
+      "Personal dashboard that automatically fetches and surfaces Microsoft product and security updates as a clean scheduled feed.",
+    implemented: [
+      "Scheduled fetch jobs that pull updates instead of relying on manual browsing.",
+      "Dashboard UI designed to surface the newest product and security changes in one place.",
+      "Normalized feed presentation to keep update streams readable and scannable.",
+    ],
+    nonTrivial: [
+      "Microsoft updates span multiple sources and formats, so the feed has to normalize noisy inputs into one stable surface.",
+      "Scheduled collection only helps if duplicate, stale, or low-signal updates are filtered cleanly enough to stay usable.",
+    ],
+    stack: ["React", "Automation", "Microsoft", "Scheduled Fetch", "Dashboard"],
+    image: null,
+    links: {
+      github: "",
+      live: "",
+    },
+  },
+  {
+    id: 13,
     title: "ConfidentialLottery",
     category: "Hackathon",
     workCategory: "AI",
@@ -322,7 +299,7 @@ export const projects = [
     },
   },
   {
-    id: 15,
+    id: 14,
     title: "Midnight_Alphashield",
     category: "Hackathon",
     workCategory: "AI",
@@ -341,6 +318,121 @@ export const projects = [
     image: null,
     links: {
       github: "https://github.com/Yadui/Midnight_Alphashield",
+      live: "",
+    },
+  },
+  {
+    id: 15,
+    title: "ReelTrace",
+    category: "AI Product",
+    workCategory: "AI",
+    thesis:
+      "Tool that takes an Instagram reel link, infers the filming location, and can generate a travel itinerary around the places featured in the reel.",
+    implemented: [
+      "Reel-link intake flow centered on short-form travel discovery.",
+      "Location-detection pipeline that maps reel content to likely places.",
+      "Itinerary generation built from the locations surfaced by the reel analysis.",
+    ],
+    nonTrivial: [
+      "Short-form video rarely provides clean location signals, so place inference has to work under incomplete and ambiguous context.",
+      "Travel planning only feels credible if the system can turn uncertain location clues into a usable route or itinerary.",
+    ],
+    stack: ["AI", "React", "Location Detection", "Travel", "Instagram"],
+    image: null,
+    links: {
+      github: "",
+      live: "",
+    },
+  },
+  {
+    id: 16,
+    title: "Yojana AI",
+    category: "AI Product",
+    workCategory: "AI",
+    thesis:
+      "Eligibility-matching tool that turns a simple self-description into relevant government schemes without forcing users to search scattered portals manually.",
+    implemented: [
+      "Free-form user input flow for describing eligibility context in plain language.",
+      "NLP-assisted scheme matching across many fragmented listings.",
+      "Result surface designed to reduce manual scheme browsing and filtering.",
+    ],
+    nonTrivial: [
+      "Government scheme criteria live across many inconsistent sources, so the matching layer has to normalize fragmented rule descriptions.",
+      "User descriptions are messy and incomplete; turning them into dependable eligibility signals is the core difficulty.",
+    ],
+    stack: ["AI", "React", "Government Schemes", "NLP", "Public Utility"],
+    image: null,
+    links: {
+      github: "",
+      live: "",
+    },
+  },
+  {
+    id: 17,
+    title: "Forgecheck",
+    category: "Tooling",
+    workCategory: "Web",
+    thesis:
+      "Defensive, consent-based web resilience lab that runs read-only, rate-limited checks against owned or whitelisted targets only.",
+    implemented: [
+      "Pluggable test engine with check modules for headers, TLS, CORS, HTML security, input handling, form validation, and prompt-injection surfaces.",
+      "Hostname whitelist (localhost and owned domains only) enforcing read-only, non-invasive, rate-limited runs.",
+      "React + Vite dashboard with summary and detailed-log views plus JSON export of each run.",
+    ],
+    nonTrivial: [
+      "A safety-first scanner must stay strictly read-only and scope-locked; one missing guard turns a defensive tool into an offensive one.",
+      "The engine has to stay pluggable so new checks register without touching the core, while keeping results comparable across runs.",
+    ],
+    stack: ["TypeScript", "Node", "Express", "React", "Vite", "Tailwind"],
+    image: null,
+    links: {
+      github: "https://github.com/Yadui/Forgecheck",
+      live: "",
+    },
+  },
+  {
+    id: 18,
+    title: "adaptive-tetris",
+    category: "Secondary",
+    workCategory: "Cloud",
+    thesis:
+      "Adaptive control-loop experiment that adjusts runtime difficulty from validated telemetry without blocking simulation.",
+    implemented: [
+      "Asynchronous adaptation loop applies model feedback on timed intervals.",
+      "Telemetry ingestion with schema validation and backend rate limiting.",
+      "Deterministic, stateless game engine with test-validated mechanics.",
+    ],
+    nonTrivial: [
+      "Adaptation must run concurrently with real-time simulation; blocking feedback introduces frame drops and input lag.",
+      "Feedback cadence is slower than gameplay events; poor loop design yields contradictory or delayed adaptation.",
+    ],
+    stack: ["React", "Vite", "Node", "Express", "Gemini", "Firestore"],
+    image: null,
+    links: {
+      github: "https://github.com/Yadui/adaptive-tetris",
+      live: "",
+    },
+  },
+  {
+    id: 19,
+    title: "RawKitUI",
+    category: "Product",
+    workCategory: "Web",
+    thesis:
+      "React Effects Lab — a component library and live playground for previewing, customizing, and exporting UI effects with real-time controls and copyable code.",
+    implemented: [
+      "Registry-driven component system where each effect declares its own props and control schema.",
+      "Live preview with a Zustand-backed controls panel and Shiki-highlighted, copyable code output.",
+      "Framer Motion effect components (animated button, glassmorphism and tilt cards, gradient backgrounds, loaders) exported from one playground.",
+    ],
+    nonTrivial: [
+      "A generic controls panel has to render correct inputs for arbitrary component prop schemas without per-component UI code.",
+      "Generated code shown to users must stay in sync with the live preview state, or the export becomes misleading.",
+    ],
+    stack: ["React", "TypeScript", "Vite", "Tailwind", "Zustand", "Framer Motion"],
+    image: null,
+    links: {
+      github: "",
       live: "",
     },
   },
