@@ -51,6 +51,25 @@ export interface AchievementItem {
   projectUrl?: string;
 }
 
+export interface CertificationItem {
+  /** Exam / credential code, shown as the card title (e.g. "AZ-900"). */
+  code: string;
+  /** Human-readable credential name (e.g. "Azure Fundamentals"). */
+  name: string;
+  /** Issuing brand — drives the logo + label. */
+  brand: "Microsoft" | "GitHub";
+  /** Top accent-bar colour. */
+  accent: string;
+  /** Difficulty tier label (Fundamentals / Associate / Applied Skills…). */
+  level: string;
+  /** Visual rating 1–3 (maps to the credential tier). Use stars OR badge. */
+  stars?: number;
+  /** Text badge shown instead of stars (e.g. "Certified"). */
+  badge?: string;
+  /** Optional public credential / verification link. */
+  url?: string;
+}
+
 export interface TimelineEntry {
   company?: string;
   institution?: string;
@@ -224,6 +243,44 @@ export const achievements: AchievementItem[] = [
     summary:
       "Built a privacy-preserving new employee background verification system on the Midnight blockchain — enabling confidential credential checks using zero-knowledge proofs. Invited as a finalist in Midnight's closed second-chance event.",
     accent: "#a78bfa",
+  },
+];
+
+/* ------------------------------------------------------------------ */
+/* Certifications                                                     */
+/* ------------------------------------------------------------------ */
+export const certifications: CertificationItem[] = [
+  {
+    code: "AZ-900",
+    name: "Azure Fundamentals",
+    brand: "Microsoft",
+    accent: "#3b82f6",
+    level: "Fundamentals",
+    stars: 1,
+  },
+  {
+    code: "AI-102",
+    name: "Azure AI Engineer",
+    brand: "Microsoft",
+    accent: "#7cb342",
+    level: "Associate",
+    stars: 2,
+  },
+  {
+    code: "AB-100",
+    name: "Applied Skills",
+    brand: "Microsoft",
+    accent: "#eab308",
+    level: "Applied Skills",
+    stars: 2,
+  },
+  {
+    code: "GH-300",
+    name: "GitHub Copilot",
+    brand: "GitHub",
+    accent: "#1f2328",
+    level: "Certification",
+    badge: "Certified",
   },
 ];
 
