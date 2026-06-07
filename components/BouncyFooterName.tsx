@@ -349,7 +349,7 @@ export default function BouncyFooterName() {
             key={i}
             ref={(el) => { letterRefs.current[i] = el; }}
             // Applied Custom Font class here
-            className={`absolute flex items-center justify-center select-none will-change-transform font-qubiko`}
+            className={`absolute flex items-center justify-center select-none will-change-transform font-heading`}
             style={{
               width: BASE_LETTER_WIDTH * scale,
               height: BASE_LETTER_HEIGHT * scale,

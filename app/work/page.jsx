@@ -21,7 +21,7 @@ const Work = () => {
     <section className="min-h-screen py-24 bg-primary/50">
       <div className="container mx-auto px-4">
         <div className="flex flex-col items-center mb-16 space-y-8">
-            <h2 className="text-4xl md:text-5xl font-bold text-white">My Projects</h2>
+            <h2 className="text-4xl md:text-5xl font-light text-white">My Projects</h2>
             
             {/* Filter Tabs */}
             <div className="flex flex-wrap justify-center gap-4">
@@ -67,7 +67,7 @@ const Work = () => {
                                 />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-white/5 to-transparent">
-                                    <h3 className="text-4xl font-bold text-white/10 group-hover:text-accent/20 transition-colors">
+                                    <h3 className="text-4xl font-light text-white/10 group-hover:text-accent/20 transition-colors">
                                             {project.workCategory}
                                     </h3>
                                 </div>
@@ -91,7 +91,7 @@ const Work = () => {
                         {/* Content */}
                         <div className="p-6 flex flex-col flex-1">
                             <div className="flex justify-between items-start mb-4">
-                                <h3 className="text-2xl font-bold text-white group-hover:text-accent transition-colors">
+                                <h3 className="text-2xl font-light text-white group-hover:text-accent transition-colors">
                                     {project.title}
                                 </h3>
                                 <span className="text-xs font-bold px-2 py-1 rounded bg-white/5 text-white/60 uppercase">

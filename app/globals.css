@@ -36,25 +36,38 @@
   }
 
   body {
-    @apply font-primary bg-primary text-white leading-loose;
+    @apply font-body bg-primary text-white leading-loose;
     scrollbar-width: none;
     -ms-overflow-style: none;
   }
 
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading;
+    font-weight: 300;
+  }
+
   .h1 {
+    @apply font-heading;
     font-size: clamp(2rem, 5vw, 5rem);
     line-height: 1.1;
-    font-weight: 600;
+    font-weight: 300;
   }
   .h2 {
+    @apply font-heading;
     font-size: clamp(1.75rem, 3.5vw, 3.5rem);
     line-height: 1.1;
-    font-weight: 600;
+    font-weight: 300;
   }
   .h3 {
+    @apply font-heading;
     font-size: clamp(1.1rem, 1.8vw, 1.75rem);
     line-height: 1.1;
-    font-weight: 600;
+    font-weight: 300;
   }
 
   .text-outline {
@@ -135,7 +148,7 @@
 
   .portfolio-title {
     color: black;
-    font-weight: 700;
+    font-weight: 300;
     letter-spacing: -0.05em;
     line-height: 0.98;
   }

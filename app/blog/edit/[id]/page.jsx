@@ -120,7 +120,7 @@ export default function EditBlog({ params }) {
   return (
     <div className="min-h-screen bg-primary pt-32 px-4 md:px-12 pb-20">
       <div className="container mx-auto max-w-4xl">
-        <h1 className="text-4xl font-bold text-white mb-8">Edit Post</h1>
+        <h1 className="text-4xl font-light text-white mb-8">Edit Post</h1>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             
@@ -209,13 +209,13 @@ export default function EditBlog({ params }) {
             {/* Helper Sidebar */}
             <aside className="lg:col-span-1 space-y-8 h-fit lg:sticky lg:top-32">
                 <div className="bg-zinc-900/50 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
-                    <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                    <h3 className="text-xl font-light text-white mb-4 flex items-center gap-2">
                         <span className="text-accent">ℹ️</span> Markdown Guide
                     </h3>
                     <div className="space-y-6 text-sm text-white/70">
                         {/* Callouts */}
                         <div>
-                            <h4 className="font-bold text-white mb-2">Colored Alerts</h4>
+                            <h4 className="font-light text-white mb-2">Colored Alerts</h4>
                             <div className="flex flex-col gap-2">
                                 {[
                                     { label: "Note (Blue)", code: "> [!NOTE]\n> Your text here" },
@@ -239,7 +239,7 @@ export default function EditBlog({ params }) {
 
                         {/* Code Blocks */}
                         <div>
-                            <h4 className="font-bold text-white mb-2">Code Blocks</h4>
+                            <h4 className="font-light text-white mb-2">Code Blocks</h4>
                              <div className="group relative bg-black/40 p-2 rounded border border-white/5 hover:border-accent/40 transition-colors cursor-pointer"
                                  onClick={() => {
                                      navigator.clipboard.writeText("```javascript\n// Your code here\nconsole.log('Hello');\n```");
@@ -257,7 +257,7 @@ export default function EditBlog({ params }) {
 
                          {/* Links */}
                         <div>
-                            <h4 className="font-bold text-white mb-2">Special Links</h4>
+                            <h4 className="font-light text-white mb-2">Special Links</h4>
                             <p className="text-xs mb-2">GitHub, Twitter, and LinkedIn links automatically get styled buttons.</p>
                              <div className="group relative bg-black/40 p-2 rounded border border-white/5 hover:border-accent/40 transition-colors cursor-pointer"
                                  onClick={() => {
@@ -271,7 +271,7 @@ export default function EditBlog({ params }) {
 
                          {/* Images */}
                         <div>
-                            <h4 className="font-bold text-white mb-2">Images</h4>
+                            <h4 className="font-light text-white mb-2">Images</h4>
                             <p className="text-xs mb-2">Upload image first, then use the URL.</p>
                              <div className="group relative bg-black/40 p-2 rounded border border-white/5 hover:border-accent/40 transition-colors cursor-pointer"
                                  onClick={() => {

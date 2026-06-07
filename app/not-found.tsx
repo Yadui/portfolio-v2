@@ -21,7 +21,7 @@ export default function NotFound() {
       </h1>
 
       <div className="-mt-8 mb-8">
-        <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
+        <h2 className="text-2xl md:text-3xl font-light text-white mb-3">
           Lost in the void
         </h2>
         <p className="text-white/40 max-w-sm mx-auto text-sm leading-relaxed">

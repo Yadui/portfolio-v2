@@ -59,10 +59,10 @@ export default function WorkDetailModal({ work, isOpen, onClose }) {
                       <FiBriefcase />
                     </span>
                     <div>
-                      <h2 className="text-2xl md:text-3xl font-bold text-white">
+                      <h2 className="text-2xl md:text-3xl font-light text-white">
                         {work.position}
                       </h2>
-                      <h3 className="text-xl text-accent font-semibold">
+                      <h3 className="text-xl text-accent font-light">
                         {work.company}
                       </h3>
                     </div>
@@ -111,7 +111,7 @@ export default function WorkDetailModal({ work, isOpen, onClose }) {
                 >
                   <div className="flex items-center gap-2 mb-3">
                     <FiTarget className="text-accent text-lg" />
-                    <h4 className="text-xl font-bold text-white">Overview</h4>
+                    <h4 className="text-xl font-light text-white">Overview</h4>
                   </div>
                   <p className="text-white/70 leading-relaxed">
                     {work.overview}
@@ -126,7 +126,7 @@ export default function WorkDetailModal({ work, isOpen, onClose }) {
                 >
                   <div className="flex items-center gap-2 mb-3">
                     <FiTrendingUp className="text-accent text-lg" />
-                    <h4 className="text-xl font-bold text-white">Key Achievements</h4>
+                    <h4 className="text-xl font-light text-white">Key Achievements</h4>
                   </div>
                   <ul className="space-y-2">
                     {work.achievements.map((achievement, index) => (
@@ -152,7 +152,7 @@ export default function WorkDetailModal({ work, isOpen, onClose }) {
                 >
                   <div className="flex items-center gap-2 mb-3">
                     <FiBriefcase className="text-accent text-lg" />
-                    <h4 className="text-xl font-bold text-white">Responsibilities</h4>
+                    <h4 className="text-xl font-light text-white">Responsibilities</h4>
                   </div>
                   <ul className="list-disc list-outside ml-5 space-y-2">
                     {work.responsibilities.map((responsibility, index) => (
@@ -171,7 +171,7 @@ export default function WorkDetailModal({ work, isOpen, onClose }) {
                 >
                   <div className="flex items-center gap-2 mb-3">
                     <FiCode className="text-accent text-lg" />
-                    <h4 className="text-xl font-bold text-white">Tech Stack</h4>
+                    <h4 className="text-xl font-light text-white">Tech Stack</h4>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {work.techStack.map((tech, index) => (
@@ -196,7 +196,7 @@ export default function WorkDetailModal({ work, isOpen, onClose }) {
                     transition={{ delay: 0.35 }}
                     className="bg-[#18181b] border border-white/10 rounded-xl p-5"
                   >
-                    <h4 className="text-xl font-bold text-white mb-4">Impact</h4>
+                    <h4 className="text-xl font-light text-white mb-4">Impact</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {Object.entries(work.impact).map(([key, value], index) => (
                         <div key={index} className="flex flex-col gap-1">

@@ -42,10 +42,10 @@ export default function WorkDetailPage({ params }) {
               <FiBriefcase />
             </span>
             <div>
-              <h1 className="text-4xl md:text-5xl font-bold text-white">
+              <h1 className="text-4xl md:text-5xl font-light text-white">
                 {work.position}
               </h1>
-              <h2 className="text-2xl text-accent font-semibold mt-1">
+              <h2 className="text-2xl text-accent font-light mt-1">
                 {work.company}
               </h2>
             </div>
@@ -83,7 +83,7 @@ export default function WorkDetailPage({ params }) {
         >
           <div className="flex items-center gap-2 mb-4">
             <FiTarget className="text-accent text-xl" />
-            <h3 className="text-2xl font-bold text-white">Overview</h3>
+            <h3 className="text-2xl font-light text-white">Overview</h3>
           </div>
           <p className="text-white/70 text-base leading-relaxed">
             {work.overview}
@@ -99,7 +99,7 @@ export default function WorkDetailPage({ params }) {
         >
           <div className="flex items-center gap-2 mb-4">
             <FiTrendingUp className="text-accent text-xl" />
-            <h3 className="text-2xl font-bold text-white">Key Achievements</h3>
+            <h3 className="text-2xl font-light text-white">Key Achievements</h3>
           </div>
           <ul className="space-y-3">
             {work.achievements.map((achievement, index) => (
@@ -126,7 +126,7 @@ export default function WorkDetailPage({ params }) {
         >
           <div className="flex items-center gap-2 mb-4">
             <FiBriefcase className="text-accent text-xl" />
-            <h3 className="text-2xl font-bold text-white">Responsibilities</h3>
+            <h3 className="text-2xl font-light text-white">Responsibilities</h3>
           </div>
           <ul className="list-disc list-outside ml-6 space-y-2">
             {work.responsibilities.map((responsibility, index) => (
@@ -146,7 +146,7 @@ export default function WorkDetailPage({ params }) {
         >
           <div className="flex items-center gap-2 mb-4">
             <FiCode className="text-accent text-xl" />
-            <h3 className="text-2xl font-bold text-white">Tech Stack</h3>
+            <h3 className="text-2xl font-light text-white">Tech Stack</h3>
           </div>
           <div className="flex flex-wrap gap-2">
             {work.techStack.map((tech, index) => (
@@ -171,7 +171,7 @@ export default function WorkDetailPage({ params }) {
             transition={{ delay: 0.7 }}
             className="bg-[#18181b] border border-white/10 rounded-2xl p-6"
           >
-            <h3 className="text-2xl font-bold text-white mb-6">Impact</h3>
+            <h3 className="text-2xl font-light text-white mb-6">Impact</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {Object.entries(work.impact).map(([key, value], index) => (
                 <div key={index} className="flex flex-col gap-1">

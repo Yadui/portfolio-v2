@@ -12,6 +12,24 @@ const morsa = localFont({
   fallback: ["ui-sans-serif", "system-ui", "Helvetica Neue", "Arial", "sans-serif"],
 });
 
+// Body / normal text
+const clashDisplay = localFont({
+  src: "../public/fonts/ClashDisplay-Variable.ttf",
+  variable: "--font-clash-display",
+  display: "swap",
+  weight: "200 700",
+  fallback: ["ui-sans-serif", "system-ui", "Helvetica Neue", "Arial", "sans-serif"],
+});
+
+// Headings
+const clashGrotesk = localFont({
+  src: "../public/fonts/ClashGrotesk-Variable.ttf",
+  variable: "--font-clash-grotesk",
+  display: "swap",
+  weight: "200 700",
+  fallback: ["ui-sans-serif", "system-ui", "Helvetica Neue", "Arial", "sans-serif"],
+});
+
 export const metadata = {
   metadataBase: new URL("https://abhinav.maoverse.xyz"),
   title: {
@@ -193,7 +211,7 @@ export default function RootLayout({ children }) {
           }}
         />
       </head>
-      <body className={morsa.variable}>
+      <body className={`${clashDisplay.variable} ${clashGrotesk.variable} ${morsa.variable}`}>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}

@@ -85,7 +85,7 @@ export default async function BlogList() {
                 ← Home
               </Button>
             </Link>
-            <h1 className="text-4xl font-bold text-white">Blog</h1>
+            <h1 className="text-4xl font-light text-white">Blog</h1>
           </div>
           
           <div className="flex gap-4 items-center">
@@ -119,7 +119,7 @@ export default async function BlogList() {
                     </div>
                   )}
                   <div className="p-6 flex flex-col flex-grow">
-                    <h2 className="text-2xl font-bold text-white mb-3 group-hover:text-accent transition-colors">{post.title}</h2>
+                    <h2 className="text-2xl font-light text-white mb-3 group-hover:text-accent transition-colors">{post.title}</h2>
                     
                     {post.tags && (
                       <div className="flex flex-wrap gap-2 mb-4">

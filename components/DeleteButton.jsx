@@ -38,7 +38,7 @@ export default function DeleteButton({ id }) {
               exit={{ scale: 0.95, opacity: 0 }}
               className="relative bg-zinc-900 border border-white/10 p-6 rounded-xl shadow-2xl max-w-sm w-full"
             >
-              <h3 className="text-xl font-bold text-white mb-2">Delete Post?</h3>
+              <h3 className="text-xl font-light text-white mb-2">Delete Post?</h3>
               <p className="text-white/60 mb-6">
                 This action cannot be undone. Are you sure you want to permanently delete this blog post?
               </p>

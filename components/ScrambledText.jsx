@@ -36,9 +36,9 @@ const ScrambledText = ({
     [scrambleChars]
   );
 
-  const [displayText, setDisplayText] = useState(() =>
-    scramblePreview(targetText, resolvedChars)
-  );
+  // Initialize with the real text so server and client render identically (no hydration mismatch).
+  // The scramble animation kicks in after mount via the useEffect below.
+  const [displayText, setDisplayText] = useState(targetText);
   const [inView, setInView] = useState(!triggerOnView);
 
   useEffect(() => {

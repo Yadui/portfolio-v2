@@ -24,7 +24,7 @@ export default function BlogButton() {
           aria-label="Read the blog"
           className="group flex items-center gap-2 rounded-full border border-white/15 bg-black/80 px-4 py-2.5 text-sm font-medium tracking-wide text-white shadow-[0_12px_34px_rgba(0,0,0,0.35)] backdrop-blur-md transition-colors duration-300 hover:border-[#00ff99]/60 hover:bg-black md:px-5 md:py-3"
         >
-          <span className="font-primary">Blog</span>
+          <span className="font-body">Blog</span>
           <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[#00ff99]" />
         </Link>
       </motion.div>

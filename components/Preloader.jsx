@@ -83,7 +83,7 @@ export default function Preloader({ onComplete }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.35, delay: 0.5, ease: "easeOut" }}
-          className="font-primary text-[clamp(2rem,6vw,3.5rem)] font-medium leading-none tracking-tight text-black"
+          className="font-heading text-[clamp(2rem,6vw,3.5rem)] font-light leading-none tracking-tight text-black"
         >
           {words[index]}
         </motion.span>

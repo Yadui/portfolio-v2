@@ -24,9 +24,14 @@ module.exports = {
       xl: "1200px",
     },
     fontFamily: {
-      primary: ["var(--font-morsa)", "ui-sans-serif", "system-ui", "sans-serif"],
-      electro: ["var(--font-morsa)", "ui-sans-serif", "system-ui", "sans-serif"],
-      qubiko: ["var(--font-morsa)", "ui-sans-serif", "system-ui", "sans-serif"],
+      // Canonical role-based tokens
+      body: ["var(--font-clash-display)", "ui-sans-serif", "system-ui", "sans-serif"],
+      heading: ["var(--font-clash-grotesk)", "ui-sans-serif", "system-ui", "sans-serif"],
+      morsa: ["var(--font-morsa)", "ui-sans-serif", "system-ui", "sans-serif"],
+      // Legacy aliases (kept so any unscanned usage resolves to a sensible font)
+      primary: ["var(--font-clash-display)", "ui-sans-serif", "system-ui", "sans-serif"],
+      electro: ["var(--font-clash-grotesk)", "ui-sans-serif", "system-ui", "sans-serif"],
+      qubiko: ["var(--font-clash-grotesk)", "ui-sans-serif", "system-ui", "sans-serif"],
     },
     extend: {
       colors: {

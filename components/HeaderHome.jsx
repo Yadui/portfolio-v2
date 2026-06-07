@@ -139,7 +139,7 @@ const HeaderHome = ({ arrowRef }) => {
               className="name-container flex items-center opacity-0"
               style={{ width: 0, overflow: "hidden" }}
             >
-              <h1 className="flex items-center whitespace-nowrap text-4xl font-bold leading-none tracking-tight text-black md:text-6xl">
+              <h1 className="flex items-center whitespace-nowrap text-4xl font-light leading-none tracking-tight text-black md:text-6xl">
                 {nameText.split("").map((char, index) => (
                   <span
                     key={index}

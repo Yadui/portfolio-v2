@@ -71,9 +71,9 @@ import { CodeBlock, CodeBlockCopyButton } from "@/components/ai-elements/code-bl
 
 // Custom Markdown Components for Coloring and IDs
 const MarkdownComponents = {
-  h1: ({ children }) => <h1 id={generateId(children.toString())} className="text-3xl font-bold mt-8 mb-4">{children}</h1>,
-  h2: ({ children }) => <h2 id={generateId(children.toString())} className="text-2xl font-bold mt-8 mb-4 text-white border-l-4 border-accent pl-4">{children}</h2>,
-  h3: ({ children }) => <h3 id={generateId(children.toString())} className="text-xl font-bold mt-6 mb-3 text-white/90">{children}</h3>,
+  h1: ({ children }) => <h1 id={generateId(children.toString())} className="text-3xl font-light mt-8 mb-4">{children}</h1>,
+  h2: ({ children }) => <h2 id={generateId(children.toString())} className="text-2xl font-light mt-8 mb-4 text-white border-l-4 border-accent pl-4">{children}</h2>,
+  h3: ({ children }) => <h3 id={generateId(children.toString())} className="text-xl font-light mt-6 mb-3 text-white/90">{children}</h3>,
   
   // Links with special styling for resources
   a: ({ href, children }) => {
@@ -395,7 +395,7 @@ export default async function BlogPost({ params }) {
                                 <Image src="/assets/photo.png" alt="Abhinav" fill className="object-cover" />
                             </div>
                             <div>
-                                <h4 className="text-lg font-bold text-white">Abhinav</h4>
+                                <h4 className="text-lg font-light text-white">Abhinav</h4>
                                 <div className="flex gap-2 text-white/40 mt-1">
                                     <a href="#" className="hover:text-white transition-colors"><FiGithub /></a>
                                     <a href="#" className="hover:text-blue-400 transition-colors"><FiTwitter /></a>
@@ -414,7 +414,7 @@ export default async function BlogPost({ params }) {
                     {/* Table of Contents */}
                     {headings.length > 0 && (
                         <div className="bg-zinc-900/40 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
-                            <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-4 border-b border-white/10 pb-2">
+                            <h4 className="text-sm font-light text-white uppercase tracking-wider mb-4 border-b border-white/10 pb-2">
                                 Table of Contents
                             </h4>
                             <nav className="flex flex-col gap-2">

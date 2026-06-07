@@ -571,7 +571,7 @@ const Header = ({ projectsSectionRef, projectsSurfaceRef, disableScrollTransitio
                     duration={0.95}
                     speed={0.8}
                     onComplete={handleHelloComplete}
-                    className="font-primary inline-flex items-center whitespace-nowrap text-[clamp(0.9rem,1.4vw,1.55rem)] font-medium tracking-[0.08em] text-white"
+                    className="font-heading inline-flex items-center whitespace-nowrap text-[clamp(0.9rem,1.4vw,1.55rem)] font-light tracking-[0.08em] text-white"
                   />
                 )}
               </div>
@@ -587,7 +587,7 @@ const Header = ({ projectsSectionRef, projectsSurfaceRef, disableScrollTransitio
                   active={stage >= 3}
                   duration={1.1}
                   speed={0.75}
-                  className="font-primary flex items-center whitespace-nowrap text-[clamp(1.2rem,2.2vw,2.7rem)] font-semibold tracking-[0.08em] text-white"
+                  className="font-heading flex items-center whitespace-nowrap text-[clamp(1.2rem,2.2vw,2.7rem)] font-light tracking-[0.08em] text-white"
                 />
               </div>
             </div>

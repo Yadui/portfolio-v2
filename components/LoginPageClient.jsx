@@ -49,7 +49,7 @@ export default function LoginPageClient() {
 
       <div className="container mx-auto flex min-h-screen items-center justify-center pt-20">
         <div className="w-full max-w-md rounded-2xl border border-white/10 bg-zinc-900/50 p-8 backdrop-blur-md">
-          <h1 className="mb-6 text-center text-3xl font-bold text-white">Admin Login</h1>
+          <h1 className="mb-6 text-center text-3xl font-light text-white">Admin Login</h1>
 
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-2">
