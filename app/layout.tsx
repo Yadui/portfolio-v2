@@ -15,19 +15,28 @@ const morsa = localFont({
 export const metadata = {
   metadataBase: new URL("https://abhinav.maoverse.xyz"),
   title: {
-    default: "Abhinav Yadav — Software Engineer & Creative Developer",
+    default: "Abhinav Yadav — Cloud & AI Engineer at Foetron | Portfolio",
     template: "%s | Abhinav Yadav",
   },
   description:
-    "Abhinav Yadav is a Software Engineer and Creative Developer building cloud, AI, and full-stack web applications with React, Next.js, and Azure.",
+    "Abhinav Yadav — Cloud & AI Engineer at Foetron. Official portfolio of Abhinav Yadav featuring full-stack, cloud, and AI projects built with Azure, React, and Next.js.",
+  alternates: {
+    canonical: "https://abhinav.maoverse.xyz",
+  },
   keywords: [
+    "Abhinav Yadav",
+    "Abhinav Yadav Foetron",
+    "Abhinav Yadav Portfolio",
+    "Foetron",
+    "Cloud and AI Engineer",
+    "Cloud Engineer",
+    "AI Engineer",
     "Software Engineer",
     "Web Developer",
     "React",
     "Next.js",
     "Creative Developer",
     "Portfolio",
-    "Abhinav Yadav",
     "Frontend",
     "Full Stack",
   ],
@@ -38,9 +47,9 @@ export const metadata = {
     locale: "en_US",
     url: "https://abhinav.maoverse.xyz",
     siteName: "Abhinav Yadav Portfolio",
-    title: "Abhinav Yadav | Software Engineer & Creative Developer",
+    title: "Abhinav Yadav — Cloud & AI Engineer at Foetron | Portfolio",
     description:
-      "Explore the portfolio of Abhinav Yadav, featuring creative web projects and software engineering expertise.",
+      "Explore the official portfolio of Abhinav Yadav, Cloud & AI Engineer at Foetron — cloud, AI, and full-stack web projects.",
     images: [
       {
         url: "/opengraph-image",
@@ -52,8 +61,9 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Abhinav Yadav | Software Engineer & Creative Developer",
-    description: "Check out my latest projects and skills in web development.",
+    title: "Abhinav Yadav — Cloud & AI Engineer at Foetron | Portfolio",
+    description:
+      "Official portfolio of Abhinav Yadav, Cloud & AI Engineer at Foetron — cloud, AI, and full-stack projects.",
     creator: "@abhinavyadav88",
     images: ["/opengraph-image"],
   },
@@ -77,9 +87,13 @@ const structuredData = {
       name: "Abhinav Yadav",
       url: SITE_URL,
       image: `${SITE_URL}/assets/Abhinav_Yadav.png`,
-      jobTitle: "Software Engineer",
+      jobTitle: "Cloud & AI Engineer",
+      worksFor: {
+        "@type": "Organization",
+        name: "Foetron",
+      },
       description:
-        "Software Engineer and Creative Developer building cloud, AI, and full-stack web applications.",
+        "Cloud & AI Engineer at Foetron and creative full-stack developer building cloud, AI, and full-stack web applications.",
       knowsAbout: [
         "Software Engineering",
         "Web Development",
