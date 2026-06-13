@@ -2,30 +2,49 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { FiX, FiTarget, FiTrendingUp, FiBriefcase, FiCode, FiCalendar } from "react-icons/fi";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { getLenis } from "@/lib/smooth-scroll";
 
 export default function WorkDetailModal({ work, isOpen, onClose }) {
   const [mounted, setMounted] = useState(false);
+  const scrollRef = useRef(null);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Close on Escape key
+  // Escape key + scroll lock. Lenis owns the scroll so we stop/start it
+  // instead of toggling body.overflow (which Lenis ignores).
   useEffect(() => {
+    if (!isOpen) return undefined;
+
     const handleEscape = (e) => {
       if (e.key === "Escape") onClose();
     };
-    if (isOpen) {
-      document.addEventListener("keydown", handleEscape);
-      document.body.style.overflow = "hidden";
-    }
+    document.addEventListener("keydown", handleEscape);
+
+    // Stop Lenis so the page behind the modal doesn't scroll.
+    const lenis = getLenis();
+    lenis?.stop();
+
+    // Fallback for pages without Lenis (sub-routes).
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
     return () => {
       document.removeEventListener("keydown", handleEscape);
-      document.body.style.overflow = "unset";
+      lenis?.start();
+      document.body.style.overflow = prev;
     };
   }, [isOpen, onClose]);
+
+  // Reset the inner scroll position each time a different role is opened.
+  useEffect(() => {
+    if (isOpen && scrollRef.current) {
+      scrollRef.current.scrollTop = 0;
+    }
+  }, [isOpen, work]);
 
   if (!work || !mounted) return null;
 
@@ -88,8 +107,13 @@ export default function WorkDetailModal({ work, isOpen, onClose }) {
                 </div>
               </div>
 
-              {/* Scrollable Content */}
-              <div className="overflow-y-auto max-h-[calc(85vh-140px)] p-6 space-y-8">
+              {/* Scrollable Content — data-lenis-prevent lets Lenis hand
+                  off scroll events inside this container to native scroll. */}
+              <div
+                ref={scrollRef}
+                data-lenis-prevent
+                className="overflow-y-auto max-h-[calc(85vh-140px)] p-6 space-y-8"
+              >
                 
                 {/* Summary */}
                 <motion.div

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import gsap from "gsap";
 
 import styles from "./FlowingMenu.module.css";
@@ -47,8 +48,102 @@ function FlowingMenu({
   borderColor = "#fff",
   onItemActivate,
 }) {
+  const previewRef = useRef(null);
+  const previewImgRef = useRef(null);
+  const moveRef = useRef(null);
+  const previewVisibleRef = useRef(false);
+  const [previewEnabled, setPreviewEnabled] = useState(false);
+
+  // The hover preview is desktop-only candy: fine pointers, motion allowed.
+  useEffect(() => {
+    const fine = window.matchMedia("(pointer: fine)").matches;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    setPreviewEnabled(fine && !reduce);
+  }, []);
+
+  // Warm the image cache so the first hover doesn't flash empty.
+  useEffect(() => {
+    if (!previewEnabled) return;
+    items.forEach((item) => {
+      if (item.image) {
+        const img = new Image();
+        img.src = item.image;
+      }
+    });
+  }, [items, previewEnabled]);
+
+  // Follow setup — the preview lives in a portal on <body>, because the
+  // home page translates this section's wrapper (transform breaks
+  // position:fixed for descendants).
+  useEffect(() => {
+    const el = previewRef.current;
+    if (!previewEnabled || !el) return undefined;
+
+    gsap.set(el, { xPercent: -50, yPercent: -50, scale: 0, rotation: -5 });
+    moveRef.current = {
+      x: gsap.quickTo(el, "x", { duration: 0.5, ease: "power3.out" }),
+      y: gsap.quickTo(el, "y", { duration: 0.5, ease: "power3.out" }),
+    };
+
+    return () => {
+      moveRef.current = null;
+      gsap.killTweensOf(el);
+    };
+  }, [previewEnabled]);
+
+  const handlePointerMove = useCallback((event) => {
+    moveRef.current?.x(event.clientX);
+    moveRef.current?.y(event.clientY);
+  }, []);
+
+  const showPreview = useCallback((item, event) => {
+    const el = previewRef.current;
+    if (!el) return;
+
+    if (previewImgRef.current && item?.image) {
+      previewImgRef.current.src = item.image;
+      previewImgRef.current.style.display = "";
+    } else if (previewImgRef.current) {
+      previewImgRef.current.style.display = "none";
+    }
+
+    // Snap to the cursor before scaling in so it never flies across screen.
+    if (event && !previewVisibleRef.current) {
+      gsap.set(el, { x: event.clientX, y: event.clientY });
+    }
+
+    if (!previewVisibleRef.current) {
+      previewVisibleRef.current = true;
+      gsap.to(el, {
+        scale: 1,
+        rotation: 0,
+        duration: 0.45,
+        ease: "back.out(1.5)",
+        overwrite: "auto",
+      });
+    }
+  }, []);
+
+  const hidePreview = useCallback(() => {
+    const el = previewRef.current;
+    if (!el || !previewVisibleRef.current) return;
+    previewVisibleRef.current = false;
+    gsap.to(el, {
+      scale: 0,
+      rotation: -5,
+      duration: 0.3,
+      ease: "power3.in",
+      overwrite: "auto",
+    });
+  }, []);
+
   return (
-    <div className={styles.menuWrap} style={{ backgroundColor: bgColor }}>
+    <div
+      className={styles.menuWrap}
+      style={{ backgroundColor: bgColor }}
+      onMouseMove={previewEnabled ? handlePointerMove : undefined}
+      onMouseLeave={previewEnabled ? hidePreview : undefined}
+    >
       <nav className={styles.menu} aria-label="Projects menu">
         {items.map((item) => (
           <MenuItem
@@ -60,9 +155,35 @@ function FlowingMenu({
             marqueeTextColor={marqueeTextColor}
             borderColor={borderColor}
             onActivate={() => onItemActivate?.(item.id)}
+            onPreview={
+              previewEnabled ? (event) => showPreview(item, event) : undefined
+            }
           />
         ))}
       </nav>
+
+      {previewEnabled &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            ref={previewRef}
+            aria-hidden="true"
+            // Inline zIndex (not a class): must always paint above the
+            // stacked sticky sections (z 10-14), below the fixed chrome
+            // (veil 100 / menu 105 / header 110).
+            style={{ zIndex: 95 }}
+            className="pointer-events-none fixed left-0 top-0 h-[clamp(170px,24vw,300px)] w-[clamp(170px,24vw,300px)] overflow-hidden rounded-lg shadow-[0_30px_90px_rgba(0,0,0,0.45)] will-change-transform"
+          >
+            <img
+              ref={previewImgRef}
+              src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+              alt=""
+              draggable={false}
+              className="h-full w-full object-cover"
+            />
+          </div>,
+          document.body
+        )}
     </div>
   );
 }
@@ -70,7 +191,6 @@ function FlowingMenu({
 function MenuItem({
   link,
   text,
-  image,
   category,
   metaText,
   speed,
@@ -79,6 +199,7 @@ function MenuItem({
   marqueeTextColor,
   borderColor,
   onActivate,
+  onPreview,
 }) {
   const itemRef = useRef(null);
   const linkRef = useRef(null);
@@ -119,7 +240,7 @@ function MenuItem({
     return () => {
       window.removeEventListener("resize", calculateRepetitions);
     };
-  }, [text, image, category, metaText]);
+  }, [text, category, metaText]);
 
   useEffect(() => {
     let frameId = 0;
@@ -159,7 +280,7 @@ function MenuItem({
       window.cancelAnimationFrame(frameId);
       animationRef.current?.kill();
     };
-  }, [text, image, category, metaText, repetitions, speed]);
+  }, [text, category, metaText, repetitions, speed]);
 
   // Return the item to its resting state. Project links open in a new tab
   // (target="_blank"), which steals window focus but leaves the clicked <a>
@@ -225,6 +346,7 @@ function MenuItem({
   const handleMouseEnter = (event) => {
     setIsHighlighted(true);
     onActivate?.();
+    onPreview?.(event);
     runEnter(getEdgeFromEvent(event, itemRef.current));
   };
 
@@ -257,6 +379,7 @@ function MenuItem({
   return (
     <div
       ref={itemRef}
+      data-menu-row
       className={styles.menuItem}
       style={{ borderColor }}
     >
@@ -307,15 +430,13 @@ function MenuItem({
                 style={{ color: marqueeTextColor }}
               >
                 <span className={styles.marqueeLabel}>{text}</span>
-                {image ? (
-                  <div
-                    className={styles.marqueeImage}
-                    style={{ backgroundImage: `url(${image})` }}
-                  />
-                ) : (
-                  <div className={styles.marqueeFallback}>{category}</div>
-                )}
+                <span className={styles.marqueeSep} aria-hidden="true">
+                  ✦
+                </span>
                 <span className={styles.marqueeLabel}>{metaText}</span>
+                <span className={styles.marqueeSep} aria-hidden="true">
+                  ✦
+                </span>
               </div>
             ))}
           </div>

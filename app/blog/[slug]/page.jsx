@@ -71,9 +71,9 @@ import { CodeBlock, CodeBlockCopyButton } from "@/components/ai-elements/code-bl
 
 // Custom Markdown Components for Coloring and IDs
 const MarkdownComponents = {
-  h1: ({ children }) => <h1 id={generateId(children.toString())} className="text-3xl font-light mt-8 mb-4">{children}</h1>,
-  h2: ({ children }) => <h2 id={generateId(children.toString())} className="text-2xl font-light mt-8 mb-4 text-white border-l-4 border-accent pl-4">{children}</h2>,
-  h3: ({ children }) => <h3 id={generateId(children.toString())} className="text-xl font-light mt-6 mb-3 text-white/90">{children}</h3>,
+  h1: ({ children }) => <h1 id={generateId(children.toString())} className="text-3xl font-light mt-8 mb-4 text-[#101828]">{children}</h1>,
+  h2: ({ children }) => <h2 id={generateId(children.toString())} className="text-2xl font-light mt-8 mb-4 text-[#101828] border-l-4 border-[#00ff99] pl-4">{children}</h2>,
+  h3: ({ children }) => <h3 id={generateId(children.toString())} className="text-xl font-light mt-6 mb-3 text-[#1d2839]">{children}</h3>,
   
   // Links with special styling for resources
   a: ({ href, children }) => {
@@ -109,7 +109,7 @@ const MarkdownComponents = {
       }
 
     return (
-      <a href={href} className="text-accent font-medium hover:text-white transition-all underline decoration-accent/30 hover:decoration-accent underline-offset-4" target="_blank" rel="noopener noreferrer">
+      <a href={href} className="font-medium text-[#00805b] underline decoration-[#00b86b]/40 underline-offset-4 transition-all hover:text-[#101828] hover:decoration-[#00b86b]" target="_blank" rel="noopener noreferrer">
         {children}
       </a>
     );
@@ -117,7 +117,7 @@ const MarkdownComponents = {
 
   // Images
   img: ({ src, alt }) => (
-    <div className="relative w-full aspect-video my-8 rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
+    <div className="relative my-8 aspect-video w-full overflow-hidden rounded-2xl border border-[#101828]/10 shadow-xl">
       <img src={src} alt={alt} className="w-full h-full object-cover" />
       {alt && <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm p-2 text-xs text-center text-white/70">{alt}</div>}
     </div>
@@ -125,7 +125,7 @@ const MarkdownComponents = {
 
   // Custom Blockquote (Generic style for quotes)
   blockquote: ({ children }) => (
-    <blockquote className="border-l-4 border-white/20 pl-6 my-6 italic text-white/60">
+    <blockquote className="my-6 border-l-4 border-[#101828]/20 pl-6 italic text-[#536074]">
       {children}
     </blockquote>
   ),
@@ -151,19 +151,19 @@ const MarkdownComponents = {
             const newChildren = [cleanText, ...contentArr.slice(1)];
             
             const styles = {
-                default: "border-accent bg-zinc-900/50 text-white/80",
-                info: "border-blue-500 bg-blue-500/10 text-blue-200",
-                warning: "border-yellow-500 bg-yellow-500/10 text-yellow-200",
-                danger: "border-red-500 bg-red-500/10 text-red-200",
-                success: "border-green-500 bg-green-500/10 text-green-200",
+                default: "border-[#00b86b] bg-white/70 text-[#2a3648]",
+                info: "border-blue-500 bg-blue-500/10 text-blue-900",
+                warning: "border-yellow-500 bg-yellow-500/10 text-yellow-900",
+                danger: "border-red-500 bg-red-500/10 text-red-900",
+                success: "border-green-600 bg-green-500/10 text-green-900",
             };
 
             const icons = {
-                default: <FiInfo size={24} className="text-accent" />,
+                default: <FiInfo size={24} className="text-[#00805b]" />,
                 info: <FiInfo size={24} className="text-blue-500" />,
                 warning: <FiAlertCircle size={24} className="text-yellow-500" />,
                 danger: <FiAlertCircle size={24} className="text-red-500" />,
-                success: <FiCheckCircle size={24} className="text-green-500" />,
+                success: <FiCheckCircle size={24} className="text-green-600" />,
             };
 
             return (
@@ -176,7 +176,7 @@ const MarkdownComponents = {
     }
     
     // Normal paragraph (using div to avoid hydration errors with nested divs like images/code)
-    return <div className="mb-6 leading-relaxed text-white/80">{children}</div>;
+    return <div className="mb-6 leading-relaxed text-[#2a3648]">{children}</div>;
   },
 
   // Unwrap pre to avoid hydration mismatches with div-in-pre
@@ -198,7 +198,7 @@ const MarkdownComponents = {
     } 
 
     return (
-      <code className="px-1.5 py-0.5 rounded bg-white/10 text-accent font-mono text-sm border border-white/5" {...props}>
+      <code className="rounded border border-[#101828]/10 bg-[#101828]/5 px-1.5 py-0.5 font-mono text-sm text-[#00734a]" {...props}>
         {children}
       </code>
     );
@@ -295,22 +295,22 @@ export default async function BlogPost({ params }) {
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
     />
-    <div className="min-h-screen bg-primary pt-32 px-4 md:px-8 pb-20">
+    <div className="min-h-screen px-4 pb-20 pt-32 md:px-8">
       <div className="container mx-auto max-w-[1400px]">
         
         {/* TOP HEADER: Title + Date */}
         <div className="max-w-4xl mx-auto text-center mb-16">
             <div className="mb-6">
                 <Link href="/blog">
-                    <Button variant="ghost" className="text-white/40 hover:text-white hover:bg-white/10">
+                    <Button variant="ghost" className="text-[#536074] hover:bg-[#101828]/5 hover:text-[#101828]">
                         ← Back to Blog
                     </Button>
                 </Link>
             </div>
-            <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-6 leading-tight tracking-tight">
+            <h1 className="mb-6 text-4xl font-extrabold leading-tight tracking-tight text-[#101828] md:text-6xl">
                 {post.title}
             </h1>
-            <div className="text-white/40 font-mono">
+            <div className="font-mono text-[#8892a4]">
                 {new Date(post.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
             </div>
         </div>
@@ -319,23 +319,23 @@ export default async function BlogPost({ params }) {
             
             {/* LEFT SIDEBAR: Actions (Sticky) */}
             <aside className="hidden lg:flex flex-col gap-6 col-span-1 sticky top-32 h-fit items-center">
-                <div className="flex flex-col gap-4 bg-zinc-900/50 p-3 rounded-full border border-white/5 backdrop-blur-sm">
-                    <button className="p-3 text-white/40 hover:text-red-500 hover:bg-white/5 rounded-full transition-all group relative">
+                <div className="flex flex-col gap-4 rounded-full border border-[#101828]/10 bg-white/80 p-3 shadow-[0_14px_50px_rgba(16,24,40,0.08)] backdrop-blur-sm">
+                    <button className="group relative rounded-full p-3 text-[#8892a4] transition-all hover:bg-[#101828]/5 hover:text-red-500">
                         <FiHeart size={22} className="group-hover:fill-current" />
-                        <span className="absolute left-10 md:left-14 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 bg-white text-black text-xs px-2 py-1 rounded whitespace-nowrap pointer-events-none transition-opacity">Like</span>
+                        <span className="absolute left-10 md:left-14 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 bg-[#101828] text-white text-xs px-2 py-1 rounded whitespace-nowrap pointer-events-none transition-opacity">Like</span>
                     </button>
-                    <button className="p-3 text-white/40 hover:text-accent hover:bg-white/5 rounded-full transition-all group relative">
+                    <button className="group relative rounded-full p-3 text-[#8892a4] transition-all hover:bg-[#101828]/5 hover:text-[#00805b]">
                         <FiBookmark size={22} className="group-hover:fill-current" />
-                        <span className="absolute left-10 md:left-14 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 bg-white text-black text-xs px-2 py-1 rounded whitespace-nowrap pointer-events-none transition-opacity">Bookmark</span>
+                        <span className="absolute left-10 md:left-14 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 bg-[#101828] text-white text-xs px-2 py-1 rounded whitespace-nowrap pointer-events-none transition-opacity">Bookmark</span>
                     </button>
-                    <div className="h-px w-6 bg-white/10 mx-auto my-1"></div>
-                    <button className="p-3 text-white/40 hover:text-blue-400 hover:bg-white/5 rounded-full transition-all">
+                    <div className="mx-auto my-1 h-px w-6 bg-[#101828]/10"></div>
+                    <button className="rounded-full p-3 text-[#8892a4] transition-all hover:bg-[#101828]/5 hover:text-blue-500">
                         <FiTwitter size={20} />
                     </button>
-                     <button className="p-3 text-white/40 hover:text-blue-600 hover:bg-white/5 rounded-full transition-all">
+                     <button className="rounded-full p-3 text-[#8892a4] transition-all hover:bg-[#101828]/5 hover:text-blue-700">
                         <FiLinkedin size={20} />
                     </button>
-                    <button className="p-3 text-white/40 hover:text-white hover:bg-white/5 rounded-full transition-all">
+                    <button className="rounded-full p-3 text-[#8892a4] transition-all hover:bg-[#101828]/5 hover:text-[#101828]">
                         <FiLink size={20} />
                     </button>
                 </div>
@@ -348,7 +348,7 @@ export default async function BlogPost({ params }) {
                     {post.tags && (
                         <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2">
                              {post.tags.split(',').map((tag, i) => (
-                                <span key={i} className="px-3 py-1 bg-accent/10 border border-accent/20 text-accent rounded-full text-xs font-bold uppercase tracking-wider">
+                                <span key={i} className="rounded-full border border-[#00b86b]/30 bg-[#00ff99]/12 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#00734a]">
                                   {tag.trim()}
                                 </span>
                               ))}
@@ -356,7 +356,7 @@ export default async function BlogPost({ params }) {
                     )}
                     
                     {post.coverImage && (
-                      <div className="relative w-full aspect-video rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+                      <div className="relative aspect-video w-full overflow-hidden rounded-3xl border border-[#101828]/10 shadow-xl">
                         <img 
                           src={post.coverImage} 
                           alt={post.title} 
@@ -367,16 +367,16 @@ export default async function BlogPost({ params }) {
                 </div>
 
                 {/* Content */}
-                <article className="prose prose-invert prose-lg max-w-none prose-headings:scroll-mt-24 prose-a:text-accent hover:prose-a:text-accent/80 prose-strong:text-white prose-code:text-accent prose-code:bg-white/5 prose-code:px-1 prose-code:rounded prose-pre:bg-zinc-950 prose-pre:border prose-pre:border-white/10 prose-img:rounded-2xl">
+                <article className="prose prose-lg max-w-none prose-headings:scroll-mt-24 prose-headings:text-[#101828] prose-p:text-[#2a3648] prose-a:text-[#00805b] hover:prose-a:text-[#101828] prose-strong:text-[#101828] prose-li:text-[#2a3648] prose-code:rounded prose-code:bg-[#101828]/5 prose-code:px-1 prose-code:text-[#00734a] prose-pre:border prose-pre:border-[#101828]/10 prose-pre:bg-zinc-950 prose-img:rounded-2xl">
                     <ReactMarkdown components={MarkdownComponents}>
                         {post.content}
                     </ReactMarkdown>
                 </article>
                 
                 {isAdmin && post.sourceType === "database" && (
-                  <div className="flex justify-end pt-10 border-t border-white/10">
+                  <div className="flex justify-end border-t border-[#101828]/10 pt-10">
                     <Link href={`/blog/edit/${post.id}`}>
-                      <Button variant="outline" className="text-white border-white/20 hover:bg-white/10">
+                      <Button variant="outline" className="border-[#101828]/20 text-[#101828] hover:bg-[#101828]/5 hover:text-[#101828]">
                         Edit Post
                       </Button>
                     </Link>
@@ -389,32 +389,34 @@ export default async function BlogPost({ params }) {
                 <div className="sticky top-32 flex flex-col gap-8">
                     
                     {/* Author Profile */}
-                    <div className="bg-zinc-900/40 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
+                    <div className="rounded-2xl border border-[#101828]/10 bg-white/80 p-6 shadow-[0_14px_50px_rgba(16,24,40,0.08)] backdrop-blur-sm">
                         <div className="flex items-center gap-4 mb-4">
-                            <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-accent">
-                                <Image src="/assets/photo.png" alt="Abhinav" fill className="object-cover" />
+                            <div className="relative h-16 w-16 overflow-hidden rounded-full border-2 border-[#00b86b]">
+                                <Image src="/assets/photo.png" alt="Abhinav" fill sizes="64px" className="object-cover" />
                             </div>
                             <div>
-                                <h4 className="text-lg font-light text-white">Abhinav</h4>
-                                <div className="flex gap-2 text-white/40 mt-1">
-                                    <a href="#" className="hover:text-white transition-colors"><FiGithub /></a>
-                                    <a href="#" className="hover:text-blue-400 transition-colors"><FiTwitter /></a>
-                                    <a href="#" className="hover:text-blue-600 transition-colors"><FiLinkedin /></a>
+                                <h4 className="text-lg font-light text-[#101828]">Abhinav</h4>
+                                <div className="mt-1 flex gap-2 text-[#8892a4]">
+                                    <a href="https://github.com/Yadui" target="_blank" rel="noopener noreferrer" aria-label="GitHub" className="transition-colors hover:text-[#101828]"><FiGithub /></a>
+                                    <a href="https://x.com/abhinav2302055" target="_blank" rel="noopener noreferrer" aria-label="Twitter / X" className="transition-colors hover:text-blue-500"><FiTwitter /></a>
+                                    <a href="https://www.linkedin.com/in/abhinavyadav88" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="transition-colors hover:text-blue-700"><FiLinkedin /></a>
                                 </div>
                             </div>
                         </div>
-                        <p className="text-white/60 text-sm leading-relaxed mb-4">
+                        <p className="mb-4 text-sm leading-relaxed text-[#536074]">
                             Full Stack Engineer passionate about building scalable web apps and AI solutions.
                         </p>
-                        <Button className="w-full bg-white text-black hover:bg-gray-200 font-bold rounded-lg h-9">
-                            Follow
-                        </Button>
+                        <Link href="/" className="block">
+                          <Button className="h-9 w-full rounded-lg bg-[#101828] font-bold text-white hover:bg-[#1d2839]">
+                              More about me
+                          </Button>
+                        </Link>
                     </div>
 
                     {/* Table of Contents */}
                     {headings.length > 0 && (
-                        <div className="bg-zinc-900/40 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
-                            <h4 className="text-sm font-light text-white uppercase tracking-wider mb-4 border-b border-white/10 pb-2">
+                        <div className="rounded-2xl border border-[#101828]/10 bg-white/80 p-6 shadow-[0_14px_50px_rgba(16,24,40,0.08)] backdrop-blur-sm">
+                            <h4 className="mb-4 border-b border-[#101828]/10 pb-2 text-sm font-light uppercase tracking-wider text-[#101828]">
                                 Table of Contents
                             </h4>
                             <nav className="flex flex-col gap-2">
@@ -422,8 +424,8 @@ export default async function BlogPost({ params }) {
                                     <a 
                                         key={i} 
                                         href={`#${heading.id}`}
-                                        className={`text-sm transition-colors hover:text-accent line-clamp-1 block
-                                            ${heading.level === 1 ? 'text-white/90 font-medium' : 'text-white/60 pl-4'}
+                                        className={`block text-sm transition-colors line-clamp-1 hover:text-[#00805b]
+                                            ${heading.level === 1 ? 'font-medium text-[#1d2839]' : 'pl-4 text-[#536074]'}
                                             ${heading.level === 3 ? 'pl-8' : ''}
                                         `}
                                     >

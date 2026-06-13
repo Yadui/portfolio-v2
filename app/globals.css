@@ -4,6 +4,10 @@
 
 @layer base {
   :root {
+    /* Height of the fixed site header — the stacked home sections pin
+       just below it (sticky top offset + section height math). */
+    --site-header-h: 72px;
+
     --portfolio-paper: #f5f1e8;
     --portfolio-paper-elevated: rgba(255, 252, 246, 0.88);
     --portfolio-paper-solid: #fffdf8;
@@ -22,10 +26,26 @@
   }
 
   html {
-    scroll-behavior: smooth;
+    /* Lenis owns scroll smoothing — native smooth behavior would fight it. */
+    scroll-behavior: initial;
     scrollbar-width: none;
     -ms-overflow-style: none;
     font-size: clamp(13px, 1.1vw, 16px);
+  }
+
+  /* Recommended Lenis setup styles */
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+  .lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+  }
+  .lenis.lenis-stopped {
+    overflow: hidden;
   }
 
   html::-webkit-scrollbar,
@@ -36,7 +56,9 @@
   }
 
   body {
-    @apply font-body bg-primary text-white leading-loose;
+    @apply font-body leading-loose;
+    background-color: var(--portfolio-paper-solid);
+    color: var(--portfolio-ink);
     scrollbar-width: none;
     -ms-overflow-style: none;
   }
@@ -73,6 +95,9 @@
   .text-outline {
     -webkit-text-stroke: 1px #ffffff;
   }
+  .text-outline-ink {
+    -webkit-text-stroke: 1px rgba(16, 24, 40, 0.55);
+  }
   .text-outline-hover {
     -webkit-text-stroke: 1px #00ff99;
   }
@@ -87,6 +112,24 @@
 }
 
 @layer components {
+  /* Stack-section shell — pins just below the fixed navbar. */
+  .stack-section {
+    position: sticky;
+    top: var(--site-header-h);
+    height: calc(100vh - var(--site-header-h));
+    width: 100%;
+    overflow: hidden;
+  }
+
+  /* Used by Projects, Achievements, Skills, Contact inner min-heights */
+  .min-h-below-nav {
+    min-height: calc(100vh - var(--site-header-h));
+  }
+
+  .h-below-nav {
+    height: calc(100vh - var(--site-header-h));
+  }
+
   .stacked-scroll-site .portfolio-section {
     padding-top: 1.75rem;
     padding-bottom: 4rem;

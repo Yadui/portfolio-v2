@@ -1,48 +1,3 @@
-const escapeXml = (value) =>
-  value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/\"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-
-const createCoverImage = ({ eyebrow, lines, from, to, glow }) => {
-  const lineMarkup = lines
-    .map((line, index) => {
-      const y = 366 + (index * 86);
-      return `<text x="88" y="${y}" fill="#f8fafc" font-family="JetBrains Mono, Arial, sans-serif" font-size="68" font-weight="700">${escapeXml(line)}</text>`;
-    })
-    .join("");
-
-  const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" fill="none">
-      <defs>
-        <linearGradient id="bg" x1="0" y1="0" x2="1600" y2="900" gradientUnits="userSpaceOnUse">
-          <stop stop-color="#050816" />
-          <stop offset="1" stop-color="#111827" />
-        </linearGradient>
-        <linearGradient id="accent" x1="88" y1="96" x2="1512" y2="804" gradientUnits="userSpaceOnUse">
-          <stop stop-color="${from}" />
-          <stop offset="1" stop-color="${to}" />
-        </linearGradient>
-        <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1260 160) rotate(128) scale(520 420)">
-          <stop stop-color="${glow}" stop-opacity="0.7" />
-          <stop offset="1" stop-color="${glow}" stop-opacity="0" />
-        </radialGradient>
-      </defs>
-      <rect width="1600" height="900" rx="48" fill="url(#bg)" />
-      <rect width="1600" height="900" rx="48" fill="url(#glow)" />
-      <rect x="88" y="88" width="1424" height="724" rx="36" fill="rgba(15, 23, 42, 0.78)" stroke="rgba(248, 250, 252, 0.12)" />
-      <rect x="88" y="88" width="1424" height="16" fill="url(#accent)" />
-      <text x="88" y="176" fill="rgba(248,250,252,0.72)" font-family="JetBrains Mono, Arial, sans-serif" font-size="28" font-weight="700" letter-spacing="6">${escapeXml(eyebrow.toUpperCase())}</text>
-      ${lineMarkup}
-      <text x="88" y="770" fill="rgba(248,250,252,0.52)" font-family="JetBrains Mono, Arial, sans-serif" font-size="26" letter-spacing="3">abhinav.maoverse.xyz / blog</text>
-    </svg>
-  `;
-
-  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
-};
-
 const normalizeCreatedAt = (value) => {
   if (!value) {
     return new Date().toISOString();
@@ -70,13 +25,7 @@ export const seededBlogPosts = [
       "Microsoft's latest Foundry Agent Service docs read like a managed runtime story, not just another model-hosting layer. That matters for teams shipping enterprise agents into Azure.",
     tags: "Microsoft Foundry, Azure, Agents, Cloud, Enterprise AI",
     createdAt: "2026-04-29T00:00:00.000Z",
-    coverImage: createCoverImage({
-      eyebrow: "Azure x AI agents",
-      lines: ["Foundry Agent", "Service as runtime"],
-      from: "#22d3ee",
-      to: "#38bdf8",
-      glow: "#0ea5e9",
-    }),
+    coverImage: "/blog-covers/foundry-agent.jpg",
     content: String.raw`The current Microsoft Foundry Agent Service story has moved well beyond "host a prompt and call a model." The updated documentation now positions it as a managed runtime for building, deploying, securing, tracing, and publishing agents across enterprise Azure environments.
 
 For cloud teams, that is the real headline. Once a platform handles identity, lifecycle, tool plumbing, observability, versioning, and stable deployment endpoints, it stops being a demo surface and starts becoming production infrastructure.
@@ -166,13 +115,7 @@ The meaningful shift is that Microsoft is defining agents as a first-class cloud
       "GPT-5.4 folds frontier coding, better tool use, and computer interaction into one model. For teams building coding agents or browser automation, that changes the practical baseline.",
     tags: "OpenAI, GPT-5.4, Coding Agents, Tool Search, Web Automation",
     createdAt: "2026-03-05T00:00:00.000Z",
-    coverImage: createCoverImage({
-      eyebrow: "OpenAI x coding",
-      lines: ["GPT-5.4 for", "tool-heavy workflows"],
-      from: "#34d399",
-      to: "#14b8a6",
-      glow: "#10b981",
-    }),
+    coverImage: "/blog-covers/gpt-54.jpg",
     content: String.raw`OpenAI's GPT-5.4 release is notable because it does not treat coding, tool use, and computer interaction as separate product lanes anymore. It combines them into a single general-purpose model that can reason, write code, use large tool ecosystems more efficiently, and interact with websites and software systems.
 
 That combination is exactly what developers building coding agents, test automation flows, and long-running web tasks have been asking for.
@@ -253,13 +196,7 @@ If you are building an agent that needs to read docs, call tools, edit code, and
       "Vercel's AI SDK 5 is a meaningful web-dev release because it tightens the contract between model output, tool state, and UI rendering instead of leaving frontend teams to improvise it.",
     tags: "Vercel, AI SDK, TypeScript, React, Agents, Frontend",
     createdAt: "2025-07-31T00:00:00.000Z",
-    coverImage: createCoverImage({
-      eyebrow: "Web dev x AI",
-      lines: ["AI SDK 5", "typed end to end"],
-      from: "#f97316",
-      to: "#fb7185",
-      glow: "#f97316",
-    }),
+    coverImage: "/blog-covers/ai-sdk-5.jpg",
     content: String.raw`Vercel's AI SDK 5 is one of the more important web developer releases in the current AI tooling wave because it focuses on a real pain point: AI apps get messy at the boundary between server logic and frontend rendering.
 
 Previous generations made it easy to stream tokens, but harder to maintain a clean and fully typed application state once tools, metadata, partial results, or multi-step agents entered the picture.
@@ -366,13 +303,7 @@ The release matters because it brings discipline to the part of AI app developme
       "The Responses API collapses chat plus tool orchestration into a single primitive. That simplifies how teams add web search, file search, and agent execution to real applications.",
     tags: "OpenAI, Responses API, Agents, Web Search, File Search",
     createdAt: "2025-03-11T00:00:00.000Z",
-    coverImage: createCoverImage({
-      eyebrow: "API platform x agents",
-      lines: ["Responses API", "for production apps"],
-      from: "#a78bfa",
-      to: "#22c55e",
-      glow: "#8b5cf6",
-    }),
+    coverImage: "/blog-covers/responses-api.jpg",
     content: String.raw`OpenAI's Responses API launch is one of the clearest signals yet that agentic applications are becoming a product surface, not just a prompt-engineering pattern.
 
 The key idea is simple: instead of stitching together chat generation, tool calls, search, file retrieval, and orchestration across different abstractions, developers can build on one API primitive designed for multi-step agent behavior.
@@ -453,13 +384,7 @@ The Responses API matters because it makes the "tool-using AI app" feel like a n
       "Automate backups of multiple SQL Server databases directly into Azure Blob Storage with a SAS credential and a scheduled SQL Server Agent job.",
     tags: "SQL Server, Azure, Backup, Automation",
     createdAt: "2025-12-12T00:00:00.000Z",
-    coverImage: createCoverImage({
-      eyebrow: "SQL server x Azure",
-      lines: ["Scheduled backup", "to Azure Blob"],
-      from: "#f59e0b",
-      to: "#0ea5e9",
-      glow: "#f59e0b",
-    }),
+    coverImage: "/blog-covers/sql-backup.jpg",
     content: String.raw`In this article, we'll walk through how to automate backups of multiple SQL Server databases directly to Azure Blob Storage using SQL Server Agent. This is ideal for hybrid or cloud-first architectures where backups must be offloaded to Azure for safe keeping.
 
 ## Step 1: Create an Azure Blob Container & SAS Token
@@ -572,13 +497,7 @@ This approach is simple, SQL-native, and easy to operationalize in environments 
       "The default persist-credentials: true in actions/checkout quietly leaves a GitHub token in a readable file for every subsequent job step. One setting closes the gap — here's why it matters and how to handle workflows that still need git auth.",
     tags: "GitHub Actions, Security, CI/CD, DevOps",
     createdAt: "2026-05-25T00:00:00.000Z",
-    coverImage: createCoverImage({
-      eyebrow: "GitHub Actions x Security",
-      lines: ["persist-credentials:", "always set false"],
-      from: "#f43f5e",
-      to: "#fb923c",
-      glow: "#f43f5e",
-    }),
+    coverImage: "/blog-covers/github-actions-security.jpg",
     content: String.raw`There's a default in \`actions/checkout\` that most teams never change — and that quietly leaves a GitHub token sitting in a readable file for every subsequent step in the job.
 
 The fix is one line. The reasoning is worth understanding.
@@ -730,13 +649,7 @@ Running any of these in CI ensures the check doesn't rely on engineers rememberi
       "Most engineers know that LLM inference uses KV cache. Far fewer can precisely explain why K and V are worth caching but Q is discarded after every decode step. The answer comes from the causal mask — and it has direct implications for how you size and optimize serving infrastructure.",
     tags: "LLM, AI, Machine Learning, Inference, Transformers, Performance",
     createdAt: "2026-05-29T00:00:00.000Z",
-    coverImage: createCoverImage({
-      eyebrow: "LLM x Inference",
-      lines: ["KV cache:", "why not Q?"],
-      from: "#8b5cf6",
-      to: "#06b6d4",
-      glow: "#8b5cf6",
-    }),
+    coverImage: "/blog-covers/llm-kv-cache.jpg",
     content: String.raw`KV cache is one of the most important optimizations in LLM inference. Most engineers understand the concept — "we reuse the Key and Value tensors from previous tokens to avoid recomputation." But most can't precisely answer the follow-up: *why do we cache Key and Value but not Query?*
 
 This post works through the math to give a concrete, unambiguous answer — and connects it to practical implications for serving infrastructure.
@@ -885,13 +798,7 @@ For the RAG pipeline built for VirtuAI (Azure VM spec queries), the system promp
       "The rule against storing JWTs in localStorage gets repeated as dogma, but most developers can't explain the full chain of reasoning — or why the industry is returning to HttpOnly cookies. This post traces the history from stateless JWT enthusiasm to the modern short-lived token + HttpOnly refresh cookie pattern.",
     tags: "Security, Authentication, JWT, Web, Full Stack",
     createdAt: "2026-05-27T00:00:00.000Z",
-    coverImage: createCoverImage({
-      eyebrow: "Web Security x Auth",
-      lines: ["JWT, localStorage,", "and Cookie return"],
-      from: "#f59e0b",
-      to: "#ef4444",
-      glow: "#f59e0b",
-    }),
+    coverImage: "/blog-covers/jwt-auth.jpg",
     content: String.raw`The rule has been repeated so many times it feels like dogma: *don't store JWT in localStorage*. But most developers who follow it couldn't explain the full chain of reasoning behind it — or why the industry is returning to cookies as the primary session mechanism.
 
 This post walks through the history, the actual attack surfaces, and what a secure modern auth setup looks like.

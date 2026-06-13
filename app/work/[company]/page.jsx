@@ -6,6 +6,13 @@ import { FiArrowLeft, FiBriefcase, FiCalendar, FiTarget, FiTrendingUp, FiCode } 
 import Link from "next/link";
 import { workDetails } from "@/data/workDetails";
 
+const sectionReveal = {
+  initial: { opacity: 0, y: 24 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: "-80px" },
+  transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
+};
+
 export default function WorkDetailPage({ params }) {
   const companyKey = params.company;
   const work = workDetails[companyKey];
@@ -14,18 +21,23 @@ export default function WorkDetailPage({ params }) {
     notFound();
   }
 
+  // Cyclic "next role" navigation so the page never dead-ends.
+  const slugs = Object.keys(workDetails);
+  const nextSlug = slugs[(slugs.indexOf(companyKey) + 1) % slugs.length];
+  const nextWork = workDetails[nextSlug];
+
   return (
-    <main className="min-h-screen bg-black pt-24 pb-16">
-      <div className="container mx-auto px-4 max-w-4xl">
-        
+    <main className="min-h-screen pb-16 pt-28">
+      <div className="container mx-auto max-w-4xl px-4">
+
         {/* Back Button */}
         <Link href="/#timeline">
           <motion.button
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-2 text-white/60 hover:text-accent transition-colors mb-8 group"
+            className="group mb-8 flex items-center gap-2 text-[#536074] transition-colors hover:text-[#00805b]"
           >
-            <FiArrowLeft className="group-hover:-translate-x-1 transition-transform" />
+            <FiArrowLeft className="transition-transform group-hover:-translate-x-1" />
             Back to Timeline
           </motion.button>
         </Link>
@@ -37,26 +49,26 @@ export default function WorkDetailPage({ params }) {
           transition={{ delay: 0.1 }}
           className="mb-12"
         >
-          <div className="flex items-center gap-3 mb-4">
-            <span className="text-3xl text-accent bg-accent/10 p-3 rounded-xl">
+          <div className="mb-4 flex items-center gap-3">
+            <span className="rounded-xl bg-[#00ff99]/15 p-3 text-3xl text-[#00805b]">
               <FiBriefcase />
             </span>
             <div>
-              <h1 className="text-4xl md:text-5xl font-light text-white">
+              <h1 className="portfolio-title text-4xl md:text-5xl">
                 {work.position}
               </h1>
-              <h2 className="text-2xl text-accent font-light mt-1">
+              <h2 className="mt-1 text-2xl font-light text-[#00805b]">
                 {work.company}
               </h2>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-4 mt-4">
-            <span className="flex items-center gap-2 text-white/80">
-              <FiCalendar className="text-accent" />
+          <div className="mt-4 flex flex-wrap items-center gap-4">
+            <span className="flex items-center gap-2 text-[#384455]">
+              <FiCalendar className="text-[#00805b]" />
               {work.duration}
             </span>
-            <span className="px-4 py-1.5 rounded-full text-sm font-bold uppercase tracking-wider bg-accent/10 text-accent border border-accent/30">
+            <span className="rounded-full border border-[#00b86b]/40 bg-[#00ff99]/15 px-4 py-1.5 text-sm font-bold uppercase tracking-wider text-[#00734a]">
               {work.type}
             </span>
           </div>
@@ -67,70 +79,56 @@ export default function WorkDetailPage({ params }) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-gradient-to-br from-accent/5 to-transparent border border-accent/20 rounded-2xl p-6 mb-12"
+          className="mb-12 rounded-2xl border border-[#00b86b]/25 bg-gradient-to-br from-[#00ff99]/10 to-white/60 p-6 shadow-[0_18px_60px_rgba(16,24,40,0.07)]"
         >
-          <p className="text-white/90 text-lg leading-relaxed">
+          <p className="text-lg leading-relaxed text-[#1d2839]">
             {work.summary}
           </p>
         </motion.div>
 
         {/* Overview */}
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mb-12"
-        >
-          <div className="flex items-center gap-2 mb-4">
-            <FiTarget className="text-accent text-xl" />
-            <h3 className="text-2xl font-light text-white">Overview</h3>
+        <motion.section {...sectionReveal} className="mb-12">
+          <div className="mb-4 flex items-center gap-2">
+            <FiTarget className="text-xl text-[#00805b]" />
+            <h3 className="text-2xl font-light text-[#101828]">Overview</h3>
           </div>
-          <p className="text-white/70 text-base leading-relaxed">
+          <p className="text-base leading-relaxed text-[#536074]">
             {work.overview}
           </p>
         </motion.section>
 
         {/* Key Achievements */}
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="mb-12"
-        >
-          <div className="flex items-center gap-2 mb-4">
-            <FiTrendingUp className="text-accent text-xl" />
-            <h3 className="text-2xl font-light text-white">Key Achievements</h3>
+        <motion.section {...sectionReveal} className="mb-12">
+          <div className="mb-4 flex items-center gap-2">
+            <FiTrendingUp className="text-xl text-[#00805b]" />
+            <h3 className="text-2xl font-light text-[#101828]">Key Achievements</h3>
           </div>
           <ul className="space-y-3">
             {work.achievements.map((achievement, index) => (
               <motion.li
                 key={index}
                 initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 + index * 0.05 }}
-                className="flex gap-3 items-start"
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ delay: index * 0.05, duration: 0.45 }}
+                className="flex items-start gap-3"
               >
-                <span className="text-accent mt-1.5 flex-shrink-0">✦</span>
-                <span className="text-white/70">{achievement}</span>
+                <span className="mt-1.5 flex-shrink-0 text-[#00b86b]">✦</span>
+                <span className="text-[#536074]">{achievement}</span>
               </motion.li>
             ))}
           </ul>
         </motion.section>
 
         {/* Responsibilities */}
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="mb-12"
-        >
-          <div className="flex items-center gap-2 mb-4">
-            <FiBriefcase className="text-accent text-xl" />
-            <h3 className="text-2xl font-light text-white">Responsibilities</h3>
+        <motion.section {...sectionReveal} className="mb-12">
+          <div className="mb-4 flex items-center gap-2">
+            <FiBriefcase className="text-xl text-[#00805b]" />
+            <h3 className="text-2xl font-light text-[#101828]">Responsibilities</h3>
           </div>
-          <ul className="list-disc list-outside ml-6 space-y-2">
+          <ul className="ml-6 list-outside list-disc space-y-2 marker:text-[#00b86b]">
             {work.responsibilities.map((responsibility, index) => (
-              <li key={index} className="text-white/60 leading-relaxed">
+              <li key={index} className="leading-relaxed text-[#536074]">
                 {responsibility}
               </li>
             ))}
@@ -138,24 +136,20 @@ export default function WorkDetailPage({ params }) {
         </motion.section>
 
         {/* Tech Stack */}
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="mb-12"
-        >
-          <div className="flex items-center gap-2 mb-4">
-            <FiCode className="text-accent text-xl" />
-            <h3 className="text-2xl font-light text-white">Tech Stack</h3>
+        <motion.section {...sectionReveal} className="mb-12">
+          <div className="mb-4 flex items-center gap-2">
+            <FiCode className="text-xl text-[#00805b]" />
+            <h3 className="text-2xl font-light text-[#101828]">Tech Stack</h3>
           </div>
           <div className="flex flex-wrap gap-2">
             {work.techStack.map((tech, index) => (
               <motion.span
                 key={index}
                 initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.6 + index * 0.03 }}
-                className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white/80 text-sm hover:border-accent/50 hover:bg-accent/5 transition-all"
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ delay: index * 0.03, duration: 0.35 }}
+                className="rounded-lg border border-[#101828]/10 bg-white/70 px-4 py-2 text-sm text-[#384455] transition-all hover:border-[#00b86b]/50 hover:bg-[#00ff99]/10"
               >
                 {tech}
               </motion.span>
@@ -166,24 +160,49 @@ export default function WorkDetailPage({ params }) {
         {/* Impact Metrics */}
         {work.impact && (
           <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-            className="bg-[#18181b] border border-white/10 rounded-2xl p-6"
+            {...sectionReveal}
+            className="rounded-2xl border border-[#101828]/10 bg-white/80 p-6 shadow-[0_18px_60px_rgba(16,24,40,0.07)]"
           >
-            <h3 className="text-2xl font-light text-white mb-6">Impact</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <h3 className="mb-6 text-2xl font-light text-[#101828]">Impact</h3>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {Object.entries(work.impact).map(([key, value], index) => (
                 <div key={index} className="flex flex-col gap-1">
-                  <span className="text-accent text-sm uppercase tracking-wider font-semibold">
+                  <span className="text-sm font-semibold uppercase tracking-wider text-[#00805b]">
                     {key}
                   </span>
-                  <span className="text-white text-lg font-bold">
+                  <span className="text-lg font-bold text-[#101828]">
                     {value}
                   </span>
                 </div>
               ))}
             </div>
+          </motion.section>
+        )}
+
+        {/* Next role — keep the journey moving, never dead-end a juror */}
+        {nextWork && (
+          <motion.section
+            {...sectionReveal}
+            className="mt-16 border-t border-[#101828]/10 pt-10"
+          >
+            <span className="portfolio-kicker">Next role</span>
+            <Link
+              href={`/work/${nextSlug}`}
+              className="group mt-3 flex items-baseline justify-between gap-4"
+            >
+              <span className="portfolio-title text-4xl transition-colors duration-300 group-hover:text-[#00805b] md:text-6xl">
+                {nextWork.company}
+              </span>
+              <span
+                aria-hidden="true"
+                className="text-3xl text-[#101828]/60 transition-transform duration-300 ease-out group-hover:translate-x-3 group-hover:text-[#00805b] md:text-4xl"
+              >
+                →
+              </span>
+            </Link>
+            <p className="mt-2 text-sm text-[#536074]">
+              {nextWork.position} · {nextWork.duration}
+            </p>
           </motion.section>
         )}
 

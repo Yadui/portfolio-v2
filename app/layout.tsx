@@ -4,6 +4,9 @@ import "./globals.css";
 // Components
 import PageTransition from "@/components/PageTransition";
 import TabPacman from "@/components/TabPacman";
+import SmoothScroll from "@/components/SmoothScroll";
+import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
 
 const morsa = localFont({
   src: "../public/fonts/MORSA.ttf",
@@ -217,7 +220,10 @@ export default function RootLayout({ children }) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
         <TabPacman />
+        <SmoothScroll />
+        <SiteHeader />
         <PageTransition>{children}</PageTransition>
+        <SiteFooter />
       </body>
     </html>
   );

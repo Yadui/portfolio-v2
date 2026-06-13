@@ -1,404 +1,173 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
-import {
-  FiArrowUpRight,
-  FiAward,
-  FiBriefcase,
-  FiCalendar,
-} from "react-icons/fi";
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { FiArrowUpRight } from "react-icons/fi";
 import Link from "next/link";
+
+import Floating, { FloatingElement } from "@/components/fancy/image/parallax-floating";
 import WorkDetailModal from "./WorkDetailModal";
+import RevealText from "@/components/RevealText";
 import { workDetails } from "@/data/workDetails";
-import ScrambledText from "@/components/ScrambledText";
+import { experience, education } from "@/data/siteContent";
 
-const experience = [
-  {
-    company: "Foetron",
-    slug: "foetron",
-    position: "Cloud and AI Engineer",
-    duration: "Sep 2024 - Present",
-    type: "Full-Time",
-    description: "Cloud & AI Engineer — architected Azure infrastructure, built AI pipelines, and led hybrid-cloud deployments.",
-    skills: "Microsoft Azure, Azure OpenAI, Azure Cognitive Services, Data Engineering, SQL Server, Sophos Firewall"
-  },
-  {
-    company: "Outlier",
-    slug: "outlier",
-    position: "Prompt Engineer",
-    duration: "Jun 2024 - Present",
-    type: "Freelance",
-    description: "Prompt Engineer — designed multi-modal AI prompts for Google Genesis project (VTT, ATT, ITT).",
-    skills: "Prompt Engineering, Prompt Design, Multi-modal AI, NLP, Conversational AI, Machine Learning"
-  },
-  {
-    company: "Vm Coders",
-    slug: "vmcoders",
-    position: "Frontend Developer",
-    duration: "Jan 2024 - Jun 2024",
-    type: "Internship",
-    description: "Frontend Developer — built marketing websites with React, TailwindCSS, and Figma designs.",
-    skills: "ReactJS, TailwindCSS, Figma, Web Design, SEO, Responsive Design, JavaScript"
-  },
-];
+const EASE = [0.22, 1, 0.36, 1];
+const PATH_COLOR = "#ff2d2d";
 
-const education = [
-  {
-    institution: "JC Bose University, YMCA",
-    degree: "Computer Engineering",
-    duration: "2020 - 2024",
-    type: "Degree",
-    description: "Focused on software engineering, algorithms, and system design.",
-  },
-];
+const fadeUp = (delay = 0) => ({
+  initial: { opacity: 0, y: 24 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: "-60px" },
+  transition: { duration: 0.55, delay, ease: EASE },
+});
 
-const timelineStats = [
-  {
-    value: `${experience.length}`.padStart(2, "0"),
-    label: "roles shipped",
-  },
-  {
-    value: `${education.length}`.padStart(2, "0"),
-    label: "degrees listed",
-  },
-  {
-    value: "2024",
-    label: "career pivot",
-  },
-];
+/** A single journey stop card */
+const JourneyCard = ({ item, index, onOpenModal, delay = 0 }) => {
+  const isWork = Boolean(item.slug);
+  const skills = item.skills ? item.skills.split(", ").slice(0, 4) : [];
 
-const TimelineLabel = ({ title, containerRef, scrollYProgress, className = "" }) => {
-  const labelRef = useRef(null);
-  const [isActive, setIsActive] = useState(false);
-
-  useEffect(() => {
-    const calculateThreshold = () => {
-      if (!labelRef.current || !containerRef.current) return 0;
-      const labelRect = labelRef.current.getBoundingClientRect();
-      const containerRect = containerRef.current.getBoundingClientRect();
-      
-      // Calculate position relative to container top
-      const relativeTop = labelRect.top - containerRect.top;
-      // Trigger when line reaches the center of the label
-      const threshold = (relativeTop + labelRect.height / 2) / containerRect.height;
-      return threshold;
-    };
-
-    let threshold = calculateThreshold();
-
-    const unsubscribe = scrollYProgress.on("change", (latest) => {
-      if (typeof threshold === "number") {
-        setIsActive(latest >= threshold);
-      }
-    });
-
-    const handleResize = () => {
-      threshold = calculateThreshold();
-    };
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      unsubscribe();
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [containerRef, scrollYProgress]);
-
-  return (
-    <div ref={labelRef} className={`relative z-20 pl-16 md:pl-20 ${className}`}>
-      <motion.div
-        animate={{
-          scale: isActive ? 1.02 : 1,
-          y: isActive ? 0 : 2,
-          borderColor: isActive
-            ? "rgba(0,255,153,0.28)"
-            : "rgba(16,24,40,0.1)",
-          backgroundColor: isActive
-            ? "rgba(255,255,255,0.86)"
-            : "rgba(255,255,255,0.68)",
-          boxShadow: isActive
-            ? "0 22px 60px rgba(16,24,40,0.12)"
-            : "0 14px 38px rgba(16,24,40,0.08)",
-        }}
-        transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-        className="inline-flex items-center gap-3 rounded-full border px-4 py-2.5 md:px-5"
-      >
-        <span className="h-2.5 w-2.5 rounded-full bg-[var(--portfolio-accent)]" />
-        <span className="portfolio-kicker !text-[var(--portfolio-ink)]">
-          {title}
+  const inner = (
+    <motion.div
+      {...fadeUp(delay)}
+      className="group w-[260px] border border-white/15 bg-[#0b0b0f]/90 p-5 backdrop-blur-sm transition-colors duration-300 hover:bg-[#11111a]"
+    >
+      <div className="flex items-baseline gap-2">
+        <span
+          aria-hidden="true"
+          className="h-2 w-2 shrink-0 translate-y-px rounded-full"
+          style={{ backgroundColor: PATH_COLOR }}
+        />
+        <span className="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-white/35">
+          {String(index + 1).padStart(2, "0")}
         </span>
-      </motion.div>
-    </div>
+        <span className="text-[0.6rem] font-bold uppercase tracking-[0.18em] text-white/35">
+          {item.type} — {item.duration}
+        </span>
+      </div>
+
+      <h3 className="mt-3 font-heading text-base font-light leading-snug tracking-tight text-white">
+        {item.position || item.degree}
+      </h3>
+      <p className="mt-1 text-xs font-semibold tracking-[-0.01em] text-white/70">
+        {item.company || item.institution}
+      </p>
+      <p className="mt-2 text-[0.7rem] leading-relaxed text-white/45">
+        {item.description}
+      </p>
+
+      {skills.length > 0 && (
+        <p className="mt-2 text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-white/30">
+          {skills.join(" · ")}
+        </p>
+      )}
+
+      {isWork && (
+        <span className="mt-3 flex items-center gap-1.5 text-[0.6rem] font-bold uppercase tracking-[0.2em] text-white/35 transition-colors duration-300 group-hover:text-white">
+          Case study
+          <FiArrowUpRight
+            className="transition-transform duration-300 ease-out group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+            size={11}
+          />
+        </span>
+      )}
+    </motion.div>
   );
-};
 
-const TimelineItem = ({ item, index, icon, containerRef, scrollYProgress, onOpenModal }) => {
-  const itemRef = useRef(null);
-  const [isActive, setIsActive] = useState(false);
-
-  useEffect(() => {
-    const calculateThreshold = () => {
-      if (!itemRef.current || !containerRef.current) return 0;
-      const itemRect = itemRef.current.getBoundingClientRect();
-      const containerRect = containerRef.current.getBoundingClientRect();
-      
-      const relativeTop = itemRect.top - containerRect.top;
-      const threshold = (relativeTop + itemRect.height / 2) / containerRect.height;
-      return threshold;
-    };
-
-    let threshold = calculateThreshold();
-
-    const unsubscribe = scrollYProgress.on("change", (latest) => {
-      if (typeof threshold === "number") {
-        setIsActive(latest >= threshold);
-      }
-    });
-
-    const handleResize = () => {
-      threshold = calculateThreshold();
-    };
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      unsubscribe();
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [containerRef, scrollYProgress]);
-
-  const skillList = item.skills ? item.skills.split(", ") : [];
+  if (!isWork) return inner;
 
   return (
-    <div ref={itemRef} className="relative pb-8 pl-16 md:pl-20">
-      <motion.div
-        animate={{
-          scale: isActive ? 1.04 : 1,
-          boxShadow: isActive
-            ? "0 0 0 10px rgba(0,255,153,0.08)"
-            : "0 0 0 0 rgba(0,255,153,0)",
-        }}
-        transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-        className="absolute left-0 top-9 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(16,24,40,0.12)] bg-white/90 text-[var(--portfolio-accent)] shadow-[0_16px_36px_rgba(16,24,40,0.1)]"
-      >
-        {icon}
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 36 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ duration: 0.58, delay: Math.min(index * 0.06, 0.24), ease: [0.22, 1, 0.36, 1] }}
-      >
-        <article className="portfolio-card p-6 md:p-7 xl:p-8">
-          <div className="absolute inset-0 opacity-0 transition-opacity duration-500 hover:opacity-100" />
-
-          <div className="relative z-10 flex flex-col gap-5">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div className="space-y-3">
-                <div className="flex flex-wrap items-center gap-2.5">
-                  <span className="portfolio-chip !bg-[var(--portfolio-accent-soft)] !text-[var(--portfolio-accent)] !border-[rgba(0,255,153,0.24)]">
-                    {item.type}
-                  </span>
-                  <span className="portfolio-chip">
-                    <FiCalendar className="text-[var(--portfolio-ink-faint)]" />
-                    {item.duration}
-                  </span>
-                </div>
-
-                <div className="space-y-3">
-                  <p className="portfolio-kicker">
-                    {item.company ? "Career Entry" : "Education Entry"} {String(index + 1).padStart(2, "0")}
-                  </p>
-                  <h3 className="portfolio-title text-3xl md:text-[2.35rem]">
-                    {item.position || item.degree}
-                  </h3>
-                  <p className="text-base font-semibold tracking-[-0.02em] text-[var(--portfolio-ink)] md:text-lg">
-                    {item.company || item.institution}
-                  </p>
-                </div>
-              </div>
-
-              {item.slug ? (
-                <Link
-                  href={`/work/${item.slug}`}
-                  onClick={(event) => {
-                    // Progressive enhancement: the real href makes each case
-                    // study a crawlable internal link (and supports open-in-new
-                    // -tab / direct navigation), while a plain left-click keeps
-                    // the rich in-page modal experience.
-                    if (
-                      event.metaKey ||
-                      event.ctrlKey ||
-                      event.shiftKey ||
-                      event.altKey ||
-                      event.button === 1
-                    ) {
-                      return;
-                    }
-                    event.preventDefault();
-                    onOpenModal(item.slug);
-                  }}
-                  className="inline-flex items-center gap-2 rounded-full border border-[var(--portfolio-line)] bg-white/80 px-4 py-2 text-sm font-semibold tracking-[0.08em] text-[var(--portfolio-ink)] transition-colors hover:border-[rgba(0,255,153,0.24)] hover:text-[var(--portfolio-accent)]"
-                >
-                  View full work
-                  <FiArrowUpRight className="transition-transform group-hover/link:-translate-y-0.5 group-hover/link:translate-x-0.5" />
-                </Link>
-              ) : null}
-            </div>
-
-            <p className="portfolio-body max-w-2xl text-sm md:text-base">
-              {item.description}
-            </p>
-
-            {skillList.length > 0 ? (
-              <div className="flex flex-wrap gap-2.5 border-t border-[rgba(16,24,40,0.08)] pt-4">
-                {skillList.map((skill) => (
-                  <span
-                    key={skill}
-                    className="portfolio-chip !bg-white/84 !px-3 !py-2 !text-[0.64rem] !tracking-[0.18em]"
-                  >
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            ) : null}
-          </div>
-        </article>
-      </motion.div>
-    </div>
+    <Link
+      href={`/work/${item.slug}`}
+      className="block focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#00ff99]"
+      onClick={(e) => {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button === 1) return;
+        e.preventDefault();
+        onOpenModal(item.slug);
+      }}
+    >
+      {inner}
+    </Link>
   );
 };
+
+// Fixed positions: all anchored at center, offset via inline style translate
+const CARD_POSITIONS = [
+  { depth: 1.2, style: { translate: "-520px -270px" } }, // left-top
+  { depth: 0.7, style: { translate:  "260px -250px" } }, // right-top
+  { depth: 1.5, style: { translate: "-510px  120px" } }, // left-bottom
+  { depth: 0.9, style: { translate:  "270px  120px" } }, // right-bottom
+];
 
 const Timeline = () => {
-  const containerRef = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start 80%", "end 20%"],
-  });
-
-  const lineHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
-  
-  // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedWork, setSelectedWork] = useState(null);
 
   const handleOpenModal = (slug) => {
     const work = workDetails[slug];
-    if (work) {
-      setSelectedWork(work);
-      setIsModalOpen(true);
-    }
+    if (work) { setSelectedWork(work); setIsModalOpen(true); }
   };
-
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setTimeout(() => setSelectedWork(null), 300); // Clear after animation
+    setTimeout(() => setSelectedWork(null), 300);
   };
+
+  const stops = [...experience, ...education];
 
   return (
     <>
-      <section id="timeline" className="portfolio-section portfolio-paper-stage">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0 opacity-40" style={{
-            backgroundImage:
-              "linear-gradient(rgba(16,24,40,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(16,24,40,0.04) 1px, transparent 1px)",
-            backgroundSize: "92px 92px",
-            maskImage: "linear-gradient(180deg, rgba(0,0,0,0.42), transparent 100%)",
-          }} />
-          <div className="absolute left-[8%] top-20 h-52 w-52 rounded-full bg-[var(--portfolio-accent-soft)] blur-3xl" />
-          <div className="absolute right-[10%] top-28 h-56 w-56 rounded-full bg-[var(--portfolio-sun-soft)] blur-3xl" />
-        </div>
-
-        <div className="relative z-10 mx-auto max-w-7xl px-4 md:px-6">
-          <div className="grid gap-8 xl:grid-cols-[0.8fr_1.2fr] xl:items-start">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-              className="portfolio-shell p-8 md:p-10 xl:sticky xl:top-24"
-            >
-              <div className="inline-flex items-center gap-3 rounded-full border border-[var(--portfolio-line)] bg-white/72 px-4 py-2.5">
-                <span className="text-xl">↳</span>
-                <span className="portfolio-kicker !text-[var(--portfolio-ink)]">Career Ledger</span>
-              </div>
-
-              <ScrambledText
-                as="h2"
-                text="My Journey"
-                triggerOnView
-                duration={1.05}
-                speed={0.7}
-                className="portfolio-title mt-6 text-4xl md:text-5xl xl:text-6xl"
-              />
-              <p className="portfolio-body mt-5 max-w-xl text-base md:text-lg">
-                Experience and education translated into a cleaner desktop rail: less dead space, stronger hierarchy, and direct access to the work details that matter.
-              </p>
-
-              <div className="mt-8 grid gap-3 sm:grid-cols-3 xl:grid-cols-1 2xl:grid-cols-3">
-                {timelineStats.map((item) => (
-                  <div key={item.label} className="portfolio-metric">
-                    <p className="text-3xl font-semibold tracking-[-0.06em] text-[var(--portfolio-ink)] md:text-4xl">
-                      {item.value}
-                    </p>
-                    <p className="portfolio-meta-label mt-2">{item.label}</p>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-
-            <div ref={containerRef} className="relative">
-              <div className="absolute bottom-0 left-5 top-0 hidden w-px bg-[rgba(16,24,40,0.08)] md:block" />
-              <motion.div
-                style={{ height: lineHeight }}
-                className="absolute left-5 top-0 hidden w-px bg-[linear-gradient(180deg,var(--portfolio-accent),rgba(0,255,153,0.18))] md:block"
-              />
-
-              <div className="space-y-10 pb-4 md:space-y-12">
-                <TimelineLabel
-                  title="Experience"
-                  containerRef={containerRef}
-                  scrollYProgress={scrollYProgress}
-                  className="pt-2"
+      <section
+        id="timeline"
+        className="relative flex min-h-screen items-center justify-center overflow-clip bg-black text-white"
+      >
+        {/* Floating parallax layer */}
+        <Floating sensitivity={0.8} easingFactor={0.04}>
+          {stops.map((item, i) => {
+            const pos = CARD_POSITIONS[i] ?? CARD_POSITIONS[i % CARD_POSITIONS.length];
+            return (
+              <FloatingElement
+                key={item.slug ?? `stop-${i}`}
+                depth={pos.depth}
+                className="top-1/2 left-1/2"
+                style={pos.style}
+              >
+                <JourneyCard
+                  item={item}
+                  index={i}
+                  onOpenModal={handleOpenModal}
+                  delay={0.06 * i}
                 />
+              </FloatingElement>
+            );
+          })}
+        </Floating>
 
-                <div className="space-y-1">
-                  {experience.map((item, index) => (
-                    <TimelineItem
-                      key={`exp-${index}`}
-                      item={item}
-                      index={index}
-                      icon={<FiBriefcase />}
-                      containerRef={containerRef}
-                      scrollYProgress={scrollYProgress}
-                      onOpenModal={handleOpenModal}
-                    />
-                  ))}
-                </div>
-
-                <TimelineLabel
-                  title="Education"
-                  containerRef={containerRef}
-                  scrollYProgress={scrollYProgress}
-                  className="pt-4"
-                />
-
-                <div className="space-y-1">
-                  {education.map((item, index) => (
-                    <TimelineItem
-                      key={`edu-${index}`}
-                      item={item}
-                      index={index + experience.length}
-                      icon={<FiAward />}
-                      containerRef={containerRef}
-                      scrollYProgress={scrollYProgress}
-                      onOpenModal={handleOpenModal}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
+        {/* Centered title */}
+        <div className="relative z-10 flex flex-col items-center text-center px-4">
+          <motion.span
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-[0.65rem] font-bold uppercase tracking-[0.3em] text-white/40"
+          >
+            Experience &amp; Education
+          </motion.span>
+          <RevealText
+            as="h2"
+            className="portfolio-title mt-3 text-5xl uppercase text-white md:text-6xl xl:text-7xl"
+          >
+            My Journey
+          </RevealText>
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.55, delay: 0.2, ease: EASE }}
+            className="mt-4 max-w-xs text-sm leading-relaxed text-white/50"
+          >
+            Three roles and a degree — how I got from classroom algorithms to
+            shipping cloud and AI systems in production.
+          </motion.p>
         </div>
       </section>
 

@@ -9,10 +9,12 @@ import {
   SiTailwindcss, SiNextdotjs, SiMicrosoftazure, SiNumpy,
   SiPandas, SiOpenai, SiVisualstudiocode, SiGithubcopilot,
   SiKubernetes, SiTerraform, SiRedux, SiExpress, SiPostgresql,
-  SiRedis, SiHuggingface, SiTensorflow, SiNotion, SiFigma
+  SiRedis, SiHuggingface, SiTensorflow, SiNotion, SiFigma,
+  SiFastapi, SiTypescript, SiGrafana, SiPowerbi, SiPrisma,
+  SiLangchain, SiN8N, SiPowerautomate, SiAnthropic, SiGooglegemini
 } from "react-icons/si";
 import * as d3force from "d3-force";
-import ScrambledText from "@/components/ScrambledText";
+import RevealText from "@/components/RevealText";
 
 const initialSkills = [
   // Frontal and crown arc
@@ -47,6 +49,27 @@ const initialSkills = [
   { id: "terraform", name: "Terraform", icon: <SiTerraform />, color: "#7B42BC", bx: -12, by: 49, zone: "stemLower", group: "cloud", connections: ["aws", "k8s"] },
   { id: "github", name: "GitHub", icon: <FaGithub />, color: "#181717", bx: -8, by: 60, zone: "stemLower", group: "tools", connections: ["vscode"] },
   { id: "notion", name: "Notion", icon: <SiNotion />, color: "#000000", bx: -13, by: 70, zone: "stemLower", group: "tools", connections: ["github"] },
+
+  // Current-role stack (Sep 2024+): platform engineering + agentic AI.
+  // bx/by/zone are legacy monogram fields — the gas ignores them.
+  { id: "fastapi", name: "FastAPI", icon: <SiFastapi />, color: "#009688", bx: 6, by: 6, zone: "frontalLobe", group: "web", connections: ["python", "postgres"] },
+  { id: "typescript", name: "TypeScript", icon: <SiTypescript />, color: "#3178C6", bx: 14, by: -6, zone: "frontalLobe", group: "web", connections: ["react", "next"] },
+  { id: "prisma", name: "Prisma", icon: <SiPrisma />, color: "#2D3748", bx: -22, by: 22, zone: "cerebellum", group: "web", connections: ["postgres", "next"] },
+  { id: "grafana", name: "Grafana", icon: <SiGrafana />, color: "#F46800", bx: -10, by: 14, zone: "parietalLobe", group: "cloud", connections: ["azure"] },
+  { id: "powerbi", name: "Power BI", icon: <SiPowerbi />, color: "#F2C811", bx: -2, by: 12, zone: "parietalLobe", group: "cloud", connections: ["azure"] },
+  { id: "langchain", name: "LangChain", icon: <SiLangchain />, color: "#1C3C3C", bx: -8, by: -18, zone: "crown", group: "ai", connections: ["openai", "python"] },
+  { id: "n8n", name: "n8n", icon: <SiN8N />, color: "#EA4B71", bx: -16, by: 44, zone: "stemUpper", group: "ai", connections: ["notion"] },
+  { id: "powerautomate", name: "Power Automate", icon: <SiPowerautomate />, color: "#0066FF", bx: -4, by: 18, zone: "temporalLobe", group: "ai", connections: ["azure"] },
+  { id: "claude", name: "Claude", icon: <SiAnthropic />, color: "#D97757", bx: -12, by: -8, zone: "parietalLobe", group: "ai", connections: ["openai", "huggingface"] },
+
+  // AI model & Microsoft AI platform stack — GPT, Gemini, and the
+  // Microsoft Copilot/Azure AI products. The Microsoft product marks are
+  // full-color SVGs (img) rather than monochrome react-icons.
+  { id: "gpt", name: "GPT", icon: <SiOpenai />, color: "#10A37F", bx: -8, by: -22, zone: "crown", group: "ai", connections: ["openai", "azureai", "langchain"] },
+  { id: "gemini", name: "Gemini", icon: <SiGooglegemini />, color: "#1C69FF", bx: -20, by: -16, zone: "parietalLobe", group: "ai", connections: ["openai", "langchain"] },
+  { id: "azureai", name: "Azure AI", img: "/icons/AzureAI_scalable.svg", icon: <SiMicrosoftazure />, color: "#0078D4", bx: -10, by: 4, zone: "parietalLobe", group: "ai", connections: ["azure", "openai", "copilotstudio"] },
+  { id: "copilotstudio", name: "Copilot Studio", img: "/icons/CopilotStudio_scalable.svg", icon: <SiGithubcopilot />, color: "#8B52F4", bx: -2, by: 10, zone: "temporalLobe", group: "ai", connections: ["azureai", "powerautomate", "botservice"] },
+  { id: "botservice", name: "Bot Service", img: "/icons/AzureBot_scalable.svg", icon: <SiMicrosoftazure />, color: "#32BEDD", bx: -6, by: 22, zone: "temporalLobe", group: "ai", connections: ["copilotstudio", "azureai"] },
 ] as const;
 
 type SkillId = (typeof initialSkills)[number]["id"];
@@ -61,6 +84,8 @@ type SkillNode = {
   id: SkillId;
   x: number;
   y: number;
+  vx?: number;
+  vy?: number;
   fx?: number | null;
   fy?: number | null;
   targetX?: number;
@@ -150,21 +175,66 @@ const getNodeRadius = (viewportWidth: number) => {
 const clampValue = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
 
+/**
+ * Target points forming the "A" monogram (Abhinav) — normalized coords,
+ * x/y ∈ [-1, 1] with y pointing down. Parametric in node count so the
+ * silhouette survives skills being added/removed:
+ *  - 1 apex point
+ *  - two legs from the apex to the bottom corners
+ *  - an interior crossbar (the legs provide the bar's ends)
+ */
+const buildMonogramPoints = (count: number): Array<{ x: number; y: number }> => {
+  const points: Array<{ x: number; y: number }> = [];
+  const barCount = Math.max(3, Math.round(count * 0.24));
+  const legTotal = Math.max(2, count - 1 - barCount);
+  const leftCount = Math.ceil(legTotal / 2);
+  const rightCount = legTotal - leftCount;
+
+  // Apex
+  points.push({ x: 0, y: -1 });
+
+  // Legs: apex → bottom corners
+  for (let i = 1; i <= leftCount; i += 1) {
+    const t = i / leftCount;
+    points.push({ x: -0.85 * t, y: -1 + 2 * t });
+  }
+  for (let i = 1; i <= rightCount; i += 1) {
+    const t = i / rightCount;
+    points.push({ x: 0.85 * t, y: -1 + 2 * t });
+  }
+
+  // Crossbar (interior points only)
+  const barY = 0.35;
+  for (let i = 0; i < barCount && points.length < count; i += 1) {
+    const t = barCount === 1 ? 0.5 : i / (barCount - 1);
+    points.push({ x: -0.45 + 0.9 * t, y: barY });
+  }
+
+  // Safety: if rounding left us short, pad along the centerline.
+  while (points.length < count) {
+    points.push({ x: 0, y: -0.2 + (points.length % 5) * 0.12 });
+  }
+
+  return points.slice(0, count);
+};
+
 const getDistributedTargets = (
   width: number,
   height: number,
   nodeRadius: number
 ) => {
   const count = initialSkills.length;
-  const columns = Math.max(
-    4,
-    Math.round(Math.sqrt((count * width) / Math.max(height, 1)))
-  );
-  const rows = Math.ceil(count / columns);
-  const minX = (-width / 2) + Math.max(nodeRadius * 1.75, width * 0.1);
-  const maxX = (width / 2) - Math.max(nodeRadius * 1.75, width * 0.1);
-  const minY = (-height / 2) + Math.max(nodeRadius * 1.75, height * 0.12);
-  const maxY = (height / 2) - Math.max(nodeRadius * 1.75, height * 0.12);
+  const marginX = Math.max(nodeRadius * 1.75, width * 0.1);
+  const marginY = Math.max(nodeRadius * 1.75, height * 0.12);
+  const halfW = Math.max((width / 2) - marginX, nodeRadius * 2);
+  const halfH = Math.max((height / 2) - marginY, nodeRadius * 2);
+  // Keep the monogram's proportions: never wider than 1.4× its height.
+  const shapeHalfW = Math.min(halfW, halfH * 1.4);
+
+  const shapePoints = buildMonogramPoints(count)
+    .map((point) => ({ x: point.x * shapeHalfW, y: point.y * halfH }))
+    // Reading order (top → bottom, left → right) for stable assignment.
+    .sort((a, b) => (a.y === b.y ? a.x - b.x : a.y - b.y));
 
   const sortedSkills = [...initialSkills].sort((a, b) => {
     if (a.by === b.by) {
@@ -175,16 +245,8 @@ const getDistributedTargets = (
   });
 
   return sortedSkills.reduce((acc, skill, index) => {
-    const row = Math.floor(index / columns);
-    const rowStart = row * columns;
-    const itemsInRow = Math.min(columns, sortedSkills.length - rowStart);
-    const column = index - rowStart;
-    const rowProgress = rows <= 1 ? 0.5 : row / (rows - 1);
-    const columnProgress = itemsInRow <= 1 ? 0.5 : column / (itemsInRow - 1);
-    const x = minX + ((maxX - minX) * columnProgress);
-    const y = minY + ((maxY - minY) * rowProgress);
-
-    acc[skill.id] = { x, y };
+    const point = shapePoints[Math.min(index, shapePoints.length - 1)];
+    acc[skill.id] = { x: point.x, y: point.y };
     return acc;
   }, {} as Record<SkillId, { x: number; y: number }>);
 };
@@ -336,6 +398,7 @@ const SkillConnection = ({
   revealDelay,
   reduceMotion,
   entranceComplete,
+  active,
 }: {
   x1: MotionValue<number>;
   y1: MotionValue<number>;
@@ -346,6 +409,7 @@ const SkillConnection = ({
   revealDelay: number;
   reduceMotion: boolean;
   entranceComplete: boolean;
+  active: boolean;
 }) => {
   const [timing, setTiming] = useState<{ duration: number; delay: number; repeatDelay: number } | null>(null);
 
@@ -373,7 +437,7 @@ const SkillConnection = ({
     <>
       <motion.line
         x1={x1} y1={y1} x2={x2} y2={y2}
-        stroke={isRelated ? "#10b981" : "#cbd5e1"}
+        stroke={isRelated ? "#10b981" : "rgba(255,255,255,0.22)"}
         strokeWidth={isRelated ? 2.2 : 1.1}
         strokeLinecap="round"
         initial={reduceMotion ? false : { pathLength: 0, opacity: 0 }}
@@ -392,22 +456,30 @@ const SkillConnection = ({
           strokeLinecap="round"
           strokeDasharray="14 1000"
           initial={reduceMotion ? false : { opacity: 0 }}
-          animate={reduceMotion ? { opacity: pulseOpacity } : { opacity: pulseOpacity, strokeDashoffset: [-1014, 14] }}
+          animate={
+            reduceMotion
+              ? { opacity: pulseOpacity }
+              : active
+                ? { opacity: pulseOpacity, strokeDashoffset: [-1014, 14] }
+                : { opacity: 0 }
+          }
           transition={
             reduceMotion
               ? { duration: 0 }
-              : {
-                  opacity: entranceComplete
-                    ? { duration: 0.18 }
-                    : { duration: 0.24, delay: revealDelay + 0.08 },
-                  strokeDashoffset: {
-                    duration: timing.duration,
-                    repeat: Infinity,
-                    repeatDelay: timing.repeatDelay,
-                    delay: revealDelay + timing.delay,
-                    ease: "linear",
-                  },
-                }
+              : !active
+                ? { opacity: { duration: 0.2 } }
+                : {
+                    opacity: entranceComplete
+                      ? { duration: 0.18 }
+                      : { duration: 0.24, delay: revealDelay + 0.08 },
+                    strokeDashoffset: {
+                      duration: timing.duration,
+                      repeat: Infinity,
+                      repeatDelay: timing.repeatDelay,
+                      delay: revealDelay + timing.delay,
+                      ease: "linear",
+                    },
+                  }
           }
         />
       )}
@@ -421,6 +493,11 @@ export default function Skills() {
   const [entranceComplete, setEntranceComplete] = useState(false);
   const reduceMotion = useReducedMotion();
   const isInView = useInView(containerRef, { once: true, amount: 0.35 });
+  // Live visibility (not `once`): pauses the gas simulation and the ~30
+  // infinite edge pulses the moment the section scrolls away.
+  const isOnScreen = useInView(containerRef, { amount: 0.1 });
+  const isOnScreenRef = useRef(isOnScreen);
+  isOnScreenRef.current = isOnScreen;
   const canvasBoundsRef = useRef<{ minX: number; maxX: number; minY: number; maxY: number } | null>(null);
 
   const positionsRef = useRef<Record<string, { x: MotionValue<number>; y: MotionValue<number> }> | null>(null);
@@ -486,122 +563,141 @@ export default function Skills() {
     };
   }, []);
 
+  // ── Gas-particle simulation ──────────────────────────────────────────
+  // The nodes behave like slow gas molecules in a chamber: frictionless
+  // drift (velocityDecay 0), perpetual motion (alphaDecay 0), elastic wall
+  // bounces, soft node-node collisions via forceCollide, a whisper of
+  // Brownian jitter, and a speed band that keeps the cloud calm enough to
+  // read and hover.
   useEffect(() => {
     if (!containerRef.current) return;
 
-    const currentNodes = nodesRef.current.length > 0 ? nodesRef.current : initialSkills.map(s => ({ ...s } as SkillNode));
     const rect = containerRef.current.getBoundingClientRect();
     const nodeRadius = getNodeRadius(window.innerWidth);
-    const distributedTargets = getDistributedTargets(rect.width, rect.height, nodeRadius);
 
-    currentNodes.forEach((node, i) => {
-      const target = distributedTargets[node.id];
-      const tx = target.x;
-      const ty = target.y;
-
-      node.targetX = tx;
-      node.targetY = ty;
-
-      if (nodesRef.current.length === 0) {
-        node.x = tx;
-        node.y = ty;
-      }
-    });
-
-    nodesRef.current = currentNodes;
-    const nodes = currentNodes;
-    const canvasBounds = {
+    const bounds = {
       minX: (-rect.width / 2) + nodeRadius,
       maxX: (rect.width / 2) - nodeRadius,
       minY: (-rect.height / 2) + nodeRadius,
       maxY: (rect.height / 2) - nodeRadius,
     };
+    canvasBoundsRef.current = bounds;
 
-    canvasBoundsRef.current = canvasBounds;
+    const MIN_SPEED = 0.22; // px per tick (~13 px/s) — lazy drift
+    const MAX_SPEED = 0.6; //  px per tick (~36 px/s) — post-fling cap
+    const JITTER = 0.014;
 
-    const links = skillLinks
-      .map(({ source, target }) => {
-        const sourceNode = nodes.find((node) => node.id === source);
-        const targetNode = nodes.find((node) => node.id === target);
+    const existing = nodesRef.current;
+    const nodes: SkillNode[] =
+      existing.length > 0
+        ? existing
+        : initialSkills.map((s) => {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = MIN_SPEED + Math.random() * (MAX_SPEED - MIN_SPEED);
+            return {
+              ...s,
+              x: (Math.random() * 2 - 1) * Math.max(rect.width / 2 - nodeRadius * 2.5, 1),
+              y: (Math.random() * 2 - 1) * Math.max(rect.height / 2 - nodeRadius * 2.5, 1),
+              vx: Math.cos(angle) * speed,
+              vy: Math.sin(angle) * speed,
+            } as SkillNode;
+          });
+    nodesRef.current = nodes;
 
-        return sourceNode && targetNode ? { source: sourceNode, target: targetNode } : null;
-      })
-      .filter(Boolean) as { source: SkillNode; target: SkillNode }[];
+    // After a resize, pull any stragglers back inside the new chamber.
+    nodes.forEach((node) => {
+      node.x = clampValue(node.x, bounds.minX, bounds.maxX);
+      node.y = clampValue(node.y, bounds.minY, bounds.maxY);
+    });
 
-    const repulsionStrength = -nodeRadius * 2.2;
-    const collisionRadius = nodeRadius * 1.18;
+    const gasForce = () => {
+      nodes.forEach((node: any) => {
+        if (typeof node.fx === "number") return; // pinned by an active drag
 
-    const clampNodeToCanvas = (node: SkillNode) => {
-      node.x = clampValue(node.x, canvasBounds.minX, canvasBounds.maxX);
-      node.y = clampValue(node.y, canvasBounds.minY, canvasBounds.maxY);
+        // Elastic walls: reflect the velocity at the chamber edges.
+        if (node.x <= bounds.minX) {
+          node.x = bounds.minX;
+          node.vx = Math.abs(node.vx ?? MIN_SPEED);
+        } else if (node.x >= bounds.maxX) {
+          node.x = bounds.maxX;
+          node.vx = -Math.abs(node.vx ?? MIN_SPEED);
+        }
+        if (node.y <= bounds.minY) {
+          node.y = bounds.minY;
+          node.vy = Math.abs(node.vy ?? MIN_SPEED);
+        } else if (node.y >= bounds.maxY) {
+          node.y = bounds.maxY;
+          node.vy = -Math.abs(node.vy ?? MIN_SPEED);
+        }
 
-      if (typeof node.fx === "number") {
-        node.fx = clampValue(node.fx, canvasBounds.minX, canvasBounds.maxX);
-      }
+        // Brownian jitter keeps the cloud from settling into lanes.
+        node.vx = (node.vx ?? 0) + (Math.random() - 0.5) * JITTER;
+        node.vy = (node.vy ?? 0) + (Math.random() - 0.5) * JITTER;
 
-      if (typeof node.fy === "number") {
-        node.fy = clampValue(node.fy, canvasBounds.minY, canvasBounds.maxY);
-      }
-    };
-
-    const forceSpreadTargets = (alpha: number) => {
-      nodes.forEach((node) => {
-        node.x += ((node.targetX ?? 0) - node.x) * alpha * 0.26;
-        node.y += ((node.targetY ?? 0) - node.y) * alpha * 0.26;
-        clampNodeToCanvas(node);
+        // Regulate speed into the gas band.
+        const speed = Math.hypot(node.vx, node.vy) || MIN_SPEED;
+        if (speed > MAX_SPEED) {
+          node.vx = (node.vx / speed) * MAX_SPEED;
+          node.vy = (node.vy / speed) * MAX_SPEED;
+        } else if (speed < MIN_SPEED) {
+          node.vx = (node.vx / speed) * MIN_SPEED;
+          node.vy = (node.vy / speed) * MIN_SPEED;
+        }
       });
     };
 
-    const forceCanvasBounds = () => {
-      nodes.forEach(clampNodeToCanvas);
-    };
-
     const simulation = d3force.forceSimulation(nodes as any)
-      .force("charge", d3force.forceManyBody().strength(repulsionStrength))
-      .force(
-        "link",
-        d3force.forceLink(links).distance((link: any) => {
-          const sourceNode = link.source as SkillNode;
-          const targetNode = link.target as SkillNode;
-          const targetDistance = Math.hypot(
-            (sourceNode.targetX ?? 0) - (targetNode.targetX ?? 0),
-            (sourceNode.targetY ?? 0) - (targetNode.targetY ?? 0)
-          );
-
-          return Math.max(targetDistance * 0.6, nodeRadius * 3.8);
-        }).strength(0.05)
-      )
-      .force("collide", d3force.forceCollide(collisionRadius).strength(0.95))
-      .force("x", d3force.forceX((d: any) => d.targetX).strength(0.2))
-      .force("y", d3force.forceY((d: any) => d.targetY).strength(0.22))
-      .force("spread-targets", forceSpreadTargets as any)
-      .force("canvas-bounds", forceCanvasBounds as any)
-      .velocityDecay(0.24)
-      .alphaDecay(0.028)
+      .force("collide", d3force.forceCollide(nodeRadius * 1.25).strength(0.9))
+      .force("gas", gasForce as any)
+      .velocityDecay(0) // a gas has no friction
       .alpha(1)
-      .alphaMin(0.001);
+      .alphaDecay(0) // never cools down — perpetual drift
+      .alphaMin(0);
 
     simulation.on("tick", () => {
       nodes.forEach((node) => {
-        clampNodeToCanvas(node);
         positions[node.id].x.set(node.x);
         positions[node.id].y.set(node.y);
       });
     });
+
+    if (reduceMotion) {
+      // Static scatter: resolve overlaps once, then freeze.
+      simulation.stop();
+      for (let i = 0; i < 60; i += 1) simulation.tick();
+      nodes.forEach((node) => {
+        positions[node.id].x.set(node.x);
+        positions[node.id].y.set(node.y);
+      });
+    } else if (!isOnScreenRef.current) {
+      simulation.stop();
+    }
 
     (containerRef.current as any).__simulation = simulation;
 
     return () => {
       simulation.stop();
     };
-  }, [positions, scale]);
+  }, [positions, scale, reduceMotion]);
+
+  // Pause the chamber whenever it scrolls off-screen; resume on return.
+  useEffect(() => {
+    if (reduceMotion) return;
+    const simulation = (containerRef.current as any)?.__simulation;
+    if (!simulation) return;
+    if (isOnScreen) {
+      simulation.restart();
+    } else {
+      simulation.stop();
+    }
+  }, [isOnScreen, reduceMotion]);
 
   const handleDragStart = (id: string) => {
     setDraggingId(id);
     const simulation = (containerRef.current as any)?.__simulation;
     const node = nodesRef.current.find((n) => n.id === id);
     if (simulation && node) {
-      simulation.alphaTarget(0.3).restart();
+      if (!reduceMotion) simulation.restart();
       node.fx = node.x;
       node.fy = node.y;
     }
@@ -622,16 +718,24 @@ export default function Skills() {
     }
   };
 
-  const handleDragEnd = (id: string) => {
+  const handleDragEnd = (id: string, info?: any) => {
     setDraggingId(null);
     const simulation = (containerRef.current as any)?.__simulation;
-    const node = nodesRef.current.find((n) => n.id === id);
+    const node = nodesRef.current.find((n) => n.id === id) as any;
     if (simulation && node) {
       node.fx = null;
       node.fy = null;
 
-      simulation.alphaTarget(0).restart();
-      simulation.alpha(0.4);
+      // Fling: hand the drag velocity (px/s → px/tick) to the gas. The
+      // speed band in gasForce gradually tames it back to a drift.
+      if (info?.velocity) {
+        node.vx = clampValue(info.velocity.x / 60, -2.5, 2.5);
+        node.vy = clampValue(info.velocity.y / 60, -2.5, 2.5);
+      }
+
+      if (!reduceMotion && isOnScreenRef.current) {
+        simulation.restart();
+      }
     }
   };
 
@@ -639,74 +743,46 @@ export default function Skills() {
   return (
     <section
       id="skills"
-      className="portfolio-section portfolio-paper-stage flex h-screen flex-col items-center overflow-hidden justify-center"
+      className="relative flex h-below-nav flex-col overflow-hidden bg-black text-white"
     >
       <div className="absolute inset-0 pointer-events-none">
         <div
-          className="absolute inset-0 opacity-40"
+          className="absolute inset-0"
           style={{
             backgroundImage:
-              "linear-gradient(rgba(16,24,40,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(16,24,40,0.04) 1px, transparent 1px)",
+              "linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px)",
             backgroundSize: "86px 86px",
-            maskImage: "linear-gradient(180deg, rgba(0,0,0,0.42), transparent 100%)",
+            maskImage: "linear-gradient(180deg, rgba(0,0,0,0.55), transparent 100%)",
           }}
         />
-        <div className="absolute left-[8%] top-20 h-48 w-48 rounded-full bg-[var(--portfolio-accent-soft)] blur-3xl" />
-        <div className="absolute right-[12%] top-28 h-56 w-56 rounded-full bg-[rgba(202,212,227,0.24)] blur-3xl" />
       </div>
 
-      <div className="relative z-10 mx-auto flex h-full w-full max-w-7xl flex-col items-center px-4 md:px-6 pb-6">
-        <ScrambledText
-          as="h2"
-          text="Skills"
-          triggerOnView
-          duration={1.05}
-          speed={0.7}
-          className="portfolio-title flex-shrink-0 text-center text-4xl md:text-5xl"
-        />
+      <div className="relative z-10 flex h-full w-full flex-col pt-[clamp(1.25rem,3vh,2rem)]">
+        <div className="flex-shrink-0 px-[clamp(1.25rem,3vw,3rem)]">
+          <span className="text-[0.65rem] font-bold uppercase tracking-[0.3em] text-white/40">
+            Capabilities
+          </span>
+          <RevealText
+            as="h2"
+            className="portfolio-title mt-1 text-4xl uppercase text-white md:text-5xl"
+          >
+            Skills
+          </RevealText>
+        </div>
 
-        <div className="portfolio-card mt-6 flex min-h-0 flex-1 w-full flex-col p-4 md:p-5">
-            <div
-              ref={containerRef}
-              className="relative mx-auto flex min-h-0 flex-1 w-full items-center justify-center overflow-hidden rounded-[1.75rem] border border-[rgba(16,24,40,0.08)] bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(248,244,236,0.76))]"
-              style={{
-                transform: "translateZ(0) scale(1)",
-                transformOrigin: "center center",
-              }}
-            >
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(0,255,153,0.08),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(255,191,115,0.12),transparent_22%)]" />
-
-              <svg
-                className="absolute inset-0 z-10 h-full w-full pointer-events-none"
-                style={{ overflow: "visible", transform: "translate(50%, 50%)" }}
-              >
-                <g>
-                  {skillLinks.map((link) => {
-                    const isRelated =
-                      draggingId !== null &&
-                      (link.source === draggingId || link.target === draggingId);
-
-                    return (
-                      <SkillConnection
-                        key={getSkillLinkKey(link.source, link.target)}
-                        x1={positions[link.source].x}
-                        y1={positions[link.source].y}
-                        x2={positions[link.target].x}
-                        y2={positions[link.target].y}
-                        isRelated={isRelated}
-                        shouldReveal={shouldRevealGraph}
-                        revealDelay={
-                          linkRevealDelayByKey[
-                            getSkillLinkKey(link.source, link.target)
-                          ]
-                        }
-                        reduceMotion={reduceMotion}
-                        entranceComplete={entranceComplete}
-                      />
-                    );
-                  })}
-                </g>
-              </svg>
+        {/* Borderless, full-bleed gas chamber — the nodes drift and bounce
+            edge to edge with nothing visibly boxing them in. */}
+        <div
+          ref={containerRef}
+          className="relative mt-2 flex min-h-0 w-full flex-1 items-center justify-center overflow-hidden"
+          style={{
+            transform: "translateZ(0) scale(1)",
+            transformOrigin: "center center",
+          }}
+        >
+              {/* Node connections intentionally hidden — pure free-floating
+                  gas. The SkillConnection renderer is kept above in case
+                  the constellation look ever comes back. */}
 
               {initialSkills.map((skill) => {
                 const isDragging = draggingId === skill.id;
@@ -719,7 +795,7 @@ export default function Skills() {
                     dragElastic={0.2}
                     onDragStart={() => handleDragStart(skill.id)}
                     onDrag={(e, info) => handleDrag(skill.id, info)}
-                    onDragEnd={() => handleDragEnd(skill.id)}
+                    onDragEnd={(e, info) => handleDragEnd(skill.id, info)}
                     style={{
                       x: positions[skill.id].x,
                       y: positions[skill.id].y,
@@ -758,14 +834,23 @@ export default function Skills() {
                         scale: isDragging ? 1.18 : 1,
                       }}
                       transition={{ duration: 0.18 }}
-                      className={`-ml-4 -mt-4 flex h-8 w-8 cursor-grab items-center justify-center rounded-full border border-[rgba(16,24,40,0.08)] bg-white shadow-xl transition-[opacity,filter,box-shadow] duration-200 group active:cursor-grabbing sm:-ml-5 sm:-mt-5 sm:h-10 sm:w-10 md:-ml-6 md:-mt-6 md:h-12 md:w-12 lg:-ml-7 lg:-mt-7 lg:h-14 lg:w-14 ${isOther ? "opacity-50 blur-[1px]" : "opacity-100"}`}
+                      className={`-ml-4 -mt-4 flex h-8 w-8 cursor-grab items-center justify-center rounded-full border border-white/20 bg-white shadow-xl transition-[opacity,filter,box-shadow] duration-200 group active:cursor-grabbing sm:-ml-5 sm:-mt-5 sm:h-10 sm:w-10 md:-ml-6 md:-mt-6 md:h-12 md:w-12 lg:-ml-7 lg:-mt-7 lg:h-14 lg:w-14 ${isOther ? "opacity-50 blur-[1px]" : "opacity-100"}`}
                     >
-                      <div
-                        className="text-base sm:text-xl md:text-2xl lg:text-3xl"
-                        style={{ color: skill.color }}
-                      >
-                        {skill.icon}
-                      </div>
+                      {"img" in skill ? (
+                        <img
+                          src={skill.img}
+                          alt={skill.name}
+                          draggable={false}
+                          className="h-5 w-5 select-none object-contain sm:h-6 sm:w-6 md:h-8 md:w-8 lg:h-9 lg:w-9"
+                        />
+                      ) : (
+                        <div
+                          className="text-base sm:text-xl md:text-2xl lg:text-3xl"
+                          style={{ color: skill.color }}
+                        >
+                          {skill.icon}
+                        </div>
+                      )}
 
                       <div className="pointer-events-none absolute -bottom-6 left-1/2 z-30 -translate-x-1/2 whitespace-nowrap rounded bg-slate-800 px-2 py-1 text-[9px] font-bold tracking-wide text-white opacity-0 transition-opacity group-hover:opacity-100 sm:-bottom-8 sm:text-[10px] md:text-xs">
                         {skill.name}
@@ -774,7 +859,6 @@ export default function Skills() {
                   </motion.div>
                 );
               })}
-            </div>
         </div>
       </div>
     </section>

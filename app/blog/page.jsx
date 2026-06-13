@@ -71,7 +71,7 @@ export default async function BlogList() {
   };
 
   return (
-    <div className="min-h-screen bg-primary pt-32 px-4 md:px-12">
+    <div className="min-h-screen px-4 pt-32 md:px-12">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(blogJsonLd) }}
@@ -81,13 +81,16 @@ export default async function BlogList() {
           {/* ... Home Link and Title */}
           <div className="flex items-center gap-4">
             <Link href="/">
-              <Button variant="outline" className="text-white border-white/20 hover:bg-white/10 hover:text-white gap-2">
+              <Button
+                variant="outline"
+                className="gap-2 border-[#101828]/20 text-[#101828] hover:bg-[#101828]/5 hover:text-[#101828]"
+              >
                 ← Home
               </Button>
             </Link>
-            <h1 className="text-4xl font-light text-white">Blog</h1>
+            <h1 className="text-4xl font-light text-[#101828]">Blog</h1>
           </div>
-          
+
           <div className="flex gap-4 items-center">
             {isAdmin ? (
               <>
@@ -98,54 +101,59 @@ export default async function BlogList() {
               </>
             ) : canShowLogin ? (
                 <Link href="/login">
-                  <Button variant="outline" className="text-white border-white/20 hover:bg-white/10">Login</Button>
+                  <Button
+                    variant="outline"
+                    className="border-[#101828]/20 text-[#101828] hover:bg-[#101828]/5 hover:text-[#101828]"
+                  >
+                    Login
+                  </Button>
                 </Link>
             ) : null}
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
           {allPosts.map((post) => (
             <div key={post.id} className="group relative h-full">
               <Link href={`/blog/${post.slug}`} className="block h-full">
-                <div className="bg-zinc-900/50 border border-white/10 rounded-xl h-full hover:border-accent transition-colors overflow-hidden flex flex-col">
+                <div className="flex h-full flex-col overflow-hidden rounded-xl border border-[#101828]/10 bg-white/80 shadow-[0_14px_50px_rgba(16,24,40,0.07)] transition-all duration-300 hover:-translate-y-1 hover:border-[#00b86b]/50 hover:shadow-[0_24px_80px_rgba(16,24,40,0.12)]">
                   {post.coverImage && (
                     <div className="relative w-full h-48 overflow-hidden">
-                      <img 
-                        src={post.coverImage} 
-                        alt={post.title} 
+                      <img
+                        src={post.coverImage}
+                        alt={post.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                     </div>
                   )}
                   <div className="p-6 flex flex-col flex-grow">
-                    <h2 className="text-2xl font-light text-white mb-3 group-hover:text-accent transition-colors">{post.title}</h2>
-                    
+                    <h2 className="mb-3 text-2xl font-light text-[#101828] transition-colors group-hover:text-[#00805b]">{post.title}</h2>
+
                     {post.tags && (
                       <div className="flex flex-wrap gap-2 mb-4">
                         {post.tags.split(',').map((tag, i) => (
-                          <span key={i} className="text-xs bg-white/5 text-white/60 px-2 py-1 rounded-full">
+                          <span key={i} className="rounded-full bg-[#101828]/5 px-2 py-1 text-xs text-[#536074]">
                             #{tag.trim()}
                           </span>
                         ))}
                       </div>
                     )}
 
-                    <p className="text-white/60 line-clamp-3 mb-4 flex-grow">{post.excerpt || post.content.substring(0, 150)}...</p>
-                    <div className="text-sm text-white/40 mt-auto pt-4 border-t border-white/5">
+                    <p className="mb-4 flex-grow text-[#536074] line-clamp-3">{post.excerpt || post.content.substring(0, 150)}...</p>
+                    <div className="mt-auto border-t border-[#101828]/5 pt-4 text-sm text-[#8892a4]">
                       {new Date(post.createdAt).toLocaleDateString()}
                     </div>
                   </div>
                 </div>
               </Link>
-              
+
               {isAdmin && post.sourceType === "database" && (
                 <DeleteButton id={post.id} />
               )}
             </div>
           ))}
           {allPosts.length === 0 && (
-            <p className="text-white/60 col-span-full text-center">No posts yet.</p>
+            <p className="col-span-full text-center text-[#536074]">No posts yet.</p>
           )}
         </div>
       </div>

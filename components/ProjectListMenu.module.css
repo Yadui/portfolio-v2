@@ -1,0 +1,78 @@
+/*
+ * ProjectListMenu — centered title list with a cursor-following preview.
+ *
+ * The preview is an absolutely-positioned layer INSIDE the list wrapper,
+ * stacked under the nav (z-index 1 vs the nav's 2) so the titles always
+ * paint over the image. Layers inside it are created imperatively (plain
+ * DOM) on every hover change so GSAP can run the "pan from center to
+ * edges" reveal without React churn, hence the styles live here instead
+ * of Tailwind classes.
+ */
+
+.preview {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: clamp(160px, 16vw, 250px);
+  aspect-ratio: 16 / 10;
+  border-radius: 12px;
+  overflow: hidden;
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  background: #0b0b10;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+  will-change: transform;
+}
+
+.previewLayers {
+  position: absolute;
+  inset: 0;
+}
+
+/* One layer per hovered project; un-clips outward from the center. */
+.layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  will-change: clip-path;
+}
+
+/* The media inside settles from a zoomed-in state (the "pan" half). */
+.layerMedia {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  will-change: transform;
+}
+
+/* Gradient card shown for projects that ship without a screenshot. */
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 1rem;
+}
+
+.placeholderTag {
+  font-family: var(--font-clash-display), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.placeholderTitle {
+  font-family: var(--font-clash-grotesk), ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(0.9rem, 1.25vw, 1.2rem);
+  font-weight: 500;
+  line-height: 1.12;
+  text-align: center;
+  max-width: 92%;
+  color: rgba(255, 255, 255, 0.92);
+}

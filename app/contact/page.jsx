@@ -3,9 +3,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogTitle } from "@radix-ui/react-dialog";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import Image from "next/image";
 import {
   Select,
   SelectContent,
@@ -17,16 +14,20 @@ import {
 } from "@/components/ui/select";
 
 import { FaEnvelope, FaMapMarkedAlt, FaLinkedin } from "react-icons/fa";
+import { motion } from "framer-motion";
+import { useState } from "react";
 
 const info = [
   {
     icon: <FaLinkedin />,
+    title: "LinkedIn",
     description: "View Profile",
     link: "https://www.linkedin.com/in/abhinavyadav88",
     isExternal: true,
   },
   {
     icon: <FaEnvelope />,
+    title: "Email",
     description: "abhinavyadav8@gmail.com",
     link: "mailto:abhinavyadav8@gmail.com",
     isExternal: false,
@@ -37,8 +38,9 @@ const info = [
     description: "Gurugram, Haryana",
   },
 ];
-import { motion } from "framer-motion";
-import { useState } from "react";
+
+const fieldLabelClass =
+  "mb-1.5 block text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-[#536074]";
 
 const Contact = () => {
   const [service, setService] = useState("");
@@ -121,110 +123,156 @@ const Contact = () => {
       initial={{ opacity: 0 }}
       animate={{
         opacity: 1,
-        transition: { delay: 2.4, duration: 0.4, ease: "easeIn" },
+        transition: { delay: 0.1, duration: 0.5, ease: "easeOut" },
       }}
-      className="py-10"
+      className="pb-16 pt-28"
     >
       <div className="container mx-auto">
-        <div className="flex flex-col xl:flex-row gap-[30px]">
+        <div className="flex flex-col gap-[30px] xl:flex-row">
           {/* form */}
-          <div className="xl:w-[54%] order-2 xl:order-none">
+          <div className="order-2 xl:order-none xl:w-[54%]">
             <form
-              className="flex flex-col gap-6 p-10 bg-[#27272c] rounded-xl"
+              className="flex flex-col gap-6 rounded-2xl border border-[#101828]/10 bg-white/80 p-10 shadow-[0_24px_80px_rgba(16,24,40,0.1)]"
               onSubmit={handleSubmit}
             >
-              <h3 className="text-4xl text-accent">Lets Work together</h3>
-              <p className="text-white/60">
+              <h1 className="portfolio-title text-4xl">Let&apos;s work together</h1>
+              <p className="text-[#536074]">
                 Collaborate with me to bring your ideas to life with creativity
                 and precision.
               </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Input
-                  name="firstname"
-                  type="text"
-                  placeholder="Firstname"
-                  className="rounded-xl"
-                  required
-                />
-                <Input
-                  name="lastname"
-                  type="text"
-                  placeholder="Lastname"
-                  className="rounded-xl"
-                  required
-                />
-                <Input
-                  name="email"
-                  type="email"
-                  placeholder="Email address"
-                  className="rounded-xl"
-                />
-                <Input
-                  name="phone"
-                  type="tel"
-                  placeholder="Phone number"
-                  className="rounded-xl"
-                />
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div>
+                  <label htmlFor="contact-firstname" className={fieldLabelClass}>
+                    Firstname *
+                  </label>
+                  <Input
+                    id="contact-firstname"
+                    name="firstname"
+                    type="text"
+                    placeholder="Firstname"
+                    className="w-full rounded-xl"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="contact-lastname" className={fieldLabelClass}>
+                    Lastname *
+                  </label>
+                  <Input
+                    id="contact-lastname"
+                    name="lastname"
+                    type="text"
+                    placeholder="Lastname"
+                    className="w-full rounded-xl"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="contact-email" className={fieldLabelClass}>
+                    Email
+                  </label>
+                  <Input
+                    id="contact-email"
+                    name="email"
+                    type="email"
+                    placeholder="Email address"
+                    className="w-full rounded-xl"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="contact-phone" className={fieldLabelClass}>
+                    Phone
+                  </label>
+                  <Input
+                    id="contact-phone"
+                    name="phone"
+                    type="tel"
+                    placeholder="Phone number"
+                    className="w-full rounded-xl"
+                  />
+                </div>
               </div>
-              <Select onValueChange={(value) => setService(value)} value={service}>
-                <SelectTrigger className="w-full rounded-xl">
-                  <SelectValue placeholder="Select a query type" />
-                </SelectTrigger>
-                <SelectContent className="bg-primary rounded-xl">
-                  <SelectGroup>
-                    <SelectLabel>Query Type</SelectLabel>
-                    <SelectItem value="job">Job Query</SelectItem>
-                    <SelectItem value="project">Project Query</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+              <div>
+                <span className={fieldLabelClass}>Query type</span>
+                <Select onValueChange={(value) => setService(value)} value={service}>
+                  <SelectTrigger className="w-full rounded-xl border-[#101828]/15 bg-white/85 text-[#101828]">
+                    <SelectValue placeholder="Select a query type" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl border-[#101828]/10 bg-[#fffdf8] text-[#101828]">
+                    <SelectGroup>
+                      <SelectLabel>Query Type</SelectLabel>
+                      <SelectItem value="job">Job Query</SelectItem>
+                      <SelectItem value="project">Project Query</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
               {service === "other" && (
-                <Input
-                  name="otherService"
-                  type="text"
-                  placeholder="Please specify"
-                  className="rounded-xl"
-                  required
-                  value={otherService}
-                  onChange={(e) => setOtherService(e.target.value)}
-                />
+                <div>
+                  <label htmlFor="contact-other" className={fieldLabelClass}>
+                    Please specify *
+                  </label>
+                  <Input
+                    id="contact-other"
+                    name="otherService"
+                    type="text"
+                    placeholder="Please specify"
+                    className="w-full rounded-xl"
+                    required
+                    value={otherService}
+                    onChange={(e) => setOtherService(e.target.value)}
+                  />
+                </div>
               )}
               {/* textarea */}
-              <Textarea
-                name="message"
-                className="h-[200px] resize-none rounded-xl"
-                placeholder="Type your message here."
-                required
-              />
+              <div>
+                <label htmlFor="contact-message" className={fieldLabelClass}>
+                  Message *
+                </label>
+                <Textarea
+                  id="contact-message"
+                  name="message"
+                  className="h-[200px] resize-none rounded-xl"
+                  placeholder="Type your message here."
+                  required
+                />
+              </div>
               {/* btn */}
               <Button size="md" className="max-w-40" disabled={loading}>
                 {loading ? (
-                  <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-black border-t-transparent"></div>
                 ) : (
                   "Send message"
                 )}
               </Button>
-              {status?.type === "success" && (
-                <div className="text-green-500 text-sm mt-2">{status.message}</div>
-              )}
-              {status?.type === "error" && (
-                <div className="text-red-500 text-sm mt-2">{status.message}</div>
-              )}
+              <div role="status" aria-live="polite">
+                {status?.type === "success" && (
+                  <div className="mt-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
+                    {status.message}
+                  </div>
+                )}
+                {status?.type === "error" && (
+                  <div className="mt-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                    {status.message}
+                  </div>
+                )}
+              </div>
             </form>
           </div>
-          <div className="flex-1 flex items-center xl:justify-end xl:order-1 mb-8 xl:mb-0 xl:text-left">
-            <ul className="flex flex-row xl:flex-col gap-10 flex-wrap justify-center w-full bg-[#27272c] p-8 rounded-xl">
+          <div className="order-1 mb-8 flex flex-1 items-center xl:order-none xl:mb-0 xl:justify-end xl:text-left">
+            <ul className="flex w-full flex-row flex-wrap justify-center gap-10 rounded-2xl border border-[#101828]/10 bg-white/80 p-8 shadow-[0_24px_80px_rgba(16,24,40,0.1)] xl:flex-col">
               {info.map((item, index) => {
                 return (
                   <li key={index} className="flex items-center gap-6">
-                    <div className="w-[52px] h-[52px] xl:h-[72px] xl:w-[72px] bg-[#27272c] text-accent rounded-full flex items-center justify-center ">
+                    <div className="flex h-[52px] w-[52px] items-center justify-center rounded-full bg-[#00ff99]/15 text-xl text-[#00805b] xl:h-[72px] xl:w-[72px]">
                       {item.link ? (
                         <a
                           href={item.link}
                           target={item.isExternal ? "_blank" : "_self"}
                           rel={item.isExternal ? "noopener noreferrer" : ""}
-                          className="hover:scale-125 transition-all"
+                          aria-label={item.title}
+                          className="transition-all hover:scale-125"
                         >
                           <div>{item.icon}</div>
                         </a>
@@ -238,17 +286,17 @@ const Contact = () => {
                           href={item.link}
                           target={item.isExternal ? "_blank" : "_self"}
                           rel={item.isExternal ? "noopener noreferrer" : ""}
-                          className="hover:text-accent transition-all"
+                          className="transition-all hover:text-[#00805b]"
                         >
-                          <p className="mb-1">{item.title}</p>
-                          <h3 className={!item.isExternal ? "underline" : ""}>
+                          <p className="mb-1 text-sm text-[#8892a4]">{item.title}</p>
+                          <h3 className={`text-[#101828] ${!item.isExternal ? "underline" : ""}`}>
                             {item.description}
                           </h3>
                         </a>
                       ) : (
                         <>
-                          <p>{item.title}</p>
-                          <h3>{item.description}</h3>
+                          <p className="mb-1 text-sm text-[#8892a4]">{item.title}</p>
+                          <h3 className="text-[#101828]">{item.description}</h3>
                         </>
                       )}
                     </div>

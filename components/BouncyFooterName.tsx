@@ -5,170 +5,167 @@ import Matter from "matter-js";
 import type { Body } from "matter-js";
 import gsap from "gsap";
 import { FaPaperPlane, FaRocket, FaStar, FaCloud } from "react-icons/fa";
-import localFont from "next/font/local";
-
-
 
 const COLORS = [
   "#00E5FF", "#76FF03", "#FFEA00", "#FF4081",
-  "#7C4DFF", "#FF6E40", "#00E676"
+  "#7C4DFF", "#FF6E40", "#00E676",
 ];
+
+const NAME = "ABHINAV";
 
 // Base dimensions (for desktop)
 const BASE_LETTER_WIDTH = 280;
 const BASE_LETTER_HEIGHT = 350;
 const BASE_FONT_SIZE = 400;
-const BASE_BODY_WIDTH = 50;
-const BASE_BODY_HEIGHT = 250;
-const SPACING = 0.8; // <--- lower = closer together
 
 export default function BouncyFooterName() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const letterRefs = useRef<(HTMLDivElement | null)[]>([]);
-  
+
   // Animation Refs
   const planeRef = useRef<HTMLDivElement>(null);
   const rocketRef = useRef<HTMLDivElement>(null);
-  
+
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [scale, setScale] = useState(1);
+  const [reducedMotion, setReducedMotion] = useState(false);
 
-  // 1. Handle Resize & Initial Measure
+  // 0. Respect prefers-reduced-motion — render a static name instead.
   useEffect(() => {
-    if (!containerRef.current) return;
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReducedMotion(query.matches);
+    const onChange = (event: MediaQueryListEvent) => setReducedMotion(event.matches);
+    query.addEventListener("change", onChange);
+    return () => query.removeEventListener("change", onChange);
+  }, []);
+
+  // 1. Handle Resize & Initial Measure.
+  //    Debounced, and small height-only changes (mobile URL-bar show/hide)
+  //    are ignored so the physics world isn't pointlessly rebuilt.
+  useEffect(() => {
+    if (!containerRef.current) return undefined;
+
+    const lastMeasured = { width: 0, height: 0 };
+    let debounceId = 0;
 
     const measure = () => {
       if (!containerRef.current) return;
       const w = containerRef.current.clientWidth;
       const h = containerRef.current.clientHeight;
-      
-      // Update dimensions state
+
+      const widthChanged = Math.abs(w - lastMeasured.width) > 1;
+      const heightChanged = Math.abs(h - lastMeasured.height) > 150;
+      if (lastMeasured.width !== 0 && !widthChanged && !heightChanged) return;
+
+      lastMeasured.width = w;
+      lastMeasured.height = h;
       setDimensions({ width: w, height: h });
-      
-      // Calculate responsive scale
-      const newScale = Math.min(w / 1400, 1);
-      setScale(newScale);
+      setScale(Math.min(w / 1400, 1));
     };
 
-    // Initial measure
     measure();
 
     const observer = new ResizeObserver(() => {
-      requestAnimationFrame(measure);
+      window.clearTimeout(debounceId);
+      debounceId = window.setTimeout(measure, 200);
     });
-    
     observer.observe(containerRef.current);
 
-    return () => observer.disconnect();
+    return () => {
+      window.clearTimeout(debounceId);
+      observer.disconnect();
+    };
   }, []);
 
-  // 2. GSAP Background Animations
+  // 2. GSAP Background Animations — paused whenever the footer is off-screen.
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || reducedMotion) return undefined;
+
+    const animations: (gsap.core.Timeline | gsap.core.Tween)[] = [];
 
     const ctx = gsap.context(() => {
-      // --- Paper Plane Animation ---
-      // Loops across the screen diagonally
-      const planeTimeline = gsap.timeline({ repeat: -1, repeatDelay: 3 });
-      
-      planeTimeline.set(planeRef.current, { 
-        x: -100, 
-        y: "80%", // Start near bottom
-        opacity: 0, 
-        rotation: 0, 
-        scale: 0.8
+      // --- Paper Plane: loops across the band diagonally ---
+      const planeTimeline = gsap.timeline({ repeat: -1, repeatDelay: 3, paused: true });
+      planeTimeline.set(planeRef.current, {
+        x: -100,
+        y: "80%",
+        opacity: 0,
+        rotation: 0,
+        scale: 0.8,
       });
-
       planeTimeline.to(planeRef.current, {
-        x: "120%", // Fly off right side
-        y: "10%",  // End near top
+        x: "120%",
+        y: "10%",
         rotation: 20,
         opacity: 1,
         duration: 5,
         ease: "power1.inOut",
         onStart: () => {
-          // Randomize Y start slightly each loop
           gsap.set(planeRef.current, { y: 50 + Math.random() * 50 + "%" });
-        }
+        },
       });
+      animations.push(planeTimeline);
 
-      // --- Rocket Animation ---
-      // Shoots up from the bottom occasionally
-      const rocketTimeline = gsap.timeline({ repeat: -1, repeatDelay: 10 });
-      
-      rocketTimeline.set(rocketRef.current, { 
-        y: 600, 
-        x: 0, 
-        opacity: 1, 
-        scale: 0.5 
-      });
-      
-      rocketTimeline.to(rocketRef.current, {
-        y: -800,
-        duration: 2.5,
-        ease: "power4.in", // Fast acceleration
-      });
+      // --- Rocket: shoots up occasionally ---
+      const rocketTimeline = gsap.timeline({ repeat: -1, repeatDelay: 10, paused: true });
+      rocketTimeline.set(rocketRef.current, { y: 600, x: 0, opacity: 1, scale: 0.5 });
+      rocketTimeline.to(rocketRef.current, { y: -800, duration: 2.5, ease: "power4.in" });
+      animations.push(rocketTimeline);
 
-      // --- Floating Elements (Stars/Clouds) ---
-      gsap.to(".floating-item", {
+      // --- Floating stars / clouds ---
+      const floatTween = gsap.to(".floating-item", {
         y: "-=20",
         rotation: 10,
         duration: "random(2, 4)",
         repeat: -1,
         yoyo: true,
         ease: "sine.inOut",
-        stagger: {
-          amount: 2,
-          from: "random"
-        }
+        paused: true,
+        stagger: { amount: 2, from: "random" },
       });
-
+      animations.push(floatTween);
     }, containerRef);
 
-    return () => ctx.revert();
-  }, []);
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        animations.forEach((animation) =>
+          entry.isIntersecting ? animation.play() : animation.pause()
+        );
+      },
+      { threshold: 0.05 }
+    );
+    io.observe(containerRef.current);
 
-  // 3. Run Matter.js Engine
+    return () => {
+      io.disconnect();
+      ctx.revert();
+    };
+  }, [reducedMotion]);
+
+  // 3. Matter.js physics — no canvas renderer (letters are DOM nodes), the
+  //    engine only steps while the footer is on screen, and the simulation
+  //    doesn't start until first scrolled into view (so the letter-drop is
+  //    actually seen).
   useEffect(() => {
-    if (dimensions.width === 0 || !canvasRef.current) return;
+    const container = containerRef.current;
+    if (dimensions.width === 0 || !container || reducedMotion) return undefined;
 
-    const { Engine, Render, Runner, Bodies, Composite, MouseConstraint, Mouse } = Matter;
+    const { Engine, Runner, Bodies, Composite, MouseConstraint, Mouse } = Matter;
 
-    /** --------------------------
-     * SCALED CONSTANTS
-     * ------------------------- */
-    // Increased body width to match visual better for dragging
-    const BODY_WIDTH = (BASE_LETTER_WIDTH * 0.6) * scale; 
-    const BODY_HEIGHT = (BASE_LETTER_HEIGHT * 0.8) * scale;
-    
+    const BODY_WIDTH = BASE_LETTER_WIDTH * 0.6 * scale;
+    const BODY_HEIGHT = BASE_LETTER_HEIGHT * 0.8 * scale;
     const SPAWN_Y = dimensions.height > 600 ? dimensions.height - 600 : -200;
 
-    /** --------------------------
-     * SETUP
-     * ------------------------- */
-    const engine = Engine.create({
-      gravity: { x: 0, y: 1.5 } // Slightly reduced gravity for floatier feel
-    });
+    const engine = Engine.create({ gravity: { x: 0, y: 1.5 } });
 
-    const render = Render.create({
-      canvas: canvasRef.current,
-      engine,
-      options: {
-        width: dimensions.width,
-        height: dimensions.height,
-        background: "transparent",
-        wireframes: false,
-        pixelRatio: window.devicePixelRatio
-      }
-    });
-
-    /** --------------------------
-     * WALLS (Responsive)
-     * ------------------------- */
-    const boundaryOptions = { isStatic: true, render: { visible: false }, friction: 0.5, restitution: 0.2 };
+    /** Walls */
+    const boundaryOptions = {
+      isStatic: true,
+      render: { visible: false },
+      friction: 0.5,
+      restitution: 0.2,
+    };
     const wallThickness = 100;
-
     const ground = Bodies.rectangle(
       dimensions.width / 2,
       dimensions.height + wallThickness / 2,
@@ -176,7 +173,6 @@ export default function BouncyFooterName() {
       wallThickness,
       boundaryOptions
     );
-
     const leftWall = Bodies.rectangle(
       0 - wallThickness / 2,
       dimensions.height / 2,
@@ -184,7 +180,6 @@ export default function BouncyFooterName() {
       dimensions.height * 2,
       boundaryOptions
     );
-
     const rightWall = Bodies.rectangle(
       dimensions.width + wallThickness / 2,
       dimensions.height / 2,
@@ -192,74 +187,74 @@ export default function BouncyFooterName() {
       dimensions.height * 2,
       boundaryOptions
     );
-
     Composite.add(engine.world, [ground, leftWall, rightWall]);
 
-    /** --------------------------
-     * LETTERS
-     * ------------------------- */
-    const text = "ABHINAV".split("");
-    // Calculate total width based on the visual spacing we want
-    const totalBodyWidth = text.length * (BODY_WIDTH * 1.1); 
+    /** Letters */
+    const text = NAME.split("");
+    const totalBodyWidth = text.length * (BODY_WIDTH * 1.1);
     const startX = (dimensions.width - totalBodyWidth) / 2 + BODY_WIDTH / 2;
 
     const bodies: Body[] = text.map((_, i) => {
       const b = Bodies.rectangle(
         startX + i * (BODY_WIDTH * 1.1),
-        SPAWN_Y - Math.random() * 200, // Randomize spawn height slightly
+        SPAWN_Y - Math.random() * 200,
         BODY_WIDTH,
         BODY_HEIGHT,
         {
-          restitution: 0.4, // Bounciness
+          restitution: 0.4,
           friction: 0.5,
           frictionAir: 0.01,
-          density: 0.002, // Heavier feel
-          // Reduced chamfer to prevent rolling like a ball, but kept enough for smooth corners
-          chamfer: { radius: 20 * scale }, 
-          render: { visible: false }
+          density: 0.002,
+          chamfer: { radius: 20 * scale },
+          render: { visible: false },
         }
       ) as Body;
 
-      // Randomize initial state so they don't all fall flat
-      Matter.Body.setAngle(b, (Math.random() - 0.5) * 0.5); 
+      Matter.Body.setAngle(b, (Math.random() - 0.5) * 0.5);
       Matter.Body.setAngularVelocity(b, (Math.random() - 0.5) * 0.05);
       return b;
     });
-
     Composite.add(engine.world, bodies);
 
-    /** --------------------------
-     * MOUSE
-     * ------------------------- */
-    const mouse = Mouse.create(render.canvas);
-    
-    // @ts-ignore
-    mouse.element.removeEventListener("mousewheel", mouse.mousewheel);
-    // @ts-ignore
-    mouse.element.removeEventListener("DOMMouseScroll", mouse.mousewheel);
+    /** Mouse drag — fine pointers only, so touch scrolling is never hijacked. */
+    let mouse: Matter.Mouse | null = null;
+    let removeMouseListeners: (() => void) | null = null;
+    if (window.matchMedia("(pointer: fine)").matches) {
+      mouse = Mouse.create(container);
 
-    const mouseConstraint = MouseConstraint.create(engine, {
-      mouse,
-      constraint: { 
-        stiffness: 0.1, // Softer constraint for smoother drag
-        damping: 0.1,
-        render: { visible: false } 
-      }
-    });
+      // Strip Matter's wheel + touch listeners: scroll and touch gestures
+      // must always pass through to the page.
+      const mouseAny = mouse as any;
+      container.removeEventListener("mousewheel", mouseAny.mousewheel);
+      container.removeEventListener("DOMMouseScroll", mouseAny.mousewheel);
+      container.removeEventListener("wheel", mouseAny.mousewheel);
+      container.removeEventListener("touchstart", mouseAny.mousedown);
+      container.removeEventListener("touchmove", mouseAny.mousemove);
+      container.removeEventListener("touchend", mouseAny.mouseup);
 
-    Composite.add(engine.world, mouseConstraint);
+      // Matter never unbinds its DOM listeners — do it ourselves on cleanup
+      // (the container persists across rebuilds, so they'd accumulate).
+      removeMouseListeners = () => {
+        container.removeEventListener("mousemove", mouseAny.mousemove);
+        container.removeEventListener("mousedown", mouseAny.mousedown);
+        container.removeEventListener("mouseup", mouseAny.mouseup);
+      };
 
-    /** --------------------------
-     * START
-     * ------------------------- */
-    Render.run(render);
+      const mouseConstraint = MouseConstraint.create(engine, {
+        mouse,
+        constraint: {
+          stiffness: 0.1,
+          damping: 0.1,
+          render: { visible: false },
+        },
+      });
+      Composite.add(engine.world, mouseConstraint);
+    }
+
+    /** Runner + DOM sync loop — gated by viewport visibility */
     const runner = Runner.create();
-    Runner.run(runner, engine);
-
-    /** --------------------------
-     * SYNC LOOP
-     * ------------------------- */
-    let animationFrameId: number;
+    let animationFrameId = 0;
+    let running = false;
 
     const sync = () => {
       bodies.forEach((body, i) => {
@@ -268,88 +263,108 @@ export default function BouncyFooterName() {
 
         const { x, y } = body.position;
         const angle = body.angle;
-        
         const visualWidth = BASE_LETTER_WIDTH * scale;
         const visualHeight = BASE_LETTER_HEIGHT * scale;
 
-        // Correct centering: subtract half of the VISUAL width/height
-        el.style.transform = `
-          translate(${x - visualWidth / 2}px,
-                    ${y - visualHeight / 2}px)
-          rotate(${angle}rad)
-        `;
-        
+        el.style.transform = `translate(${x - visualWidth / 2}px, ${
+          y - visualHeight / 2
+        }px) rotate(${angle}rad)`;
+
         if (y > dimensions.height + 100 || y < -1000) {
-           Matter.Body.setPosition(body, {
-             x: startX + i * BODY_WIDTH,
-             y: -200
-           });
-           Matter.Body.setVelocity(body, { x: 0, y: 0 });
-           Matter.Body.setAngle(body, 0);
+          Matter.Body.setPosition(body, { x: startX + i * BODY_WIDTH, y: -200 });
+          Matter.Body.setVelocity(body, { x: 0, y: 0 });
+          Matter.Body.setAngle(body, 0);
         }
       });
       animationFrameId = requestAnimationFrame(sync);
     };
 
-    sync();
+    const start = () => {
+      if (running) return;
+      running = true;
+      Runner.run(runner, engine);
+      animationFrameId = requestAnimationFrame(sync);
+    };
+
+    const stop = () => {
+      if (!running) return;
+      running = false;
+      Runner.stop(runner);
+      cancelAnimationFrame(animationFrameId);
+    };
+
+    const io = new IntersectionObserver(
+      ([entry]) => (entry.isIntersecting ? start() : stop()),
+      { threshold: 0.05 }
+    );
+    io.observe(container);
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
-      Render.stop(render);
-      Runner.stop(runner);
-      Engine.clear(engine);
+      io.disconnect();
+      stop();
+      removeMouseListeners?.();
+      if (mouse) Mouse.clearSourceEvents(mouse);
       Composite.clear(engine.world, false);
-      // @ts-ignore
-      render.canvas = null;
-      // @ts-ignore
-      render.context = null;
-      render.textures = {};
+      Engine.clear(engine);
     };
-  }, [dimensions, scale]);
+  }, [dimensions, scale, reducedMotion]);
+
+  // Static fallback for reduced-motion users.
+  if (reducedMotion) {
+    return (
+      <div className="relative flex w-full items-center justify-center overflow-hidden bg-black py-10">
+        <p className="flex select-none gap-1 font-heading text-[clamp(3rem,11vw,9rem)] leading-none">
+          {NAME.split("").map((char, i) => (
+            <span key={i} style={{ color: COLORS[i % COLORS.length] }}>
+              {char}
+            </span>
+          ))}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-[300px] md:h-[300px] mt-28 overflow-hidden bg-black"
+      className="relative h-[300px] w-full cursor-grab overflow-hidden bg-black active:cursor-grabbing"
+      aria-hidden="true"
     >
       {/* ---- BACKGROUND ANIMATION LAYER ---- */}
-      <div className="absolute inset-0 pointer-events-none z-0">
+      <div className="pointer-events-none absolute inset-0 z-0">
         {/* Paper Plane */}
-        <div 
-          ref={planeRef} 
-          className="absolute left-0 text-white/10 text-6xl md:text-8xl opacity-0"
+        <div
+          ref={planeRef}
+          className="absolute left-0 text-6xl text-white/10 opacity-0 md:text-8xl"
         >
           <FaPaperPlane />
         </div>
 
         {/* Rocket */}
-        <div 
-          ref={rocketRef} 
-          className="absolute left-[50%] bottom-0 -translate-x-1/2 text-white/10 text-5xl md:text-7xl opacity-0"
+        <div
+          ref={rocketRef}
+          className="absolute bottom-0 left-[50%] -translate-x-1/2 text-5xl text-white/10 opacity-0 md:text-7xl"
         >
           <FaRocket />
         </div>
 
         {/* Floating Items */}
-        <div className="floating-item absolute top-[10%] left-[5%] text-white/5 text-4xl"><FaStar /></div>
-        <div className="floating-item absolute top-[20%] right-[10%] text-white/5 text-3xl"><FaStar /></div>
-        <div className="floating-item absolute bottom-[30%] left-[15%] text-white/5 text-2xl"><FaStar /></div>
-        
-        <div className="floating-item absolute top-[15%] left-[30%] text-white/5 text-6xl opacity-50"><FaCloud /></div>
-        <div className="floating-item absolute top-[40%] right-[25%] text-white/5 text-8xl opacity-30"><FaCloud /></div>
+        <div className="floating-item absolute left-[5%] top-[10%] text-4xl text-white/5"><FaStar /></div>
+        <div className="floating-item absolute right-[10%] top-[20%] text-3xl text-white/5"><FaStar /></div>
+        <div className="floating-item absolute bottom-[30%] left-[15%] text-2xl text-white/5"><FaStar /></div>
+        <div className="floating-item absolute left-[30%] top-[15%] text-6xl text-white/5 opacity-50"><FaCloud /></div>
+        <div className="floating-item absolute right-[25%] top-[40%] text-8xl text-white/5 opacity-30"><FaCloud /></div>
       </div>
 
-      {/* ---- PHYSICS CANVAS ---- */}
-      <canvas ref={canvasRef} className="absolute inset-0 z-10 cursor-grab active:cursor-grabbing" />
-
-      {/* ---- LETTER DIVS ---- */}
-      <div className="absolute inset-0 pointer-events-none z-20">
-        {"ABHINAV".split("").map((char, i) => (
+      {/* ---- LETTER DIVS (driven by the physics bodies) ---- */}
+      <div className="pointer-events-none absolute inset-0 z-20">
+        {NAME.split("").map((char, i) => (
           <div
             key={i}
-            ref={(el) => { letterRefs.current[i] = el; }}
-            // Applied Custom Font class here
-            className={`absolute flex items-center justify-center select-none will-change-transform font-heading`}
+            ref={(el) => {
+              letterRefs.current[i] = el;
+            }}
+            className="absolute flex select-none items-center justify-center font-heading will-change-transform"
             style={{
               width: BASE_LETTER_WIDTH * scale,
               height: BASE_LETTER_HEIGHT * scale,
@@ -357,7 +372,7 @@ export default function BouncyFooterName() {
               lineHeight: `${BASE_LETTER_HEIGHT * scale}px`,
               color: COLORS[i % COLORS.length],
               textShadow: `${10 * scale}px ${10 * scale}px 0px rgba(0,0,0,0.1)`,
-              transform: `translate(-1000px, -1000px)`
+              transform: `translate(-1000px, -1000px)`,
             }}
           >
             {char}

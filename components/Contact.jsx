@@ -1,33 +1,34 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { FaEnvelope, FaMapMarkedAlt, FaLinkedin } from "react-icons/fa";
-import ScrambledText from "@/components/ScrambledText";
+import { MdOutlineEmail, MdOutlineTimer } from "react-icons/md";
+import { FaGithub, FaLinkedinIn } from "react-icons/fa";
+import { ArrowRight, ArrowDown } from "lucide-react";
 
-const links = [
+const contactLinks = [
   {
-    icon: <FaLinkedin />,
-    label: "LinkedIn",
-    value: "abhinavyadav88",
-    href: "https://www.linkedin.com/in/abhinavyadav88",
-    external: true,
-  },
-  {
-    icon: <FaEnvelope />,
+    icon: <MdOutlineEmail className="text-[#4d5dff] text-xl" />,
     label: "Email",
     value: "abhinavyadav8@gmail.com",
     href: "mailto:abhinavyadav8@gmail.com",
-    external: false,
   },
   {
-    icon: <FaMapMarkedAlt />,
-    label: "Location",
-    value: "Gurgaon",
+    icon: <FaGithub className="text-[#4d5dff] text-xl" />,
+    label: "GitHub",
+    value: "Github",
+    href: "https://github.com/abhinavyadav88",
+  },
+  {
+    icon: <MdOutlineTimer className="text-[#4d5dff] text-xl" />,
+    label: "Response",
+    value: "24 Hours",
     href: null,
-    external: false,
+  },
+  {
+    icon: <FaLinkedinIn className="text-[#4d5dff] text-xl" />,
+    label: "LinkedIn",
+    value: "LinkedIn",
+    href: "https://www.linkedin.com/in/abhinavyadav88",
   },
 ];
 
@@ -39,11 +40,12 @@ const Contact = () => {
     e.preventDefault();
     const form = e.target;
     const name = form.name.value.trim();
+    const organization = form.organization.value.trim();
     const email = form.email.value.trim();
     const message = form.message.value.trim();
 
     if (!name || !email || !message) {
-      setStatus({ type: "error", message: "Please fill in all fields." });
+      setStatus({ type: "error", message: "Please fill in all required fields." });
       return;
     }
 
@@ -55,6 +57,7 @@ const Contact = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           firstname: name,
+          organization,
           email,
           message,
           to: "abhinavyadav8+port@gmail.com",
@@ -77,111 +80,140 @@ const Contact = () => {
   return (
     <section
       id="contact"
-      className="portfolio-section portfolio-paper-stage flex min-h-screen flex-col items-center justify-center pb-0"
+      className="relative min-h-screen bg-black text-white"
     >
-      <div className="absolute inset-0 pointer-events-none">
-        <div
-          className="absolute inset-0 opacity-40"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(16,24,40,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(16,24,40,0.04) 1px, transparent 1px)",
-            backgroundSize: "92px 92px",
-            maskImage:
-              "linear-gradient(180deg, rgba(0,0,0,0.42), transparent 100%)",
-          }}
-        />
-        <div className="absolute left-[10%] top-28 h-48 w-48 rounded-full bg-[var(--portfolio-sun-soft)] blur-3xl" />
-        <div className="absolute right-[10%] top-16 h-52 w-52 rounded-full bg-[var(--portfolio-accent-soft)] blur-3xl" />
-      </div>
+      <div className="mx-auto max-w-5xl px-10 pt-40 pb-24">
 
-      <div className="relative z-10 mx-auto flex w-full max-w-xl flex-col items-center px-4 md:px-6">
-        <ScrambledText
-          as="h2"
-          text="Let's Connect"
-          triggerOnView
-          duration={1.05}
-          speed={0.7}
-          className="portfolio-title text-center text-4xl md:text-5xl"
-        />
+        {/* ── "GET IN TOUCH YOUR WAY" ── */}
+        <div className="mb-14 flex items-center gap-3">
+          <h2 className="text-sm font-bold uppercase tracking-widest text-white">
+            Get in touch your way
+          </h2>
+          <ArrowDown size={18} strokeWidth={2} className="text-white" />
+        </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="mt-8 flex w-full flex-col gap-4"
-        >
-          <Input
-            name="name"
-            type="text"
-            placeholder="Name"
-            className="h-12 rounded-xl border-[rgba(16,24,40,0.12)] bg-white/86 px-4 text-[var(--portfolio-ink)] placeholder:text-[var(--portfolio-ink-faint)] focus-visible:ring-[var(--portfolio-accent)]"
-            required
-          />
-          <Input
-            name="email"
-            type="email"
-            placeholder="Email"
-            className="h-12 rounded-xl border-[rgba(16,24,40,0.12)] bg-white/86 px-4 text-[var(--portfolio-ink)] placeholder:text-[var(--portfolio-ink-faint)] focus-visible:ring-[var(--portfolio-accent)]"
-            required
-          />
-          <Textarea
-            name="message"
-            placeholder="Message"
-            className="min-h-[140px] resize-none rounded-xl border-[rgba(16,24,40,0.12)] bg-white/86 p-4 text-[var(--portfolio-ink)] placeholder:text-[var(--portfolio-ink-faint)] focus-visible:ring-[var(--portfolio-accent)]"
-            required
-          />
-          <Button
-            size="lg"
-            className="h-12 w-full rounded-xl bg-[var(--portfolio-ink)] text-base font-semibold tracking-[0.08em] text-white transition-all hover:bg-[rgba(16,24,40,0.92)]"
-            disabled={loading}
-          >
-            {loading ? (
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-            ) : (
-              "Send"
-            )}
-          </Button>
+        {/* ── Contact grid (2 left, 2 right) ── */}
+        <div className="mb-20 grid grid-flow-col grid-rows-2 gap-y-7 gap-x-24 max-w-2xl justify-start">
+          {contactLinks.map((item) => {
+            const inner = (
+              <span className="flex items-center gap-3">
+                {item.icon}
+                <span className="text-xs font-bold uppercase tracking-widest text-white">
+                  {item.value}
+                </span>
+              </span>
+            );
+
+            return (
+              <div key={item.label}>
+                {item.href ? (
+                  <a
+                    href={item.href}
+                    target={item.href.startsWith("http") ? "_blank" : "_self"}
+                    rel={item.href.startsWith("http") ? "noreferrer" : undefined}
+                    aria-label={item.label}
+                    className="transition-opacity hover:opacity-60"
+                  >
+                    {inner}
+                  </a>
+                ) : (
+                  <div className="cursor-default">{inner}</div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* ── Divider: "OR THE RIGHT WAY OR MY WAY" ── */}
+        <div className="mb-14 flex items-center gap-3 md:ml-[42%]">
+          <ArrowDown size={18} strokeWidth={2} className="text-white" />
+          <p className="text-sm font-bold uppercase tracking-widest">
+            <span className="text-white/30 line-through decoration-white/30">
+              Or the right way
+            </span>{" "}
+            <span className="text-white">or my way</span>
+          </p>
+        </div>
+
+        {/* ── Contact form ── */}
+        <form onSubmit={handleSubmit} className="max-w-4xl">
+          {/* Row 1: Name + Organization */}
+          <div className="mb-8 grid grid-cols-2 gap-10">
+            <div className="border-b border-white/20 pb-2">
+              <input
+                name="name"
+                type="text"
+                placeholder="NAME"
+                className="w-full bg-transparent text-xs font-bold uppercase tracking-widest text-white placeholder:text-white/30 outline-none"
+                required
+              />
+            </div>
+            <div className="border-b border-white/20 pb-2">
+              <input
+                name="organization"
+                type="text"
+                placeholder="ORGANIZATION"
+                className="w-full bg-transparent text-xs font-bold uppercase tracking-widest text-white placeholder:text-white/30 outline-none"
+              />
+            </div>
+          </div>
+
+          {/* Row 2: Email + Message */}
+          <div className="mb-10 grid grid-cols-2 gap-10">
+            <div className="border-b border-white/20 pb-2">
+              <input
+                name="email"
+                type="email"
+                placeholder="EMAIL"
+                className="w-full bg-transparent text-xs font-bold uppercase tracking-widest text-white placeholder:text-white/30 outline-none"
+                required
+              />
+            </div>
+            <div className="border-b border-white/20 pb-2">
+              <textarea
+                name="message"
+                placeholder="MESSAGE"
+                rows={1}
+                className="w-full resize-none bg-transparent text-xs font-bold uppercase tracking-widest text-white placeholder:text-white/30 outline-none"
+                required
+              />
+            </div>
+          </div>
+
+          {/* Send button */}
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-white transition-opacity hover:opacity-60 disabled:opacity-40"
+            >
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  Sending…
+                </span>
+              ) : (
+                <>
+                  Send <ArrowRight size={18} strokeWidth={2} />
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Status message */}
           {status && (
             <div
-              className={`rounded-xl border p-3 text-center text-sm font-medium ${
+              className={`mt-6 rounded border px-4 py-3 text-center text-xs font-bold uppercase tracking-widest ${
                 status.type === "success"
-                  ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                  : "border-red-200 bg-red-50 text-red-700"
+                  ? "border-green-500/30 bg-green-500/10 text-green-300"
+                  : "border-red-500/30 bg-red-500/10 text-red-300"
               }`}
             >
               {status.message}
             </div>
           )}
         </form>
-
-        <ul className="mt-10 flex flex-wrap items-center justify-center gap-6 md:gap-10">
-          {links.map((item) => {
-            const inner = (
-              <span className="flex items-center gap-2 text-sm font-medium text-[var(--portfolio-ink-soft)] transition-colors hover:text-[var(--portfolio-accent)]">
-                <span className="text-base text-[var(--portfolio-ink)]">
-                  {item.icon}
-                </span>
-                {item.value}
-              </span>
-            );
-            return (
-              <li key={item.label}>
-                {item.href ? (
-                  <a
-                    href={item.href}
-                    target={item.external ? "_blank" : "_self"}
-                    rel={item.external ? "noreferrer" : undefined}
-                    aria-label={item.label}
-                  >
-                    {inner}
-                  </a>
-                ) : (
-                  inner
-                )}
-              </li>
-            );
-          })}
-        </ul>
       </div>
-
     </section>
   );
 };
