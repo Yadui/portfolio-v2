@@ -125,7 +125,7 @@ const Contact = () => {
         opacity: 1,
         transition: { delay: 0.1, duration: 0.5, ease: "easeOut" },
       }}
-      className="pb-16 pt-28"
+      className="min-h-screen bg-[#fffdf8] pb-16 pt-28 text-[#101828]"
     >
       <div className="container mx-auto">
         <div className="flex flex-col gap-[30px] xl:flex-row">

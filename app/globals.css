@@ -57,8 +57,8 @@
 
   body {
     @apply font-body leading-loose;
-    background-color: var(--portfolio-paper-solid);
-    color: var(--portfolio-ink);
+    background-color: #000;
+    color: #fff;
     scrollbar-width: none;
     -ms-overflow-style: none;
   }
@@ -112,13 +112,24 @@
 }
 
 @layer components {
-  /* Stack-section shell — pins just below the fixed navbar. */
+  /* Contact section — sized to its content plus a little breathing room,
+     not the full viewport, so the Send button sits close to the footer. */
+  .contact-fill {
+    min-height: auto;
+    display: flex;
+    flex-direction: column;
+  }
   .stack-section {
     position: sticky;
     top: var(--site-header-h);
     height: calc(100vh - var(--site-header-h));
     width: 100%;
     overflow: hidden;
+  }
+
+  /* Top padding for the home page root so content starts below the nav */
+  .page-top-offset {
+    padding-top: var(--site-header-h);
   }
 
   /* Used by Projects, Achievements, Skills, Contact inner min-heights */
@@ -291,4 +302,50 @@
   src: url("/fonts/Qubiko.woff2") format("woff2"),
        url("/fonts/Qubiko.woff") format("woff");
   font-display: swap;
+}
+
+/* Floating audio control — animated equaliser bars while playing. */
+@keyframes ay-eq {
+  0%, 100% { transform: scaleY(0.4); }
+  50% { transform: scaleY(1); }
+}
+
+.ay-eq-bar {
+  width: 2.5px;
+  height: 11px;
+  border-radius: 9999px;
+  background-color: #00ff99;
+  transform-origin: bottom;
+  animation: ay-eq 0.9s ease-in-out infinite;
+}
+
+/* Shimmer sweep for the "AI systems" highlight in the Intro section */
+@keyframes shimmer-sweep {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+.ay-shimmer {
+  background: linear-gradient(
+    105deg,
+    #00ff99 0%,
+    #00ff99 38%,
+    #fff    50%,
+    #00ff99 62%,
+    #00ff99 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.ay-shimmer.ay-shimmer-go {
+  animation: shimmer-sweep 1.6s ease forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ay-eq-bar {
+    animation: none;
+    transform: scaleY(0.7);
+  }
+  .ay-shimmer.ay-shimmer-go { animation: none; }
 }

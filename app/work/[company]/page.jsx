@@ -27,7 +27,7 @@ export default function WorkDetailPage({ params }) {
   const nextWork = workDetails[nextSlug];
 
   return (
-    <main className="min-h-screen pb-16 pt-28">
+    <main className="min-h-screen bg-[#fffdf8] pb-16 pt-28 text-[#101828]">
       <div className="container mx-auto max-w-4xl px-4">
 
         {/* Back Button */}

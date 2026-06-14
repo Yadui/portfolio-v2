@@ -71,7 +71,7 @@ export default async function BlogList() {
   };
 
   return (
-    <div className="min-h-screen px-4 pt-32 md:px-12">
+    <div className="min-h-screen bg-[#fffdf8] px-4 pt-32 text-[#101828] md:px-12">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(blogJsonLd) }}

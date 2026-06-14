@@ -29,7 +29,7 @@ const JourneyCard = ({ item, index, onOpenModal, delay = 0 }) => {
   const inner = (
     <motion.div
       {...fadeUp(delay)}
-      className="group w-[260px] border border-white/15 bg-[#0b0b0f]/90 p-5 backdrop-blur-sm transition-colors duration-300 hover:bg-[#11111a]"
+      className="group w-full border border-white/15 bg-[#0b0b0f]/90 p-5 backdrop-blur-sm transition-colors duration-300 hover:bg-[#11111a] md:w-[260px]"
     >
       <div className="flex items-baseline gap-2">
         <span
@@ -117,32 +117,34 @@ const Timeline = () => {
     <>
       <section
         id="timeline"
-        className="relative flex min-h-screen items-center justify-center overflow-clip bg-black text-white"
+        className="relative flex min-h-screen items-center justify-center overflow-clip bg-black py-20 text-white md:py-0"
       >
-        {/* Floating parallax layer */}
-        <Floating sensitivity={0.8} easingFactor={0.04}>
-          {stops.map((item, i) => {
-            const pos = CARD_POSITIONS[i] ?? CARD_POSITIONS[i % CARD_POSITIONS.length];
-            return (
-              <FloatingElement
-                key={item.slug ?? `stop-${i}`}
-                depth={pos.depth}
-                className="top-1/2 left-1/2"
-                style={pos.style}
-              >
-                <JourneyCard
-                  item={item}
-                  index={i}
-                  onOpenModal={handleOpenModal}
-                  delay={0.06 * i}
-                />
-              </FloatingElement>
-            );
-          })}
-        </Floating>
+        {/* ── Desktop / tablet: floating parallax layer (md and up) ── */}
+        <div className="hidden md:block">
+          <Floating sensitivity={0.8} easingFactor={0.04}>
+            {stops.map((item, i) => {
+              const pos = CARD_POSITIONS[i] ?? CARD_POSITIONS[i % CARD_POSITIONS.length];
+              return (
+                <FloatingElement
+                  key={item.slug ?? `stop-${i}`}
+                  depth={pos.depth}
+                  className="top-1/2 left-1/2"
+                  style={pos.style}
+                >
+                  <JourneyCard
+                    item={item}
+                    index={i}
+                    onOpenModal={handleOpenModal}
+                    delay={0.06 * i}
+                  />
+                </FloatingElement>
+              );
+            })}
+          </Floating>
+        </div>
 
-        {/* Centered title */}
-        <div className="relative z-10 flex flex-col items-center text-center px-4">
+        {/* ── Centered title ── */}
+        <div className="relative z-10 flex w-full flex-col items-center px-5 text-center md:px-4">
           <motion.span
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -168,6 +170,19 @@ const Timeline = () => {
             Three roles and a degree — how I got from classroom algorithms to
             shipping cloud and AI systems in production.
           </motion.p>
+
+          {/* ── Mobile: simple stacked cards (below md) ── */}
+          <div className="mt-10 flex w-full max-w-sm flex-col gap-4 text-left md:hidden">
+            {stops.map((item, i) => (
+              <JourneyCard
+                key={item.slug ?? `m-stop-${i}`}
+                item={item}
+                index={i}
+                onOpenModal={handleOpenModal}
+                delay={0.05 * i}
+              />
+            ))}
+          </div>
         </div>
       </section>
 

@@ -251,12 +251,12 @@ export const achievements: AchievementItem[] = [
 /* ------------------------------------------------------------------ */
 export const certifications: CertificationItem[] = [
   {
-    code: "AZ-900",
-    name: "Azure Fundamentals",
+    code: "AB-100",
+    name: "Applied Skills",
     brand: "Microsoft",
-    accent: "#3b82f6",
-    level: "Fundamentals",
-    stars: 1,
+    accent: "#eab308",
+    level: "Applied Skills",
+    stars: 3,
   },
   {
     code: "AI-102",
@@ -267,20 +267,20 @@ export const certifications: CertificationItem[] = [
     stars: 2,
   },
   {
-    code: "AB-100",
-    name: "Applied Skills",
-    brand: "Microsoft",
-    accent: "#eab308",
-    level: "Applied Skills",
-    stars: 2,
-  },
-  {
     code: "GH-300",
     name: "GitHub Copilot",
     brand: "GitHub",
     accent: "#1f2328",
     level: "Certification",
-    badge: "Certified",
+    stars: 2,
+  },
+  {
+    code: "AZ-900",
+    name: "Azure Fundamentals",
+    brand: "Microsoft",
+    accent: "#3b82f6",
+    level: "Fundamentals",
+    stars: 1,
   },
 ];
 
@@ -390,7 +390,6 @@ function validateInDev() {
     if (socialLinks.length === 0) throw new Error("[siteContent] socialLinks cannot be empty");
     if (stats.length === 0) throw new Error("[siteContent] stats cannot be empty");
   } catch (err) {
-    // eslint-disable-next-line no-console
     console.error("[siteContent] Validation failed:", err);
   }
 }

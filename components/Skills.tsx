@@ -11,65 +11,63 @@ import {
   SiKubernetes, SiTerraform, SiRedux, SiExpress, SiPostgresql,
   SiRedis, SiHuggingface, SiTensorflow, SiNotion, SiFigma,
   SiFastapi, SiTypescript, SiGrafana, SiPowerbi, SiPrisma,
-  SiLangchain, SiN8N, SiPowerautomate, SiAnthropic, SiGooglegemini
+  SiLangchain, SiN8N, SiPowerautomate
 } from "react-icons/si";
 import * as d3force from "d3-force";
 import RevealText from "@/components/RevealText";
 
 const initialSkills = [
-  // Frontal and crown arc
-  { id: "js", name: "JS", icon: <FaJs />, color: "#F7DF1E", bx: 30, by: -25, zone: "frontalPole", group: "web", connections: ["react", "python"] },
-  { id: "python", name: "Python", icon: <FaPython />, color: "#3776AB", bx: -4, by: -35, zone: "crown", group: "ai", connections: ["js", "openai", "pandas"] },
-  { id: "react", name: "React", icon: <FaReact />, color: "#61DAFB", bx: 18, by: -12, zone: "frontalLobe", group: "web", connections: ["js", "next", "tailwind", "html"] },
-  { id: "redux", name: "Redux", icon: <SiRedux />, color: "#764ABC", bx: 26, by: 4, zone: "frontalLobe", group: "web", connections: ["react"] },
+  // ── Layer 1: Cloud foundation — who you are ───────────────────────────
+  { id: "azure", name: "Azure", icon: <SiMicrosoftazure />, color: "#0078D4", bx: -6, by: 8, zone: "parietalLobe", group: "cloud", connections: ["aws", "docker", "next"] },
+  { id: "aws", name: "AWS", icon: <FaAws />, color: "#FF9900", bx: 18, by: 32, zone: "temporalLobe", group: "cloud", connections: ["azure", "docker", "terraform"] },
 
-  // Upper rear cortex
-  { id: "express", name: "Express", icon: <SiExpress />, color: "#000000", bx: 22, by: 18, zone: "temporalLobe", group: "web", connections: ["next"] },
-  { id: "huggingface", name: "HuggingFace", icon: <SiHuggingface />, color: "#FFCC00", bx: -20, by: -20, zone: "parietalLobe", group: "ai", connections: ["openai"] },
-  { id: "openai", name: "OpenAI", icon: <SiOpenai />, color: "#10A37F", bx: -6, by: -12, zone: "crown", group: "ai", connections: ["python", "azure", "copilot"] },
-  { id: "aws", name: "AWS", icon: <FaAws />, color: "#FF9900", bx: 18, by: 32, zone: "temporalLobe", group: "cloud", connections: ["docker", "terraform"] },
-  { id: "copilot", name: "Copilot", icon: <SiGithubcopilot />, color: "#000000", bx: -15, by: 2, zone: "parietalLobe", group: "ai", connections: ["openai", "vscode", "numpy"] },
+  // ── Layer 2: Core languages — what you build with ────────────────────
+  { id: "python", name: "Python", icon: <FaPython />, color: "#3776AB", bx: -4, by: -35, zone: "crown", group: "ai", connections: ["azure", "fastapi", "pandas"] },
+  { id: "typescript", name: "TypeScript", icon: <SiTypescript />, color: "#3178C6", bx: 14, by: -6, zone: "frontalLobe", group: "web", connections: ["azure", "react", "next"] },
+  { id: "js", name: "JS", icon: <FaJs />, color: "#F7DF1E", bx: 30, by: -25, zone: "frontalPole", group: "web", connections: ["typescript", "react"] },
 
-  // Mid-body and lower lobe
-  { id: "next", name: "Next.js", icon: <SiNextdotjs />, color: "#000000", bx: 8, by: -2, zone: "frontalLobe", group: "web", connections: ["react", "azure"] },
-  { id: "html", name: "HTML", icon: <FaHtml5 />, color: "#E34F26", bx: 13, by: 20, zone: "temporalLobe", group: "web", connections: ["react", "tailwind"] },
-  { id: "tailwind", name: "Tailwind", icon: <SiTailwindcss />, color: "#06B6D4", bx: 0, by: 24, zone: "temporalLobe", group: "web", connections: ["react", "html"] },
-  { id: "docker", name: "Docker", icon: <FaDocker />, color: "#2496ED", bx: 4, by: 16, zone: "temporalLobe", group: "cloud", connections: ["azure", "aws", "k8s"] },
-  { id: "azure", name: "Azure", icon: <SiMicrosoftazure />, color: "#0078D4", bx: -6, by: 8, zone: "parietalLobe", group: "cloud", connections: ["next", "docker", "openai"] },
-  { id: "pandas", name: "Pandas", icon: <SiPandas />, color: "#150458", bx: -28, by: 12, zone: "occipitalLobe", group: "ai", connections: ["python", "numpy"] },
-  { id: "vscode", name: "VS Code", icon: <SiVisualstudiocode />, color: "#007ACC", bx: -14, by: 30, zone: "stemUpper", group: "tools", connections: ["copilot", "github"] },
-  { id: "numpy", name: "NumPy", icon: <SiNumpy />, color: "#013243", bx: -30, by: -2, zone: "occipitalLobe", group: "ai", connections: ["pandas", "copilot"] },
-
-  // Rear lobe and stem
-  { id: "postgres", name: "Postgres", icon: <SiPostgresql />, color: "#336791", bx: -26, by: 28, zone: "cerebellum", group: "cloud", connections: ["docker"] },
-  { id: "redis", name: "Redis", icon: <SiRedis />, color: "#DC382D", bx: -35, by: 33, zone: "cerebellum", group: "cloud", connections: ["docker"] },
-  { id: "tensorflow", name: "TensorFlow", icon: <SiTensorflow />, color: "#FF6F00", bx: -16, by: 24, zone: "cerebellum", group: "ai", connections: ["numpy"] },
-  { id: "figma", name: "Figma", icon: <SiFigma />, color: "#F24E1E", bx: 28, by: 12, zone: "frontalPole", group: "tools", connections: ["vscode"] },
-  { id: "k8s", name: "K8s", icon: <SiKubernetes />, color: "#326CE5", bx: -10, by: 38, zone: "stemUpper", group: "cloud", connections: ["docker", "terraform"] },
-  { id: "terraform", name: "Terraform", icon: <SiTerraform />, color: "#7B42BC", bx: -12, by: 49, zone: "stemLower", group: "cloud", connections: ["aws", "k8s"] },
-  { id: "github", name: "GitHub", icon: <FaGithub />, color: "#181717", bx: -8, by: 60, zone: "stemLower", group: "tools", connections: ["vscode"] },
-  { id: "notion", name: "Notion", icon: <SiNotion />, color: "#000000", bx: -13, by: 70, zone: "stemLower", group: "tools", connections: ["github"] },
-
-  // Current-role stack (Sep 2024+): platform engineering + agentic AI.
-  // bx/by/zone are legacy monogram fields — the gas ignores them.
+  // ── Layer 3: Frameworks — how you build ──────────────────────────────
+  { id: "react", name: "React", icon: <FaReact />, color: "#61DAFB", bx: 18, by: -12, zone: "frontalLobe", group: "web", connections: ["typescript", "next", "tailwind"] },
+  { id: "next", name: "Next.js", icon: <SiNextdotjs />, color: "#000000", bx: 8, by: -2, zone: "frontalLobe", group: "web", connections: ["react", "azure", "postgres"] },
   { id: "fastapi", name: "FastAPI", icon: <SiFastapi />, color: "#009688", bx: 6, by: 6, zone: "frontalLobe", group: "web", connections: ["python", "postgres"] },
-  { id: "typescript", name: "TypeScript", icon: <SiTypescript />, color: "#3178C6", bx: 14, by: -6, zone: "frontalLobe", group: "web", connections: ["react", "next"] },
-  { id: "prisma", name: "Prisma", icon: <SiPrisma />, color: "#2D3748", bx: -22, by: 22, zone: "cerebellum", group: "web", connections: ["postgres", "next"] },
-  { id: "grafana", name: "Grafana", icon: <SiGrafana />, color: "#F46800", bx: -10, by: 14, zone: "parietalLobe", group: "cloud", connections: ["azure"] },
-  { id: "powerbi", name: "Power BI", icon: <SiPowerbi />, color: "#F2C811", bx: -2, by: 12, zone: "parietalLobe", group: "cloud", connections: ["azure"] },
-  { id: "langchain", name: "LangChain", icon: <SiLangchain />, color: "#1C3C3C", bx: -8, by: -18, zone: "crown", group: "ai", connections: ["openai", "python"] },
-  { id: "n8n", name: "n8n", icon: <SiN8N />, color: "#EA4B71", bx: -16, by: 44, zone: "stemUpper", group: "ai", connections: ["notion"] },
-  { id: "powerautomate", name: "Power Automate", icon: <SiPowerautomate />, color: "#0066FF", bx: -4, by: 18, zone: "temporalLobe", group: "ai", connections: ["azure"] },
-  { id: "claude", name: "Claude", icon: <SiAnthropic />, color: "#D97757", bx: -12, by: -8, zone: "parietalLobe", group: "ai", connections: ["openai", "huggingface"] },
 
-  // AI model & Microsoft AI platform stack — GPT, Gemini, and the
-  // Microsoft Copilot/Azure AI products. The Microsoft product marks are
-  // full-color SVGs (img) rather than monochrome react-icons.
-  { id: "gpt", name: "GPT", icon: <SiOpenai />, color: "#10A37F", bx: -8, by: -22, zone: "crown", group: "ai", connections: ["openai", "azureai", "langchain"] },
-  { id: "gemini", name: "Gemini", icon: <SiGooglegemini />, color: "#1C69FF", bx: -20, by: -16, zone: "parietalLobe", group: "ai", connections: ["openai", "langchain"] },
+  // ── Layer 4: AI stack — your differentiator ───────────────────────────
   { id: "azureai", name: "Azure AI", img: "/icons/AzureAI_scalable.svg", icon: <SiMicrosoftazure />, color: "#0078D4", bx: -10, by: 4, zone: "parietalLobe", group: "ai", connections: ["azure", "openai", "copilotstudio"] },
   { id: "copilotstudio", name: "Copilot Studio", img: "/icons/CopilotStudio_scalable.svg", icon: <SiGithubcopilot />, color: "#8B52F4", bx: -2, by: 10, zone: "temporalLobe", group: "ai", connections: ["azureai", "powerautomate", "botservice"] },
   { id: "botservice", name: "Bot Service", img: "/icons/AzureBot_scalable.svg", icon: <SiMicrosoftazure />, color: "#32BEDD", bx: -6, by: 22, zone: "temporalLobe", group: "ai", connections: ["copilotstudio", "azureai"] },
+  { id: "openai", name: "OpenAI", icon: <SiOpenai />, color: "#10A37F", bx: -6, by: -12, zone: "crown", group: "ai", connections: ["python", "azure", "langchain"] },
+  { id: "huggingface", name: "HuggingFace", icon: <SiHuggingface />, color: "#FFCC00", bx: -20, by: -20, zone: "parietalLobe", group: "ai", connections: ["python", "openai"] },
+  { id: "langchain", name: "LangChain", icon: <SiLangchain />, color: "#1C3C3C", bx: -8, by: -18, zone: "crown", group: "ai", connections: ["openai", "python", "fastapi"] },
+
+  // ── Layer 5: DevOps / infra depth ─────────────────────────────────────
+  { id: "docker", name: "Docker", icon: <FaDocker />, color: "#2496ED", bx: 4, by: 16, zone: "temporalLobe", group: "cloud", connections: ["azure", "aws", "k8s"] },
+  { id: "k8s", name: "K8s", icon: <SiKubernetes />, color: "#326CE5", bx: -10, by: 38, zone: "stemUpper", group: "cloud", connections: ["docker", "terraform", "azure"] },
+  { id: "terraform", name: "Terraform", icon: <SiTerraform />, color: "#7B42BC", bx: -12, by: 49, zone: "stemLower", group: "cloud", connections: ["aws", "k8s"] },
+  { id: "github", name: "GitHub", icon: <FaGithub />, color: "#181717", bx: -8, by: 60, zone: "stemLower", group: "tools", connections: ["docker", "terraform"] },
+
+  // ── Layer 6: Data layer ───────────────────────────────────────────────
+  { id: "postgres", name: "Postgres", icon: <SiPostgresql />, color: "#336791", bx: -26, by: 28, zone: "cerebellum", group: "cloud", connections: ["docker", "fastapi", "prisma"] },
+  { id: "redis", name: "Redis", icon: <SiRedis />, color: "#DC382D", bx: -35, by: 33, zone: "cerebellum", group: "cloud", connections: ["docker", "next"] },
+  { id: "pandas", name: "Pandas", icon: <SiPandas />, color: "#150458", bx: -28, by: 12, zone: "occipitalLobe", group: "ai", connections: ["python", "numpy"] },
+  { id: "numpy", name: "NumPy", icon: <SiNumpy />, color: "#013243", bx: -30, by: -2, zone: "occipitalLobe", group: "ai", connections: ["pandas", "tensorflow"] },
+  { id: "tensorflow", name: "TensorFlow", icon: <SiTensorflow />, color: "#FF6F00", bx: -16, by: 24, zone: "cerebellum", group: "ai", connections: ["numpy", "python"] },
+
+  // ── Layer 7: Supporting cast ──────────────────────────────────────────
+  { id: "tailwind", name: "Tailwind", icon: <SiTailwindcss />, color: "#06B6D4", bx: 0, by: 24, zone: "temporalLobe", group: "web", connections: ["react", "html"] },
+  { id: "figma", name: "Figma", icon: <SiFigma />, color: "#F24E1E", bx: 28, by: 12, zone: "frontalPole", group: "tools", connections: ["react", "tailwind"] },
+  { id: "html", name: "HTML", icon: <FaHtml5 />, color: "#E34F26", bx: 13, by: 20, zone: "temporalLobe", group: "web", connections: ["react", "tailwind"] },
+  { id: "redux", name: "Redux", icon: <SiRedux />, color: "#764ABC", bx: 26, by: 4, zone: "frontalLobe", group: "web", connections: ["react"] },
+  { id: "prisma", name: "Prisma", icon: <SiPrisma />, color: "#2D3748", bx: -22, by: 22, zone: "cerebellum", group: "web", connections: ["postgres", "next"] },
+  { id: "express", name: "Express", icon: <SiExpress />, color: "#000000", bx: 22, by: 18, zone: "temporalLobe", group: "web", connections: ["next", "fastapi"] },
+
+  // ── Layer 8: Tooling ──────────────────────────────────────────────────
+  { id: "n8n", name: "n8n", icon: <SiN8N />, color: "#EA4B71", bx: -16, by: 44, zone: "stemUpper", group: "ai", connections: ["notion", "powerautomate"] },
+  { id: "powerautomate", name: "Power Automate", icon: <SiPowerautomate />, color: "#0066FF", bx: -4, by: 18, zone: "temporalLobe", group: "ai", connections: ["azure", "copilotstudio"] },
+  { id: "notion", name: "Notion", icon: <SiNotion />, color: "#000000", bx: -13, by: 70, zone: "stemLower", group: "tools", connections: ["github", "n8n"] },
+  { id: "grafana", name: "Grafana", icon: <SiGrafana />, color: "#F46800", bx: -10, by: 14, zone: "parietalLobe", group: "cloud", connections: ["azure", "postgres"] },
+  { id: "powerbi", name: "Power BI", icon: <SiPowerbi />, color: "#F2C811", bx: -2, by: 12, zone: "parietalLobe", group: "cloud", connections: ["azure", "grafana"] },
+  { id: "vscode", name: "VS Code", icon: <SiVisualstudiocode />, color: "#007ACC", bx: -14, by: 30, zone: "stemUpper", group: "tools", connections: ["github", "docker"] },
+  { id: "copilot", name: "Copilot", icon: <SiGithubcopilot />, color: "#000000", bx: -15, by: 2, zone: "parietalLobe", group: "ai", connections: ["openai", "vscode"] },
 ] as const;
 
 type SkillId = (typeof initialSkills)[number]["id"];
@@ -260,11 +258,9 @@ const skillLinks = (() => {
   const extraConnections: Array<[SkillId, SkillId]> = [
     ["react", "openai"],
     ["react", "azure"],
-    ["next", "postgres"],
     ["next", "redis"],
     ["docker", "tensorflow"],
     ["docker", "redis"],
-    ["azure", "aws"],
     ["azure", "k8s"],
     ["aws", "k8s"],
     ["python", "tensorflow"],
@@ -317,7 +313,7 @@ const revealDepthById = (() => {
     adjacency.get(target)?.push(source);
   });
 
-  const root: SkillId = "notion";
+  const root: SkillId = "azure";
   const queue: SkillId[] = [root];
   const depths = new Map<SkillId, number>([[root, 0]]);
 
@@ -743,7 +739,7 @@ export default function Skills() {
   return (
     <section
       id="skills"
-      className="relative flex h-below-nav flex-col overflow-hidden bg-black text-white"
+      className="relative flex h-below-nav flex-col overflow-hidden bg-black pb-[clamp(1.5rem,4vh,5rem)] text-white"
     >
       <div className="absolute inset-0 pointer-events-none">
         <div

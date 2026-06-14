@@ -11,7 +11,7 @@ const EASE = [0.22, 1, 0.36, 1];
 
 const Services = () => {
   return (
-    <section className="flex min-h-[80vh] flex-col justify-center pb-16 pt-28">
+    <section className="flex min-h-[80vh] flex-col justify-center bg-[#fffdf8] pb-16 pt-28 text-[#101828]">
       <div className="container mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 16 }}

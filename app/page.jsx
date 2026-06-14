@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import Preloader from "@/components/Preloader";
 import Projects from "@/components/Projects";
+import Intro from "@/components/Intro";
 import Achievements from "@/components/Achievements";
 import Contact from "@/components/Contact";
 import Timeline from "@/components/Timeline";
@@ -60,10 +61,8 @@ const Home = () => {
   }, [introComplete]);
 
   return (
-    <div className="relative isolate bg-black pt-[var(--site-header-h)]">
-      {/* Crawlable, screen-reader-only intro. Gives search engines and assistive
-          tech a clear, text-based summary of the page, independent of the
-          animated preloader. */}
+    <div className="relative isolate bg-black page-top-offset">
+      {/* Crawlable, screen-reader-only intro. */}
       <header className="sr-only">
         <h1>Abhinav Yadav — Software Engineer &amp; Creative Developer</h1>
         <p>
@@ -72,15 +71,10 @@ const Home = () => {
           Next.js, and Azure. Explore featured projects, achievements, skills,
           and writing.
         </p>
-        {/* Internal links so crawlers can reach every key page from the
-            homepage (the visual Nav is not rendered on this route, and the
-            Timeline's case-study links live inside animated markup). */}
         <nav aria-label="Primary">
           <ul>
-            <li><Link href="/services">Services</Link></li>
             <li><Link href="/resume">Résumé</Link></li>
             <li><Link href="/blog">Blog</Link></li>
-            <li><Link href="/contact">Contact</Link></li>
           </ul>
           <p>Work experience case studies:</p>
           <ul>
@@ -112,6 +106,7 @@ const Home = () => {
           Achievements and Journey share one continuous black stage; the
           Journey's red scroll-drawn line exits its bottom edge straight
           into the Skills section. */}
+      <Intro />
       <Projects introComplete={introComplete} />
       <Achievements />
       <Timeline />

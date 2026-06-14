@@ -295,7 +295,7 @@ export default async function BlogPost({ params }) {
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
     />
-    <div className="min-h-screen px-4 pb-20 pt-32 md:px-8">
+    <div className="min-h-screen bg-[#fffdf8] px-4 pb-20 pt-32 text-[#101828] md:px-8">
       <div className="container mx-auto max-w-[1400px]">
         
         {/* TOP HEADER: Title + Date */}

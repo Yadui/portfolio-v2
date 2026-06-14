@@ -2,10 +2,12 @@
 module.exports = {
   darkMode: ["class"],
   safelist: [
-    {
-      pattern:
-        /bg-(E44D26|1572B6|F7DF1E|61DBFB|F24E1E|68A063|3776AB|38BDF8|000000)/,
-    },
+    // Icon background colours used dynamically in Skills.tsx via inline style.
+    // These are always applied as inline styles so they don't need safelisting.
+    // Keeping the list as a static set of real classes instead of a regex that
+    // Tailwind warns about (uppercase hex never matches any generated class).
+    "bg-[#E44D26]", "bg-[#1572B6]", "bg-[#F7DF1E]", "bg-[#61DBFB]",
+    "bg-[#F24E1E]", "bg-[#68A063]", "bg-[#3776AB]", "bg-[#38BDF8]",
   ],
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -28,7 +30,13 @@ module.exports = {
       body: ["var(--font-clash-display)", "ui-sans-serif", "system-ui", "sans-serif"],
       heading: ["var(--font-clash-grotesk)", "ui-sans-serif", "system-ui", "sans-serif"],
       morsa: ["var(--font-morsa)", "ui-sans-serif", "system-ui", "sans-serif"],
-      // Legacy aliases (kept so any unscanned usage resolves to a sensible font)
+      // Funky accent font — for highlighted words in the Intro headline
+      comma: ["var(--font-ff-comma)", "Georgia", "ui-serif", "serif"],
+      // Fenotype Letters — hero highlight (AI systems)
+      letters: ["var(--font-letters)", "Georgia", "ui-serif", "serif"],
+      // Fenotype Letters II — hero highlight (cloud infrastructure)
+      "letters-ii": ["var(--font-letters-ii)", "Georgia", "ui-serif", "serif"],
+      // Legacy aliases
       primary: ["var(--font-clash-display)", "ui-sans-serif", "system-ui", "sans-serif"],
       electro: ["var(--font-clash-grotesk)", "ui-sans-serif", "system-ui", "sans-serif"],
       qubiko: ["var(--font-clash-grotesk)", "ui-sans-serif", "system-ui", "sans-serif"],

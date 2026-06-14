@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { MdOutlineEmail, MdOutlineTimer } from "react-icons/md";
 import { FaGithub, FaLinkedinIn } from "react-icons/fa";
 import { ArrowRight, ArrowDown } from "lucide-react";
@@ -35,6 +35,15 @@ const contactLinks = [
 const Contact = () => {
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState(null);
+  const textareaRef = useRef(null);
+
+  // Auto-expand: reset to "auto" first so the field can also shrink.
+  const handleTextareaInput = useCallback(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -67,10 +76,11 @@ const Contact = () => {
       if (res.ok) {
         setStatus({ type: "success", message: "Message sent successfully!" });
         form.reset();
+        if (textareaRef.current) textareaRef.current.style.height = "auto";
       } else {
         setStatus({ type: "error", message: "Failed to send message." });
       }
-    } catch (error) {
+    } catch {
       setStatus({ type: "error", message: "An error occurred." });
     } finally {
       setLoading(false);
@@ -80,52 +90,51 @@ const Contact = () => {
   return (
     <section
       id="contact"
-      className="relative min-h-screen bg-black text-white"
+      className="relative contact-fill bg-black text-white"
     >
-      <div className="mx-auto max-w-5xl px-10 pt-40 pb-24">
+      <div className="mx-auto max-w-5xl px-5 pb-2 pt-[clamp(2rem,5vh,4rem)] md:px-10">
 
-        {/* ── "GET IN TOUCH YOUR WAY" ── */}
-        <div className="mb-14 flex items-center gap-3">
+        {/* GET IN TOUCH YOUR WAY */}
+        <div className="mb-[clamp(1.5rem,3vh,3rem)] flex items-center gap-3">
           <h2 className="text-sm font-bold uppercase tracking-widest text-white">
             Get in touch your way
           </h2>
           <ArrowDown size={18} strokeWidth={2} className="text-white" />
         </div>
 
-        {/* ── Contact grid (2 left, 2 right) ── */}
-        <div className="mb-20 grid grid-flow-col grid-rows-2 gap-y-7 gap-x-24 max-w-2xl justify-start">
+        {/* Contact grid */}
+        <div className="mb-[clamp(1.5rem,4vh,3.5rem)] grid grid-cols-1 gap-y-4 sm:grid-flow-col sm:grid-cols-none sm:grid-rows-2 sm:gap-x-24 sm:gap-y-5 max-w-2xl justify-start">
           {contactLinks.map((item) => {
             const inner = (
-              <span className="flex items-center gap-3">
-                {item.icon}
-                <span className="text-xs font-bold uppercase tracking-widest text-white">
+              <span className="flex min-w-0 items-center gap-3">
+                <span className="shrink-0">{item.icon}</span>
+                <span className="truncate text-xs font-bold uppercase tracking-widest text-white">
                   {item.value}
                 </span>
               </span>
             );
-
             return (
-              <div key={item.label}>
+              <div key={item.label} className="min-w-0">
                 {item.href ? (
                   <a
                     href={item.href}
                     target={item.href.startsWith("http") ? "_blank" : "_self"}
                     rel={item.href.startsWith("http") ? "noreferrer" : undefined}
                     aria-label={item.label}
-                    className="transition-opacity hover:opacity-60"
+                    className="block min-w-0 transition-opacity hover:opacity-60"
                   >
                     {inner}
                   </a>
                 ) : (
-                  <div className="cursor-default">{inner}</div>
+                  <div className="min-w-0 cursor-default">{inner}</div>
                 )}
               </div>
             );
           })}
         </div>
 
-        {/* ── Divider: "OR THE RIGHT WAY OR MY WAY" ── */}
-        <div className="mb-14 flex items-center gap-3 md:ml-[42%]">
+        {/* Divider */}
+        <div className="mb-[clamp(1.5rem,3vh,3rem)] flex items-center gap-3 md:ml-[42%]">
           <ArrowDown size={18} strokeWidth={2} className="text-white" />
           <p className="text-sm font-bold uppercase tracking-widest">
             <span className="text-white/30 line-through decoration-white/30">
@@ -135,10 +144,11 @@ const Contact = () => {
           </p>
         </div>
 
-        {/* ── Contact form ── */}
+        {/* Form */}
         <form onSubmit={handleSubmit} className="max-w-4xl">
-          {/* Row 1: Name + Organization */}
-          <div className="mb-8 grid grid-cols-2 gap-10">
+
+          {/* Row 1 */}
+          <div className="mb-[clamp(1rem,2.5vh,2rem)] grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-10">
             <div className="border-b border-white/20 pb-2">
               <input
                 name="name"
@@ -158,8 +168,8 @@ const Contact = () => {
             </div>
           </div>
 
-          {/* Row 2: Email + Message */}
-          <div className="mb-10 grid grid-cols-2 gap-10">
+          {/* Row 2 */}
+          <div className="mb-[clamp(1.5rem,3vh,2.5rem)] grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-10">
             <div className="border-b border-white/20 pb-2">
               <input
                 name="email"
@@ -169,18 +179,21 @@ const Contact = () => {
                 required
               />
             </div>
+            {/* Auto-expanding message */}
             <div className="border-b border-white/20 pb-2">
               <textarea
+                ref={textareaRef}
                 name="message"
                 placeholder="MESSAGE"
                 rows={1}
-                className="w-full resize-none bg-transparent text-xs font-bold uppercase tracking-widest text-white placeholder:text-white/30 outline-none"
+                onInput={handleTextareaInput}
+                className="w-full resize-none overflow-hidden bg-transparent text-xs font-bold uppercase tracking-widest text-white placeholder:text-white/30 outline-none"
                 required
               />
             </div>
           </div>
 
-          {/* Send button */}
+          {/* Send */}
           <div className="flex justify-end">
             <button
               type="submit"
@@ -193,16 +206,15 @@ const Contact = () => {
                   Sending…
                 </span>
               ) : (
-                <>
-                  Send <ArrowRight size={18} strokeWidth={2} />
-                </>
+                <>Send <ArrowRight size={18} strokeWidth={2} /></>
               )}
             </button>
           </div>
 
-          {/* Status message */}
           {status && (
             <div
+              role="status"
+              aria-live="polite"
               className={`mt-6 rounded border px-4 py-3 text-center text-xs font-bold uppercase tracking-widest ${
                 status.type === "success"
                   ? "border-green-500/30 bg-green-500/10 text-green-300"
@@ -219,3 +231,5 @@ const Contact = () => {
 };
 
 export default Contact;
+
+

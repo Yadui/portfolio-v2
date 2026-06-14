@@ -7,6 +7,7 @@ import TabPacman from "@/components/TabPacman";
 import SmoothScroll from "@/components/SmoothScroll";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import AudioPlayer from "@/components/AudioPlayer";
 
 const morsa = localFont({
   src: "../public/fonts/MORSA.ttf",
@@ -31,6 +32,29 @@ const clashGrotesk = localFont({
   display: "swap",
   weight: "200 700",
   fallback: ["ui-sans-serif", "system-ui", "Helvetica Neue", "Arial", "sans-serif"],
+});
+
+// Funky accent / highlight text (hero)
+const ffComma = localFont({
+  src: "../public/fonts/FFCommaTrial-Regular.ttf",
+  variable: "--font-ff-comma",
+  display: "swap",
+  fallback: ["Georgia", "ui-serif", "serif"],
+});
+
+// Hero highlight fonts — Letters & Letters II by Fenotype
+const letters = localFont({
+  src: "../public/fonts/Letters.ttf",
+  variable: "--font-letters",
+  display: "swap",
+  fallback: ["Georgia", "ui-serif", "serif"],
+});
+
+const lettersII = localFont({
+  src: "../public/fonts/LettersII.ttf",
+  variable: "--font-letters-ii",
+  display: "swap",
+  fallback: ["Georgia", "ui-serif", "serif"],
 });
 
 export const metadata = {
@@ -214,7 +238,7 @@ export default function RootLayout({ children }) {
           }}
         />
       </head>
-      <body className={`${clashDisplay.variable} ${clashGrotesk.variable} ${morsa.variable}`}>
+      <body className={`${clashDisplay.variable} ${clashGrotesk.variable} ${morsa.variable} ${ffComma.variable} ${letters.variable} ${lettersII.variable}`}>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
@@ -224,6 +248,7 @@ export default function RootLayout({ children }) {
         <SiteHeader />
         <PageTransition>{children}</PageTransition>
         <SiteFooter />
+        <AudioPlayer />
       </body>
     </html>
   );

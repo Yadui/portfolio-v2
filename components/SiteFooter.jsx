@@ -13,8 +13,38 @@ const SOCIAL_ICONS = {
   twitter: <FaXTwitter />,
 };
 
-// Admin / utility routes where the footer would get in the way.
 const HIDDEN_PREFIXES = ["/login", "/blog/create", "/blog/edit"];
+
+function ContactCta() {
+  const pathname = usePathname();
+
+  const handleClick = (e) => {
+    const isHome = pathname === "/";
+    const lenis = getLenis();
+    const el = typeof document !== "undefined" ? document.getElementById("contact") : null;
+
+    if (isHome && lenis && el) {
+      e.preventDefault();
+      lenis.scrollTo(el, { offset: -72, duration: 1.4 });
+    }
+  };
+
+  return (
+    <Link
+      href="/#contact"
+      onClick={handleClick}
+      className="group font-heading text-2xl font-light tracking-tight transition-colors duration-200 hover:text-[#00ff99] md:text-3xl"
+    >
+      Let&apos;s build it
+      <span
+        aria-hidden="true"
+        className="ml-3 inline-block transition-transform duration-300 ease-out group-hover:translate-x-2"
+      >
+        →
+      </span>
+    </Link>
+  );
+}
 
 export default function SiteFooter() {
   const pathname = usePathname();
@@ -46,18 +76,7 @@ export default function SiteFooter() {
           <span className="font-body text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-white/40">
             Have an idea?
           </span>
-          <Link
-            href="/contact"
-            className="group font-heading text-2xl font-light tracking-tight transition-colors duration-200 hover:text-[#00ff99] md:text-3xl"
-          >
-            Let&apos;s build it
-            <span
-              aria-hidden="true"
-              className="ml-3 inline-block transition-transform duration-300 ease-out group-hover:translate-x-2"
-            >
-              →
-            </span>
-          </Link>
+          <ContactCta />
         </div>
 
         <div className="flex flex-wrap items-center gap-6">
@@ -104,6 +123,7 @@ export default function SiteFooter() {
         </div>
       </div>
 
+      {/* Copyright strip */}
       <div className="flex items-center justify-between px-[clamp(1.25rem,3vw,3rem)] py-4 text-[0.65rem] font-medium uppercase tracking-[0.25em] text-white/35">
         <span>© {year} Abhinav Yadav</span>
         <span className="hidden md:block">Cloud &amp; AI Engineer — Gurgaon, IN</span>

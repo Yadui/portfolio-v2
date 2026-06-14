@@ -4,37 +4,38 @@ import { useEffect } from "react";
 
 const TabPacman = () => {
   useEffect(() => {
-    const originalTitle =
-      document.title?.trim() || "VirtuAI";
+    // Capture the real title after the page has set it.
+    // Trim because some browsers append whitespace.
+    const originalTitle = document.title?.trim() || "Abhinav Yadav";
 
     let frame = 0;
     let interval = null;
 
-    const PACMAN = ["ᗧ", "ᗧ"];
+    const PACMAN = ["ᗧ•", "ᗧ "];
     const DOT = "·";
     const SPACE = "\u00A0";
-    const TRACK_LENGTH = 12;
+    const TRACK_LENGTH = 10;
     const SPEED = 200;
 
     const animate = () => {
       const pacman = PACMAN[frame % 2];
       const pos = frame % TRACK_LENGTH;
 
-      let title = "";
-
+      let track = "";
       for (let i = 0; i < TRACK_LENGTH; i++) {
-        if (i === pos) title += pacman;
-        else if (i > pos) title += DOT;
-        else title += SPACE;
+        if (i === pos) track += pacman;
+        else if (i > pos) track += DOT;
+        else track += SPACE;
       }
 
-      // 🔒 Never allow empty title
-      document.title = title || originalTitle;
+      document.title = track || originalTitle;
       frame++;
     };
 
     const start = () => {
-      if (!interval) interval = setInterval(animate, SPEED);
+      if (interval) return;          // already running
+      frame = 0;
+      interval = setInterval(animate, SPEED);
     };
 
     const stop = () => {
@@ -46,11 +47,16 @@ const TabPacman = () => {
     };
 
     const onVisibility = () => {
-      document.hidden ? start() : stop();
+      if (document.hidden) {
+        start();   // tab went away → play pacman
+      } else {
+        stop();    // tab came back → restore real title
+      }
     };
 
     document.addEventListener("visibilitychange", onVisibility);
-    start();
+
+    // DO NOT call start() here — the animation only runs while hidden.
 
     return () => {
       stop();

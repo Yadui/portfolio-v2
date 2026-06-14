@@ -19,7 +19,7 @@ const Work = () => {
   const tabs = ["all", "cloud", "web", "ai"];
 
   return (
-    <section className="min-h-screen pb-24 pt-28">
+    <section className="min-h-screen bg-[#fffdf8] pb-24 pt-28 text-[#101828]">
       <div className="container mx-auto px-4">
         <div className="mb-16 flex flex-col items-center space-y-8">
           <div className="flex flex-col items-center gap-3 text-center">
