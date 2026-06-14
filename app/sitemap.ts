@@ -23,7 +23,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/blog` },
     { url: `${BASE_URL}/services` },
     { url: `${BASE_URL}/contact` },
-    { url: `${BASE_URL}/resume` },
   ];
 
   // Work case-study pages (slugs from the experience data).

@@ -12,9 +12,13 @@ const EASE = [0.76, 0, 0.24, 1];
 // Admin / utility routes where the header would get in the way.
 const HIDDEN_PREFIXES = ["/login", "/blog/create", "/blog/edit"];
 
+// Google Drive direct-download URL for the résumé PDF.
+const RESUME_URL =
+  "https://drive.google.com/uc?export=download&id=14e4ZxTUuAw0Xs6lieYDKiNrKS_zhpJ-i";
+
 const NAV_LINKS = [
   { label: "Blog",   href: "/blog" },
-  { label: "Resume", href: "/resume" },
+  { label: "Resume", href: RESUME_URL, download: true },
 ];
 
 /** Local time in Gurgaon (IST) — the small "alive" detail jurors love. */
@@ -91,6 +95,25 @@ export default function SiteHeader() {
 
           <nav className="flex items-center gap-1" aria-label="Primary">
             {NAV_LINKS.map((link) => {
+              const linkClass = `relative px-3 py-1.5 font-body text-[0.7rem] font-semibold uppercase tracking-[0.22em] transition-colors duration-200 text-white/55 hover:text-white`;
+
+              // Download links (e.g. résumé) open/download directly — plain
+              // <a>, not a Next route.
+              if (link.download) {
+                return (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    download
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={linkClass}
+                  >
+                    {link.label}
+                  </a>
+                );
+              }
+
               const isActive = pathname?.startsWith(link.href);
               return (
                 <Link

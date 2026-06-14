@@ -73,7 +73,14 @@ const Home = () => {
         </p>
         <nav aria-label="Primary">
           <ul>
-            <li><Link href="/resume">Résumé</Link></li>
+            <li>
+              <a
+                href="https://drive.google.com/uc?export=download&id=14e4ZxTUuAw0Xs6lieYDKiNrKS_zhpJ-i"
+                download
+              >
+                Résumé
+              </a>
+            </li>
             <li><Link href="/blog">Blog</Link></li>
           </ul>
           <p>Work experience case studies:</p>
