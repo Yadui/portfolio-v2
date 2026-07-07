@@ -14,7 +14,7 @@ export default function DeleteButton({ id }) {
         variant="destructive" 
         size="sm"
         onClick={() => setShowConfirm(true)}
-        className="h-8 w-8 p-0 rounded-full bg-red-500/80 hover:bg-red-600 backdrop-blur-sm absolute top-4 right-4 z-10"
+        className="h-8 w-8 p-0 rounded-full bg-red-500/80 hover:bg-red-600 backdrop-blur-sm"
       >
         ✕
       </Button>

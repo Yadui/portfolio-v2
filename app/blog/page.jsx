@@ -164,7 +164,17 @@ export default async function BlogList() {
               </Link>
 
               {isAdmin && post.sourceType === "database" && (
-                <DeleteButton id={post.id} />
+                <div className="absolute top-4 right-4 z-10 flex items-center gap-1.5">
+                  <Link
+                    href={`/blog/edit/${post.id}`}
+                    onClick={e => e.stopPropagation()}
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-[#101828]/80 text-white backdrop-blur-sm hover:bg-[#101828] transition-colors"
+                    title="Edit post"
+                  >
+                    ✎
+                  </Link>
+                  <DeleteButton id={post.id} />
+                </div>
               )}
             </div>
           ))}
