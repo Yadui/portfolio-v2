@@ -3,14 +3,9 @@ import { db } from "@/lib/db";
 import { users } from "@/lib/schema";
 import { eq } from "drizzle-orm";
 import { login } from "@/lib/auth";
-import { isRequestFromAllowedAdminIp } from "@/lib/adminAccess";
 
 export async function POST(req) {
   try {
-    if (!isRequestFromAllowedAdminIp(req.headers)) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
     const { username, password } = await req.json();
 
     // Find user
@@ -20,8 +15,6 @@ export async function POST(req) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
-    // Verify password (Simple comparison as per request)
-    // In production, use bcrypt.compare(password, user.password)
     if (user.password !== password) {
        return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }

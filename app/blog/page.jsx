@@ -4,7 +4,6 @@ import { desc } from "drizzle-orm";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { verifyAuth } from "@/lib/auth";
-import { isCurrentRequestFromAllowedAdminIp } from "@/lib/adminAccess";
 import DeleteButton from "@/components/DeleteButton";
 import LogoutButton from "@/components/LogoutButton";
 import { mergeBlogPosts } from "@/data/blogPosts";
@@ -53,7 +52,8 @@ export default async function BlogList() {
 
   const user = await verifyAuth();
   const isAdmin = !!user;
-  const canShowLogin = !isAdmin && await isCurrentRequestFromAllowedAdminIp();
+  // Login button always visible — security is enforced by the login API itself
+  const canShowLogin = !isAdmin;
 
   const blogJsonLd = {
     "@context": "https://schema.org",
