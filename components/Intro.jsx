@@ -9,6 +9,7 @@ import {
 import { FaAws, FaDocker } from "react-icons/fa";
 import { FaPython } from "react-icons/fa";
 import MediaBetweenText from "@/components/fancy/MediaBetweenText";
+import Image from "next/image";
 
 /* ─── Claude SVG ─────────────────────────────────────────────────────────── */
 const ClaudeIcon = () => (
@@ -79,9 +80,9 @@ const RotatingIcon = ({ icons, fontSize, interval = 1800, startDelay = 0 }) => {
 };
 
 /* ─── Constants ──────────────────────────────────────────────────────────── */
-const headingSize = "clamp(2.6rem,7.5vw,5.5rem)";
-const iconSize    = "clamp(2.2rem,5.6vw,4.4rem)";
-const iconSlotH   = "clamp(2.6rem,6.8vw,5rem)";
+const headingSize = "clamp(2.2rem,7.5vw,5.5rem)";
+const iconSize    = "clamp(1.8rem,5.6vw,4.4rem)";
+const iconSlotH   = "clamp(2.2rem,6.8vw,5rem)";
 
 // No bg — bare icon, centered in its slot
 const slotCls = "overflow-hidden mx-[0.06em] flex items-center justify-center self-center";
@@ -182,9 +183,62 @@ const Intro = () => {
     <section
       id="intro"
       ref={sectionRef}
-      className="relative flex min-h-below-nav flex-col items-center justify-center overflow-hidden bg-black px-6 py-[clamp(4rem,12vh,8rem)]"
+      className="relative flex flex-col items-center justify-center overflow-hidden bg-black px-6 py-[clamp(3.5rem,10vh,8rem)] sm:min-h-below-nav"
     >
+      {/* Radial glow */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 70% 55% at 50% 54%, rgba(0,255,153,0.07) 0%, transparent 70%)" }} />
+
+      {/* ── Map left-half — desktop only, hidden on mobile to protect LCP ── */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-y-0 left-0 hidden sm:block"
+        style={{
+          width: "clamp(260px, 38vw, 580px)",
+          WebkitMaskImage:
+            "linear-gradient(to right, black 0%, black 25%, rgba(0,0,0,0.5) 60%, transparent 100%), linear-gradient(to bottom, black 0%, black 65%, transparent 100%)",
+          maskImage:
+            "linear-gradient(to right, black 0%, black 25%, rgba(0,0,0,0.5) 60%, transparent 100%), linear-gradient(to bottom, black 0%, black 65%, transparent 100%)",
+          WebkitMaskComposite: "intersect",
+          maskComposite: "intersect",
+          mixBlendMode: "screen",
+          opacity: 0.85,
+        }}
+      >
+        <Image
+          src="/delhi-map-left.webp"
+          alt=""
+          fill
+          style={{ objectFit: "cover", objectPosition: "center left", transform: "scale(0.72)", transformOrigin: "top left" }}
+          priority={false}
+          sizes="38vw"
+        />
+      </div>
+
+      {/* ── Map right-half — desktop only, hidden on mobile to protect LCP ── */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-y-0 right-0 hidden sm:block"
+        style={{
+          width: "clamp(260px, 38vw, 580px)",
+          WebkitMaskImage:
+            "linear-gradient(to left, black 0%, black 25%, rgba(0,0,0,0.5) 60%, transparent 100%), linear-gradient(to bottom, black 0%, black 65%, transparent 100%)",
+          maskImage:
+            "linear-gradient(to left, black 0%, black 25%, rgba(0,0,0,0.5) 60%, transparent 100%), linear-gradient(to bottom, black 0%, black 65%, transparent 100%)",
+          WebkitMaskComposite: "intersect",
+          maskComposite: "intersect",
+          mixBlendMode: "screen",
+          opacity: 0.85,
+        }}
+      >
+        <Image
+          src="/delhi-map-right.webp"
+          alt=""
+          fill
+          style={{ objectFit: "cover", objectPosition: "center right", transform: "scale(0.72)", transformOrigin: "top right" }}
+          priority={false}
+          sizes="38vw"
+        />
+      </div>
 
       <div
         className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center text-center"
@@ -199,9 +253,31 @@ const Intro = () => {
           Abhinav Yadav — Cloud &amp; AI Engineer
         </p>
 
-        {/* ── Headline ── */}
+        {/* ── Mobile headline: clean, no special fonts, no animations ──────── */}
         <h2
-          className="mt-6 w-full"
+          className="mt-5 w-full sm:hidden"
+          style={{ fontSize: "clamp(2.4rem, 11vw, 3.4rem)", lineHeight: 1.1 }}
+          aria-label="I build AI systems, cloud infrastructure, and the things in between"
+        >
+          <span className="block font-heading font-light tracking-tight text-white">
+            I build{" "}
+            <span style={{ color: "#00ff99" }}>AI</span>
+            {" "}systems,
+          </span>
+          <span className="mt-1 block font-heading font-light tracking-tight text-white">
+            cloud
+          </span>
+          <span className="block font-heading font-light tracking-tight text-white">
+            infrastructure
+          </span>
+          <span className="mt-1 block font-heading font-light tracking-tight text-white/50" style={{ fontSize: "0.72em" }}>
+            and the things in between
+          </span>
+        </h2>
+
+        {/* ── Desktop headline: full animated version (sm and up) ───────────── */}
+        <h2
+          className="mt-6 hidden w-full sm:block"
           style={{ fontSize: headingSize }}
           aria-label="I build AI systems, cloud infrastructure, and the things in between"
         >
@@ -249,7 +325,7 @@ const Intro = () => {
           className="mt-7 flex flex-col items-center gap-5"
           style={{ opacity: show ? 1 : 0, transition: reduce ? "none" : "opacity 0.7s ease 0.5s" }}
         >
-          <p className="max-w-xl font-body text-[clamp(0.9rem,1.5vw,1.1rem)] leading-relaxed text-white/50">
+          <p className="max-w-sm px-2 font-body text-[clamp(0.85rem,1.5vw,1.05rem)] leading-relaxed text-white/50 sm:max-w-xl sm:px-0">
             Currently at{" "}
             <a href="https://foetron.vercel.app" target="_blank" rel="noopener noreferrer" className="text-white/80 underline underline-offset-4 transition-colors hover:text-[#00ff99]">
               Foetron

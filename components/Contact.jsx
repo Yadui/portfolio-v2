@@ -92,7 +92,27 @@ const Contact = () => {
       id="contact"
       className="relative contact-fill bg-black text-white"
     >
-      <div className="mx-auto max-w-5xl px-5 pb-2 pt-[clamp(2rem,5vh,4rem)] md:px-10">
+      {/* Typographic watermark */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 flex items-end justify-start overflow-hidden"
+      >
+        <span
+          className="select-none font-heading font-light leading-none text-white"
+          style={{
+            fontSize: "clamp(6rem, 22vw, 20rem)",
+            opacity: 0.028,
+            letterSpacing: "-0.05em",
+            lineHeight: 0.85,
+            whiteSpace: "nowrap",
+            paddingLeft: "0.05em",
+          }}
+        >
+          TALK
+        </span>
+      </div>
+
+      <div className="relative z-10 mx-auto max-w-5xl px-5 pb-2 pt-[clamp(2rem,5vh,4rem)] md:px-10">
 
         {/* GET IN TOUCH YOUR WAY */}
         <div className="mb-[clamp(1.5rem,3vh,3rem)] flex items-center gap-3">
@@ -104,7 +124,7 @@ const Contact = () => {
 
         {/* Contact grid */}
         <div className="mb-[clamp(1.5rem,4vh,3.5rem)] grid grid-cols-1 gap-y-4 sm:grid-flow-col sm:grid-cols-none sm:grid-rows-2 sm:gap-x-24 sm:gap-y-5 max-w-2xl justify-start">
-          {contactLinks.map((item) => {
+          {contactLinks.map((item, idx) => {
             const inner = (
               <span className="flex min-w-0 items-center gap-3">
                 <span className="shrink-0">{item.icon}</span>
@@ -115,6 +135,10 @@ const Contact = () => {
             );
             return (
               <div key={item.label} className="min-w-0">
+                {/* Faint separator between the two rows on desktop */}
+                {idx === 2 && (
+                  <div aria-hidden="true" className="mb-4 hidden h-px w-full max-w-[240px] bg-white/10 sm:block" />
+                )}
                 {item.href ? (
                   <a
                     href={item.href}
@@ -198,7 +222,7 @@ const Contact = () => {
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-white transition-opacity hover:opacity-60 disabled:opacity-40"
+              className="group relative flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-white transition-opacity hover:opacity-80 disabled:opacity-40"
             >
               {loading ? (
                 <span className="flex items-center gap-2">
@@ -206,8 +230,15 @@ const Contact = () => {
                   Sending…
                 </span>
               ) : (
-                <>Send <ArrowRight size={18} strokeWidth={2} /></>
+                <>
+                  Send <ArrowRight size={18} strokeWidth={2} />
+                </>
               )}
+              {/* Underline draws in on hover */}
+              <span
+                aria-hidden="true"
+                className="absolute -bottom-1 left-0 h-px w-0 bg-white transition-all duration-300 group-hover:w-full"
+              />
             </button>
           </div>
 

@@ -18,56 +18,56 @@ import RevealText from "@/components/RevealText";
 
 const initialSkills = [
   // ── Layer 1: Cloud foundation — who you are ───────────────────────────
-  { id: "azure", name: "Azure", icon: <SiMicrosoftazure />, color: "#0078D4", bx: -6, by: 8, zone: "parietalLobe", group: "cloud", connections: ["aws", "docker", "next"] },
-  { id: "aws", name: "AWS", icon: <FaAws />, color: "#FF9900", bx: 18, by: 32, zone: "temporalLobe", group: "cloud", connections: ["azure", "docker", "terraform"] },
+  { id: "azure",        name: "Azure",         icon: <SiMicrosoftazure />, color: "#0078D4", bx: -6,  by: 8,   zone: "parietalLobe",  group: "cloud", weight: 3, connections: ["aws", "docker", "next"] },
+  { id: "aws",          name: "AWS",           icon: <FaAws />,            color: "#FF9900", bx: 18,  by: 32,  zone: "temporalLobe",  group: "cloud", weight: 2, connections: ["azure", "docker", "terraform"] },
 
   // ── Layer 2: Core languages — what you build with ────────────────────
-  { id: "python", name: "Python", icon: <FaPython />, color: "#3776AB", bx: -4, by: -35, zone: "crown", group: "ai", connections: ["azure", "fastapi", "pandas"] },
-  { id: "typescript", name: "TypeScript", icon: <SiTypescript />, color: "#3178C6", bx: 14, by: -6, zone: "frontalLobe", group: "web", connections: ["azure", "react", "next"] },
-  { id: "js", name: "JS", icon: <FaJs />, color: "#F7DF1E", bx: 30, by: -25, zone: "frontalPole", group: "web", connections: ["typescript", "react"] },
+  { id: "python",       name: "Python",        icon: <FaPython />,         color: "#3776AB", bx: -4,  by: -35, zone: "crown",         group: "ai",    weight: 3, connections: ["azure", "fastapi", "pandas"] },
+  { id: "typescript",   name: "TypeScript",    icon: <SiTypescript />,     color: "#3178C6", bx: 14,  by: -6,  zone: "frontalLobe",   group: "web",   weight: 3, connections: ["azure", "react", "next"] },
+  { id: "js",           name: "JS",            icon: <FaJs />,             color: "#F7DF1E", bx: 30,  by: -25, zone: "frontalPole",   group: "web",   weight: 2, connections: ["typescript", "react"] },
 
   // ── Layer 3: Frameworks — how you build ──────────────────────────────
-  { id: "react", name: "React", icon: <FaReact />, color: "#61DAFB", bx: 18, by: -12, zone: "frontalLobe", group: "web", connections: ["typescript", "next", "tailwind"] },
-  { id: "next", name: "Next.js", icon: <SiNextdotjs />, color: "#000000", bx: 8, by: -2, zone: "frontalLobe", group: "web", connections: ["react", "azure", "postgres"] },
-  { id: "fastapi", name: "FastAPI", icon: <SiFastapi />, color: "#009688", bx: 6, by: 6, zone: "frontalLobe", group: "web", connections: ["python", "postgres"] },
+  { id: "react",        name: "React",         icon: <FaReact />,          color: "#61DAFB", bx: 18,  by: -12, zone: "frontalLobe",   group: "web",   weight: 3, connections: ["typescript", "next", "tailwind"] },
+  { id: "next",         name: "Next.js",       icon: <SiNextdotjs />,      color: "#000000", bx: 8,   by: -2,  zone: "frontalLobe",   group: "web",   weight: 3, connections: ["react", "azure", "postgres"] },
+  { id: "fastapi",      name: "FastAPI",       icon: <SiFastapi />,        color: "#009688", bx: 6,   by: 6,   zone: "frontalLobe",   group: "web",   weight: 3, connections: ["python", "postgres"] },
 
   // ── Layer 4: AI stack — your differentiator ───────────────────────────
-  { id: "azureai", name: "Azure AI", img: "/icons/AzureAI_scalable.svg", icon: <SiMicrosoftazure />, color: "#0078D4", bx: -10, by: 4, zone: "parietalLobe", group: "ai", connections: ["azure", "openai", "copilotstudio"] },
-  { id: "copilotstudio", name: "Copilot Studio", img: "/icons/CopilotStudio_scalable.svg", icon: <SiGithubcopilot />, color: "#8B52F4", bx: -2, by: 10, zone: "temporalLobe", group: "ai", connections: ["azureai", "powerautomate", "botservice"] },
-  { id: "botservice", name: "Bot Service", img: "/icons/AzureBot_scalable.svg", icon: <SiMicrosoftazure />, color: "#32BEDD", bx: -6, by: 22, zone: "temporalLobe", group: "ai", connections: ["copilotstudio", "azureai"] },
-  { id: "openai", name: "OpenAI", icon: <SiOpenai />, color: "#10A37F", bx: -6, by: -12, zone: "crown", group: "ai", connections: ["python", "azure", "langchain"] },
-  { id: "huggingface", name: "HuggingFace", icon: <SiHuggingface />, color: "#FFCC00", bx: -20, by: -20, zone: "parietalLobe", group: "ai", connections: ["python", "openai"] },
-  { id: "langchain", name: "LangChain", icon: <SiLangchain />, color: "#1C3C3C", bx: -8, by: -18, zone: "crown", group: "ai", connections: ["openai", "python", "fastapi"] },
+  { id: "azureai",      name: "Azure AI",      img: "/icons/AzureAI_scalable.svg",       icon: <SiMicrosoftazure />, color: "#0078D4", bx: -10, by: 4,   zone: "parietalLobe",  group: "ai",    weight: 3, connections: ["azure", "openai", "copilotstudio"] },
+  { id: "copilotstudio",name: "Copilot Studio",img: "/icons/CopilotStudio_scalable.svg", icon: <SiGithubcopilot />,  color: "#8B52F4", bx: -2,  by: 10,  zone: "temporalLobe",  group: "ai",    weight: 2, connections: ["azureai", "powerautomate", "botservice"] },
+  { id: "botservice",   name: "Bot Service",   img: "/icons/AzureBot_scalable.svg",      icon: <SiMicrosoftazure />, color: "#32BEDD", bx: -6,  by: 22,  zone: "temporalLobe",  group: "ai",    weight: 1, connections: ["copilotstudio", "azureai"] },
+  { id: "openai",       name: "OpenAI",        icon: <SiOpenai />,         color: "#10A37F", bx: -6,  by: -12, zone: "crown",         group: "ai",    weight: 3, connections: ["python", "azure", "langchain"] },
+  { id: "huggingface",  name: "HuggingFace",   icon: <SiHuggingface />,    color: "#FFCC00", bx: -20, by: -20, zone: "parietalLobe",  group: "ai",    weight: 2, connections: ["python", "openai"] },
+  { id: "langchain",    name: "LangChain",     icon: <SiLangchain />,      color: "#1C3C3C", bx: -8,  by: -18, zone: "crown",         group: "ai",    weight: 2, connections: ["openai", "python", "fastapi"] },
 
   // ── Layer 5: DevOps / infra depth ─────────────────────────────────────
-  { id: "docker", name: "Docker", icon: <FaDocker />, color: "#2496ED", bx: 4, by: 16, zone: "temporalLobe", group: "cloud", connections: ["azure", "aws", "k8s"] },
-  { id: "k8s", name: "K8s", icon: <SiKubernetes />, color: "#326CE5", bx: -10, by: 38, zone: "stemUpper", group: "cloud", connections: ["docker", "terraform", "azure"] },
-  { id: "terraform", name: "Terraform", icon: <SiTerraform />, color: "#7B42BC", bx: -12, by: 49, zone: "stemLower", group: "cloud", connections: ["aws", "k8s"] },
-  { id: "github", name: "GitHub", icon: <FaGithub />, color: "#181717", bx: -8, by: 60, zone: "stemLower", group: "tools", connections: ["docker", "terraform"] },
+  { id: "docker",       name: "Docker",        icon: <FaDocker />,         color: "#2496ED", bx: 4,   by: 16,  zone: "temporalLobe",  group: "cloud", weight: 3, connections: ["azure", "aws", "k8s"] },
+  { id: "k8s",          name: "K8s",           icon: <SiKubernetes />,     color: "#326CE5", bx: -10, by: 38,  zone: "stemUpper",     group: "cloud", weight: 2, connections: ["docker", "terraform", "azure"] },
+  { id: "terraform",    name: "Terraform",     icon: <SiTerraform />,      color: "#7B42BC", bx: -12, by: 49,  zone: "stemLower",     group: "cloud", weight: 2, connections: ["aws", "k8s"] },
+  { id: "github",       name: "GitHub",        icon: <FaGithub />,         color: "#181717", bx: -8,  by: 60,  zone: "stemLower",     group: "tools", weight: 2, connections: ["docker", "terraform"] },
 
   // ── Layer 6: Data layer ───────────────────────────────────────────────
-  { id: "postgres", name: "Postgres", icon: <SiPostgresql />, color: "#336791", bx: -26, by: 28, zone: "cerebellum", group: "cloud", connections: ["docker", "fastapi", "prisma"] },
-  { id: "redis", name: "Redis", icon: <SiRedis />, color: "#DC382D", bx: -35, by: 33, zone: "cerebellum", group: "cloud", connections: ["docker", "next"] },
-  { id: "pandas", name: "Pandas", icon: <SiPandas />, color: "#150458", bx: -28, by: 12, zone: "occipitalLobe", group: "ai", connections: ["python", "numpy"] },
-  { id: "numpy", name: "NumPy", icon: <SiNumpy />, color: "#013243", bx: -30, by: -2, zone: "occipitalLobe", group: "ai", connections: ["pandas", "tensorflow"] },
-  { id: "tensorflow", name: "TensorFlow", icon: <SiTensorflow />, color: "#FF6F00", bx: -16, by: 24, zone: "cerebellum", group: "ai", connections: ["numpy", "python"] },
+  { id: "postgres",     name: "Postgres",      icon: <SiPostgresql />,     color: "#336791", bx: -26, by: 28,  zone: "cerebellum",    group: "cloud", weight: 2, connections: ["docker", "fastapi", "prisma"] },
+  { id: "redis",        name: "Redis",         icon: <SiRedis />,          color: "#DC382D", bx: -35, by: 33,  zone: "cerebellum",    group: "cloud", weight: 2, connections: ["docker", "next"] },
+  { id: "pandas",       name: "Pandas",        icon: <SiPandas />,         color: "#150458", bx: -28, by: 12,  zone: "occipitalLobe", group: "ai",    weight: 2, connections: ["python", "numpy"] },
+  { id: "numpy",        name: "NumPy",         icon: <SiNumpy />,          color: "#013243", bx: -30, by: -2,  zone: "occipitalLobe", group: "ai",    weight: 1, connections: ["pandas", "tensorflow"] },
+  { id: "tensorflow",   name: "TensorFlow",    icon: <SiTensorflow />,     color: "#FF6F00", bx: -16, by: 24,  zone: "cerebellum",    group: "ai",    weight: 2, connections: ["numpy", "python"] },
 
   // ── Layer 7: Supporting cast ──────────────────────────────────────────
-  { id: "tailwind", name: "Tailwind", icon: <SiTailwindcss />, color: "#06B6D4", bx: 0, by: 24, zone: "temporalLobe", group: "web", connections: ["react", "html"] },
-  { id: "figma", name: "Figma", icon: <SiFigma />, color: "#F24E1E", bx: 28, by: 12, zone: "frontalPole", group: "tools", connections: ["react", "tailwind"] },
-  { id: "html", name: "HTML", icon: <FaHtml5 />, color: "#E34F26", bx: 13, by: 20, zone: "temporalLobe", group: "web", connections: ["react", "tailwind"] },
-  { id: "redux", name: "Redux", icon: <SiRedux />, color: "#764ABC", bx: 26, by: 4, zone: "frontalLobe", group: "web", connections: ["react"] },
-  { id: "prisma", name: "Prisma", icon: <SiPrisma />, color: "#2D3748", bx: -22, by: 22, zone: "cerebellum", group: "web", connections: ["postgres", "next"] },
-  { id: "express", name: "Express", icon: <SiExpress />, color: "#000000", bx: 22, by: 18, zone: "temporalLobe", group: "web", connections: ["next", "fastapi"] },
+  { id: "tailwind",     name: "Tailwind",      icon: <SiTailwindcss />,    color: "#06B6D4", bx: 0,   by: 24,  zone: "temporalLobe",  group: "web",   weight: 2, connections: ["react", "html"] },
+  { id: "figma",        name: "Figma",         icon: <SiFigma />,          color: "#F24E1E", bx: 28,  by: 12,  zone: "frontalPole",   group: "tools", weight: 1, connections: ["react", "tailwind"] },
+  { id: "html",         name: "HTML",          icon: <FaHtml5 />,          color: "#E34F26", bx: 13,  by: 20,  zone: "temporalLobe",  group: "web",   weight: 1, connections: ["react", "tailwind"] },
+  { id: "redux",        name: "Redux",         icon: <SiRedux />,          color: "#764ABC", bx: 26,  by: 4,   zone: "frontalLobe",   group: "web",   weight: 1, connections: ["react"] },
+  { id: "prisma",       name: "Prisma",        icon: <SiPrisma />,         color: "#2D3748", bx: -22, by: 22,  zone: "cerebellum",    group: "web",   weight: 1, connections: ["postgres", "next"] },
+  { id: "express",      name: "Express",       icon: <SiExpress />,        color: "#000000", bx: 22,  by: 18,  zone: "temporalLobe",  group: "web",   weight: 1, connections: ["next", "fastapi"] },
 
   // ── Layer 8: Tooling ──────────────────────────────────────────────────
-  { id: "n8n", name: "n8n", icon: <SiN8N />, color: "#EA4B71", bx: -16, by: 44, zone: "stemUpper", group: "ai", connections: ["notion", "powerautomate"] },
-  { id: "powerautomate", name: "Power Automate", icon: <SiPowerautomate />, color: "#0066FF", bx: -4, by: 18, zone: "temporalLobe", group: "ai", connections: ["azure", "copilotstudio"] },
-  { id: "notion", name: "Notion", icon: <SiNotion />, color: "#000000", bx: -13, by: 70, zone: "stemLower", group: "tools", connections: ["github", "n8n"] },
-  { id: "grafana", name: "Grafana", icon: <SiGrafana />, color: "#F46800", bx: -10, by: 14, zone: "parietalLobe", group: "cloud", connections: ["azure", "postgres"] },
-  { id: "powerbi", name: "Power BI", icon: <SiPowerbi />, color: "#F2C811", bx: -2, by: 12, zone: "parietalLobe", group: "cloud", connections: ["azure", "grafana"] },
-  { id: "vscode", name: "VS Code", icon: <SiVisualstudiocode />, color: "#007ACC", bx: -14, by: 30, zone: "stemUpper", group: "tools", connections: ["github", "docker"] },
-  { id: "copilot", name: "Copilot", icon: <SiGithubcopilot />, color: "#000000", bx: -15, by: 2, zone: "parietalLobe", group: "ai", connections: ["openai", "vscode"] },
+  { id: "n8n",          name: "n8n",           icon: <SiN8N />,            color: "#EA4B71", bx: -16, by: 44,  zone: "stemUpper",     group: "ai",    weight: 1, connections: ["notion", "powerautomate"] },
+  { id: "powerautomate",name: "Power Automate",icon: <SiPowerautomate />,  color: "#0066FF", bx: -4,  by: 18,  zone: "temporalLobe",  group: "ai",    weight: 2, connections: ["azure", "copilotstudio"] },
+  { id: "notion",       name: "Notion",        icon: <SiNotion />,         color: "#000000", bx: -13, by: 70,  zone: "stemLower",     group: "tools", weight: 1, connections: ["github", "n8n"] },
+  { id: "grafana",      name: "Grafana",       icon: <SiGrafana />,        color: "#F46800", bx: -10, by: 14,  zone: "parietalLobe",  group: "cloud", weight: 1, connections: ["azure", "postgres"] },
+  { id: "powerbi",      name: "Power BI",      icon: <SiPowerbi />,        color: "#F2C811", bx: -2,  by: 12,  zone: "parietalLobe",  group: "cloud", weight: 1, connections: ["azure", "grafana"] },
+  { id: "vscode",       name: "VS Code",       icon: <SiVisualstudiocode />,color: "#007ACC", bx: -14, by: 30,  zone: "stemUpper",     group: "tools", weight: 1, connections: ["github", "docker"] },
+  { id: "copilot",      name: "Copilot",       icon: <SiGithubcopilot />,  color: "#000000", bx: -15, by: 2,   zone: "parietalLobe",  group: "ai",    weight: 2, connections: ["openai", "vscode"] },
 ] as const;
 
 type SkillId = (typeof initialSkills)[number]["id"];
@@ -91,6 +91,13 @@ type SkillNode = {
 } & SkillDefinition;
 
 const BRAIN_X_STRETCH = 1.22;
+
+const GROUP_BORDER_COLORS: Record<string, string> = {
+  cloud: "#0078D4",   // Azure blue
+  web:   "#3178C6",   // TypeScript blue
+  ai:    "#00ff99",   // accent green
+  tools: "#8892a4",   // muted grey-blue
+};
 
 const REVEAL_START_DELAY = 0.12;
 const REVEAL_STEP_DELAY = 0.58;
@@ -155,19 +162,21 @@ const baseBrainBounds = (() => {
 })();
 
 const getNodeRadius = (viewportWidth: number) => {
-  if (viewportWidth < 640) {
-    return 16;
-  }
-
-  if (viewportWidth < 768) {
-    return 20;
-  }
-
-  if (viewportWidth < 1024) {
-    return 24;
-  }
-
+  if (viewportWidth < 640) return 16;
+  if (viewportWidth < 768) return 20;
+  if (viewportWidth < 1024) return 24;
   return 28;
+};
+
+// Returns the rendered diameter (px) for a node given its weight and viewport.
+// Desktop: all icons render at a single uniform size (weight is ignored here so
+// every skill bubble is identical in desktop/tablet view). Mobile uses its own
+// HUB_SIZE / SAT_SIZES constants, so this helper is desktop-only.
+const WEIGHT_SCALE: Record<number, number> = { 3: 1, 2: 1, 1: 1 };
+const UNIFORM_SCALE = 0.8; // single size factor applied to every desktop node
+const getNodeSize = (viewportWidth: number, weight: number): number => {
+  const base = getNodeRadius(viewportWidth) * 2; // diameter
+  return Math.round(base * UNIFORM_SCALE * (WEIGHT_SCALE[weight] ?? 1));
 };
 
 const clampValue = (value: number, min: number, max: number) =>
@@ -483,6 +492,306 @@ const SkillConnection = ({
   );
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Mobile cluster layout
+// Five hand-curated clusters with two-ring depth:
+//   inner ring → weight 2/3 satellites (larger, closer)
+//   outer ring → weight 1 satellites (smaller, further out)
+// This creates the Apple-style density gradient: tight core, loose fringe.
+// ─────────────────────────────────────────────────────────────────────────────
+
+type ClusterDef = {
+  label: string;
+  color: string;
+  hub: typeof initialSkills[number];
+  inner: typeof initialSkills[number][];  // weight 2-3, close ring
+  outer: typeof initialSkills[number][];  // weight 1, far ring
+};
+
+// Hand-curated clusters — splits AI into two so no cluster exceeds ~7 sats
+const buildClusters = (): ClusterDef[] => {
+  const byId = (id: string) => initialSkills.find(s => s.id === id)!;
+
+  return [
+    {
+      label: "Cloud & Infra",
+      color: "#0078D4",
+      hub:   byId("azure"),
+      inner: [byId("docker"), byId("aws"), byId("k8s"), byId("terraform"), byId("postgres")],
+      outer: [byId("redis"), byId("grafana"), byId("powerbi")],
+    },
+    {
+      label: "Web & Frontend",
+      color: "#3178C6",
+      hub:   byId("react"),
+      inner: [byId("next"), byId("typescript"), byId("fastapi"), byId("tailwind"), byId("js")],
+      outer: [byId("redux"), byId("prisma"), byId("express"), byId("html")],
+    },
+    {
+      label: "AI & Models",
+      color: "#00ff99",
+      hub:   byId("python"),
+      inner: [byId("openai"), byId("azureai"), byId("langchain"), byId("huggingface")],
+      outer: [byId("tensorflow"), byId("pandas"), byId("numpy")],
+    },
+    {
+      label: "AI Tooling",
+      color: "#8B52F4",
+      hub:   byId("copilotstudio"),
+      inner: [byId("copilot"), byId("powerautomate"), byId("botservice")],
+      outer: [byId("n8n"), byId("vscode"), byId("notion")],
+    },
+    {
+      label: "Dev & Design",
+      color: "#F24E1E",
+      hub:   byId("github"),
+      inner: [byId("figma"), byId("typescript"), byId("docker")],
+      outer: [byId("vscode"), byId("notion")],
+    },
+  ];
+};
+
+const clusters = buildClusters();
+
+// Node sizes for cluster view (px diameter)
+const HUB_SIZE  = 68;
+const SAT_SIZES: Record<number, number> = { 3: 46, 2: 38, 1: 28 };
+// Gap between hub edge and inner ring, inner edge and outer ring
+const INNER_GAP = 5;
+const OUTER_GAP = 4;
+
+const ClusterNode = ({
+  skill,
+  size,
+  delay = 0,
+  isHub = false,
+  hubColor,
+}: {
+  skill: typeof initialSkills[number];
+  size: number;
+  delay?: number;
+  isHub?: boolean;
+  hubColor?: string;
+}) => {
+  const groupBorder = GROUP_BORDER_COLORS[skill.group] ?? "rgba(255,255,255,0.2)";
+  const iconSize = Math.round(size * 0.44);
+  const borderColor = isHub ? (hubColor ?? groupBorder) : groupBorder;
+
+  return (
+    <motion.div
+      className="flex flex-col items-center gap-1"
+      initial={{ opacity: 0, scale: 0.92 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.28, delay, ease: [0.23, 1, 0.32, 1] }}
+    >
+      <div
+        className="flex items-center justify-center rounded-full bg-white"
+        style={{
+          width: size,
+          height: size,
+          border: `${isHub ? 2.5 : 1.5}px solid ${borderColor}`,
+          flexShrink: 0,
+          boxShadow: isHub
+            ? `0 0 0 3px ${borderColor}22, 0 4px 16px rgba(0,0,0,0.35)`
+            : "0 2px 8px rgba(0,0,0,0.25)",
+        }}
+        title={skill.name}
+      >
+        {"img" in skill ? (
+          <img
+            src={(skill as any).img}
+            alt={skill.name}
+            draggable={false}
+            style={{ width: "58%", height: "58%" }}
+            className="select-none object-contain"
+          />
+        ) : (
+          <div style={{ color: skill.color, fontSize: iconSize }}>
+            {skill.icon}
+          </div>
+        )}
+      </div>
+      {/* Skill name label */}
+      <span
+        className="text-center font-body font-semibold leading-none text-white/50"
+        style={{
+          fontSize: isHub ? "0.6rem" : "0.5rem",
+          letterSpacing: "0.04em",
+          maxWidth: size + 8,
+          opacity: isHub ? 0.7 : 0.45,
+        }}
+      >
+        {skill.name}
+      </span>
+    </motion.div>
+  );
+};
+// Lays out nodes in a circle at radius r, centered in a box at (cx, cy)
+const ring = (
+  nodes: typeof initialSkills[number][],
+  r: number,
+  cx: number,
+  cy: number,
+  baseDelay: number,
+  angleOffset = -Math.PI / 2,
+  hubColor?: string,
+) =>
+  nodes.map((node, i) => {
+    const angle = angleOffset + (i / nodes.length) * 2 * Math.PI;
+    const size = SAT_SIZES[node.weight] ?? 28;
+    // Offset positions the icon center; label hangs below so we anchor top-left of the flex col
+    const labelEst = 14; // estimated label height in px
+    return (
+      <div
+        key={node.id}
+        className="absolute flex flex-col items-center"
+        style={{
+          left: cx + Math.cos(angle) * r - size / 2,
+          top:  cy + Math.sin(angle) * r - size / 2,
+          zIndex: 1,
+        }}
+      >
+        <ClusterNode skill={node} size={size} delay={baseDelay + i * 0.035} hubColor={hubColor} />
+      </div>
+    );
+  });
+
+const ClusterWheel = ({ cluster }: { cluster: ClusterDef }) => {
+  const maxInnerSize = cluster.inner.length
+    ? Math.max(...cluster.inner.map(s => SAT_SIZES[s.weight] ?? 28))
+    : 0;
+  const maxOuterSize = cluster.outer.length
+    ? Math.max(...cluster.outer.map(s => SAT_SIZES[s.weight] ?? 28))
+    : 0;
+
+  const innerR = HUB_SIZE / 2 + maxInnerSize / 2 + INNER_GAP;
+  const outerR = cluster.outer.length
+    ? innerR + maxInnerSize / 2 + maxOuterSize / 2 + OUTER_GAP
+    : innerR;
+
+  // Extra padding so labels don't clip
+  const labelPad = 18;
+  const reach = (cluster.outer.length ? outerR + maxOuterSize / 2 : innerR + maxInnerSize / 2) + labelPad;
+  const totalDiameter = reach * 2;
+  const cx = reach;
+  const cy = reach;
+
+  return (
+    <div className="flex flex-col items-center gap-3">
+
+      {/* Group label — colored, prominent */}
+      <motion.span
+        initial={{ opacity: 0, y: 4 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+        className="text-[0.6rem] font-bold uppercase tracking-[0.3em]"
+        style={{ color: cluster.color }}
+      >
+        {cluster.label}
+      </motion.span>
+
+      {/* Cluster canvas */}
+      <div className="relative" style={{ width: totalDiameter, height: totalDiameter }}>
+
+        {/* Hub — center, larger, glows with group color */}
+        <div
+          className="absolute"
+          style={{ left: cx - HUB_SIZE / 2, top: cy - HUB_SIZE / 2, zIndex: 3 }}
+        >
+          <ClusterNode
+            skill={cluster.hub}
+            size={HUB_SIZE}
+            delay={0.02}
+            isHub
+            hubColor={cluster.color}
+          />
+        </div>
+
+        {/* Inner ring */}
+        {ring(cluster.inner, innerR, cx, cy, 0.08, -Math.PI / 2, cluster.color)}
+
+        {/* Outer ring */}
+        {cluster.outer.length > 0 && ring(
+          cluster.outer, outerR, cx, cy,
+          0.08 + cluster.inner.length * 0.035,
+          -Math.PI / 4,
+          cluster.color,
+        )}
+
+      </div>
+    </div>
+  );
+};
+
+const MobileSkillClusters = () => {
+  return (
+    <div className="w-full space-y-8 px-4 pb-8 pt-2">
+      {clusters.map((cluster, ci) => (
+        <div key={cluster.label}>
+          {/* Cluster label */}
+          <p
+            className="mb-3 text-[0.6rem] font-bold uppercase tracking-[0.28em]"
+            style={{ color: cluster.color }}
+          >
+            {cluster.label}
+          </p>
+
+          {/* Pill grid — hub first, then inner, then outer */}
+          <div className="flex flex-wrap gap-2">
+            {[cluster.hub, ...cluster.inner, ...cluster.outer].map((skill, i) => {
+              const isHub = i === 0;
+              const groupBorder = GROUP_BORDER_COLORS[skill.group] ?? "rgba(255,255,255,0.2)";
+              const borderColor = isHub ? cluster.color : groupBorder;
+              const iconSize = isHub ? 18 : 14;
+
+              return (
+                <motion.div
+                  key={`${cluster.label}-${skill.id}`}
+                  initial={{ opacity: 0, scale: 0.88 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ duration: 0.22, delay: ci * 0.04 + i * 0.025, ease: [0.23, 1, 0.32, 1] }}
+                  className="flex items-center gap-1.5 rounded-full bg-white/5 px-2.5 py-1.5"
+                  style={{ border: `1px solid ${borderColor}40` }}
+                >
+                  {/* Icon */}
+                  {"img" in skill ? (
+                    <img
+                      src={(skill as any).img}
+                      alt=""
+                      draggable={false}
+                      style={{ width: iconSize, height: iconSize }}
+                      className="shrink-0 object-contain"
+                    />
+                  ) : (
+                    <span style={{ color: skill.color, fontSize: iconSize }} className="shrink-0 leading-none">
+                      {skill.icon}
+                    </span>
+                  )}
+                  {/* Name */}
+                  <span
+                    className="text-white leading-none"
+                    style={{
+                      fontSize: isHub ? "0.65rem" : "0.6rem",
+                      fontWeight: isHub ? 600 : 500,
+                      opacity: isHub ? 0.9 : 0.65,
+                      letterSpacing: "0.03em",
+                    }}
+                  >
+                    {skill.name}
+                  </span>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 export default function Skills() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
@@ -506,6 +815,7 @@ export default function Skills() {
   const positions = positionsRef.current;
 
   const [scale, setScale] = useState(1);
+  const [viewportWidth, setViewportWidth] = useState(1280);
   const nodesRef = useRef<SkillNode[]>([]);
   const shouldRevealGraph = isInView;
 
@@ -545,6 +855,7 @@ export default function Skills() {
       );
 
       setScale(clampValue(fittedScale * 0.94, 2.4, 6.2));
+      setViewportWidth(window.innerWidth);
     };
 
     updateScale();
@@ -560,11 +871,9 @@ export default function Skills() {
   }, []);
 
   // ── Gas-particle simulation ──────────────────────────────────────────
-  // The nodes behave like slow gas molecules in a chamber: frictionless
-  // drift (velocityDecay 0), perpetual motion (alphaDecay 0), elastic wall
-  // bounces, soft node-node collisions via forceCollide, a whisper of
-  // Brownian jitter, and a speed band that keeps the cloud calm enough to
-  // read and hover.
+  // Nodes appear one at a time then gently drift as slow gas molecules:
+  // frictionless, perpetual, with elastic wall bounces, soft collisions,
+  // Brownian jitter, and a speed band that keeps them calm enough to hover.
   useEffect(() => {
     if (!containerRef.current) return;
 
@@ -579,8 +888,8 @@ export default function Skills() {
     };
     canvasBoundsRef.current = bounds;
 
-    const MIN_SPEED = 0.22; // px per tick (~13 px/s) — lazy drift
-    const MAX_SPEED = 0.6; //  px per tick (~36 px/s) — post-fling cap
+    const MIN_SPEED = 0.22;
+    const MAX_SPEED = 0.6;
     const JITTER = 0.014;
 
     const existing = nodesRef.current;
@@ -608,46 +917,28 @@ export default function Skills() {
 
     const gasForce = () => {
       nodes.forEach((node: any) => {
-        if (typeof node.fx === "number") return; // pinned by an active drag
+        if (typeof node.fx === "number") return;
 
-        // Elastic walls: reflect the velocity at the chamber edges.
-        if (node.x <= bounds.minX) {
-          node.x = bounds.minX;
-          node.vx = Math.abs(node.vx ?? MIN_SPEED);
-        } else if (node.x >= bounds.maxX) {
-          node.x = bounds.maxX;
-          node.vx = -Math.abs(node.vx ?? MIN_SPEED);
-        }
-        if (node.y <= bounds.minY) {
-          node.y = bounds.minY;
-          node.vy = Math.abs(node.vy ?? MIN_SPEED);
-        } else if (node.y >= bounds.maxY) {
-          node.y = bounds.maxY;
-          node.vy = -Math.abs(node.vy ?? MIN_SPEED);
-        }
+        if (node.x <= bounds.minX) { node.x = bounds.minX; node.vx = Math.abs(node.vx ?? MIN_SPEED); }
+        else if (node.x >= bounds.maxX) { node.x = bounds.maxX; node.vx = -Math.abs(node.vx ?? MIN_SPEED); }
+        if (node.y <= bounds.minY) { node.y = bounds.minY; node.vy = Math.abs(node.vy ?? MIN_SPEED); }
+        else if (node.y >= bounds.maxY) { node.y = bounds.maxY; node.vy = -Math.abs(node.vy ?? MIN_SPEED); }
 
-        // Brownian jitter keeps the cloud from settling into lanes.
         node.vx = (node.vx ?? 0) + (Math.random() - 0.5) * JITTER;
         node.vy = (node.vy ?? 0) + (Math.random() - 0.5) * JITTER;
 
-        // Regulate speed into the gas band.
         const speed = Math.hypot(node.vx, node.vy) || MIN_SPEED;
-        if (speed > MAX_SPEED) {
-          node.vx = (node.vx / speed) * MAX_SPEED;
-          node.vy = (node.vy / speed) * MAX_SPEED;
-        } else if (speed < MIN_SPEED) {
-          node.vx = (node.vx / speed) * MIN_SPEED;
-          node.vy = (node.vy / speed) * MIN_SPEED;
-        }
+        if (speed > MAX_SPEED) { node.vx = (node.vx / speed) * MAX_SPEED; node.vy = (node.vy / speed) * MAX_SPEED; }
+        else if (speed < MIN_SPEED) { node.vx = (node.vx / speed) * MIN_SPEED; node.vy = (node.vy / speed) * MIN_SPEED; }
       });
     };
 
     const simulation = d3force.forceSimulation(nodes as any)
       .force("collide", d3force.forceCollide(nodeRadius * 1.25).strength(0.9))
       .force("gas", gasForce as any)
-      .velocityDecay(0) // a gas has no friction
+      .velocityDecay(0)
       .alpha(1)
-      .alphaDecay(0) // never cools down — perpetual drift
+      .alphaDecay(0)
       .alphaMin(0);
 
     simulation.on("tick", () => {
@@ -658,7 +949,6 @@ export default function Skills() {
     });
 
     if (reduceMotion) {
-      // Static scatter: resolve overlaps once, then freeze.
       simulation.stop();
       for (let i = 0; i < 60; i += 1) simulation.tick();
       nodes.forEach((node) => {
@@ -671,21 +961,16 @@ export default function Skills() {
 
     (containerRef.current as any).__simulation = simulation;
 
-    return () => {
-      simulation.stop();
-    };
+    return () => { simulation.stop(); };
   }, [positions, scale, reduceMotion]);
 
-  // Pause the chamber whenever it scrolls off-screen; resume on return.
+  // Pause whenever the section scrolls off-screen; resume on return.
   useEffect(() => {
     if (reduceMotion) return;
     const simulation = (containerRef.current as any)?.__simulation;
     if (!simulation) return;
-    if (isOnScreen) {
-      simulation.restart();
-    } else {
-      simulation.stop();
-    }
+    if (isOnScreen) { simulation.restart(); }
+    else { simulation.stop(); }
   }, [isOnScreen, reduceMotion]);
 
   const handleDragStart = (id: string) => {
@@ -721,14 +1006,10 @@ export default function Skills() {
     if (simulation && node) {
       node.fx = null;
       node.fy = null;
-
-      // Fling: hand the drag velocity (px/s → px/tick) to the gas. The
-      // speed band in gasForce gradually tames it back to a drift.
       if (info?.velocity) {
         node.vx = clampValue(info.velocity.x / 60, -2.5, 2.5);
         node.vy = clampValue(info.velocity.y / 60, -2.5, 2.5);
       }
-
       if (!reduceMotion && isOnScreenRef.current) {
         simulation.restart();
       }
@@ -739,7 +1020,7 @@ export default function Skills() {
   return (
     <section
       id="skills"
-      className="relative flex h-below-nav flex-col overflow-hidden bg-black pb-[clamp(1.5rem,4vh,5rem)] text-white"
+      className="relative flex flex-col overflow-hidden bg-black pb-[clamp(1.5rem,4vh,5rem)] text-white sm:h-below-nav"
     >
       <div className="absolute inset-0 pointer-events-none">
         <div
@@ -766,23 +1047,24 @@ export default function Skills() {
           </RevealText>
         </div>
 
-        {/* Borderless, full-bleed gas chamber — the nodes drift and bounce
-            edge to edge with nothing visibly boxing them in. */}
+        {/* ── Mobile: cluster wheels (below sm) ── */}
+        <div className="sm:hidden mt-4 overflow-y-auto">
+          <MobileSkillClusters />
+        </div>
+
+        {/* ── Desktop: gas chamber (sm and up) ── */}
         <div
           ref={containerRef}
-          className="relative mt-2 flex min-h-0 w-full flex-1 items-center justify-center overflow-hidden"
+          className="relative mt-2 hidden min-h-0 w-full flex-1 items-center justify-center overflow-hidden sm:flex"
           style={{
             transform: "translateZ(0) scale(1)",
             transformOrigin: "center center",
           }}
         >
-              {/* Node connections intentionally hidden — pure free-floating
-                  gas. The SkillConnection renderer is kept above in case
-                  the constellation look ever comes back. */}
-
               {initialSkills.map((skill) => {
                 const isDragging = draggingId === skill.id;
                 const isOther = draggingId && draggingId !== skill.id;
+                const groupBorder = GROUP_BORDER_COLORS[skill.group] ?? "rgba(255,255,255,0.2)";
 
                 return (
                   <motion.div
@@ -826,23 +1108,34 @@ export default function Skills() {
                     <motion.div
                       whileHover={{ scale: 1.15 }}
                       whileTap={{ scale: 0.95 }}
-                      animate={{
-                        scale: isDragging ? 1.18 : 1,
-                      }}
+                      animate={{ scale: isDragging ? 1.18 : 1 }}
                       transition={{ duration: 0.18 }}
-                      className={`-ml-4 -mt-4 flex h-8 w-8 cursor-grab items-center justify-center rounded-full border border-white/20 bg-white shadow-xl transition-[opacity,filter,box-shadow] duration-200 group active:cursor-grabbing sm:-ml-5 sm:-mt-5 sm:h-10 sm:w-10 md:-ml-6 md:-mt-6 md:h-12 md:w-12 lg:-ml-7 lg:-mt-7 lg:h-14 lg:w-14 ${isOther ? "opacity-50 blur-[1px]" : "opacity-100"}`}
+                      className={`cursor-grab flex items-center justify-center rounded-full bg-white shadow-xl transition-[opacity,filter,box-shadow] duration-200 group active:cursor-grabbing ${isOther ? "opacity-50 blur-[1px]" : "opacity-100"}`}
+                      style={(() => {
+                        const sz = getNodeSize(viewportWidth, skill.weight);
+                        return {
+                          width: sz,
+                          height: sz,
+                          marginLeft: -sz / 2,
+                          marginTop: -sz / 2,
+                          border: `2px solid ${groupBorder}`,
+                        };
+                      })()}
                     >
                       {"img" in skill ? (
                         <img
                           src={skill.img}
                           alt={skill.name}
                           draggable={false}
-                          className="h-5 w-5 select-none object-contain sm:h-6 sm:w-6 md:h-8 md:w-8 lg:h-9 lg:w-9"
+                          style={{ width: "60%", height: "60%" }}
+                          className="select-none object-contain"
                         />
                       ) : (
                         <div
-                          className="text-base sm:text-xl md:text-2xl lg:text-3xl"
-                          style={{ color: skill.color }}
+                          style={{
+                            color: skill.color,
+                            fontSize: `${Math.round(getNodeSize(viewportWidth, skill.weight) * 0.44)}px`,
+                          }}
                         >
                           {skill.icon}
                         </div>

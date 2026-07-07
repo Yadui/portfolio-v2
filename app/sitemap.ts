@@ -19,8 +19,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // hindrance. `changeFrequency` and `priority` are omitted for the same
   // reason (Google ignores them). Honest URLs only.
   const staticRoutes: MetadataRoute.Sitemap = [
-    { url: BASE_URL },
+    { url: `${BASE_URL}/` },
     { url: `${BASE_URL}/blog` },
+    { url: `${BASE_URL}/work` },
     { url: `${BASE_URL}/services` },
     { url: `${BASE_URL}/contact` },
   ];

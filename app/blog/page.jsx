@@ -12,14 +12,30 @@ import { mergeBlogPosts } from "@/data/blogPosts";
 const BASE_URL = "https://abhinav.maoverse.xyz";
 
 export const metadata = {
+  // "Blog" becomes the title suffix; root template makes it "Blog | Abhinav Yadav"
+  // This page OWNS the blogging/writing cluster — no keyword overlap with homepage.
   title: "Blog",
-  description: "Articles on full-stack development, AI, system design, and building software — by Abhinav Yadav.",
+  description: "Technical writing by Abhinav Yadav — deep-dives on Azure, AI pipelines, full-stack development, and cloud engineering from Gurugram, India.",
   alternates: { canonical: "https://abhinav.maoverse.xyz/blog" },
   openGraph: {
     type: "website",
     url: "https://abhinav.maoverse.xyz/blog",
     title: "Blog | Abhinav Yadav",
-    description: "Articles on full-stack development, AI, system design, and building software — by Abhinav Yadav.",
+    description: "Technical writing by Abhinav Yadav — Azure, AI pipelines, full-stack development, and cloud engineering.",
+    images: [
+      {
+        url: "https://abhinav.maoverse.xyz/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "Abhinav Yadav — Blog",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Blog | Abhinav Yadav",
+    description: "Technical writing by Abhinav Yadav — Azure, AI pipelines, full-stack development, and cloud engineering.",
+    images: ["https://abhinav.maoverse.xyz/opengraph-image"],
   },
 };
 

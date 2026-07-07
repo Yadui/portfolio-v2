@@ -1,23 +1,16 @@
-"use client";
-import { useEffect, useState } from "react";
-import { AnimatePresence } from "framer-motion";
 import Link from "next/link";
-
-import Preloader from "@/components/Preloader";
+import HomeClient from "@/components/HomeClient";
 import Projects from "@/components/Projects";
 import Intro from "@/components/Intro";
 import Achievements from "@/components/Achievements";
 import Contact from "@/components/Contact";
 import Timeline from "@/components/Timeline";
 import Skills from "@/components/Skills";
-import { getLenis } from "@/lib/smooth-scroll";
-import { isIntroDone, markIntroDone } from "@/lib/intro-state";
 
 const SITE_URL = "https://abhinav.maoverse.xyz";
 
-// ProfilePage structured data for the homepage. It ties back to the Person
-// entity declared site-wide in the root layout (#person), which is the
-// recommended pattern for a personal portfolio's main page.
+// ProfilePage structured data for the homepage. Ties back to the Person
+// entity declared site-wide in the root layout (#person).
 const profilePageJsonLd = {
   "@context": "https://schema.org",
   "@type": "ProfilePage",
@@ -30,39 +23,13 @@ const profilePageJsonLd = {
   inLanguage: "en-US",
 };
 
-const Home = () => {
-  // Preloader plays first; when it finishes, the panel slides up to reveal
-  // the Projects section (the first section on the page). Replays are
-  // skipped within the same session (client-side navigations back to "/")
-  // — the intro only runs on a fresh load.
-  const [isIntroActive, setIsIntroActive] = useState(() => !isIntroDone());
-  const [introComplete, setIntroComplete] = useState(() => isIntroDone());
-
-  // Lock scrolling (native + Lenis) and keep the viewport at the top until
-  // the intro's slide-up reveal has fully finished, so it lands exactly on
-  // the Projects section.
-  useEffect(() => {
-    if (introComplete) return undefined;
-
-    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-    getLenis()?.stop();
-    const html = document.documentElement;
-    const body = document.body;
-    const prevHtmlOverflow = html.style.overflow;
-    const prevBodyOverflow = body.style.overflow;
-    html.style.overflow = "hidden";
-    body.style.overflow = "hidden";
-
-    return () => {
-      html.style.overflow = prevHtmlOverflow;
-      body.style.overflow = prevBodyOverflow;
-      getLenis()?.start();
-    };
-  }, [introComplete]);
-
+export default function Home() {
   return (
     <div className="relative isolate bg-black page-top-offset">
-      {/* Crawlable, screen-reader-only intro. */}
+      {/* ── Crawlable, screen-reader-accessible intro ──────────────────────
+          This markup is in the Server Component so it is present in the
+          initial HTML response — Googlebot reads it before any JS runs.
+      ──────────────────────────────────────────────────────────────────── */}
       <header className="sr-only">
         <h1>Abhinav Yadav — Software Engineer &amp; Creative Developer</h1>
         <p>
@@ -97,30 +64,20 @@ const Home = () => {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(profilePageJsonLd) }}
       />
 
-      <AnimatePresence
-        mode="wait"
-        onExitComplete={() => {
-          setIntroComplete(true);
-          markIntroDone();
-        }}
-      >
-        {isIntroActive && (
-          <Preloader onComplete={() => setIsIntroActive(false)} />
-        )}
-      </AnimatePresence>
-
-      {/* Whole-page flow: sections stack naturally and scroll as one page.
-          Achievements and Journey share one continuous black stage; the
-          Journey's red scroll-drawn line exits its bottom edge straight
-          into the Skills section. */}
-      <Intro />
-      <Projects introComplete={introComplete} />
-      <Achievements />
-      <Timeline />
-      <Skills />
-      <Contact />
+      {/* ── HomeClient wraps ALL interactive sections ───────────────────────
+          It owns the Preloader lifecycle and provides IntroContext to
+          children (e.g. Projects gates its entrance animation on it).
+          The sections themselves are Server-side — HomeClient only adds
+          the client-side preloader shell around them.
+      ──────────────────────────────────────────────────────────────────── */}
+      <HomeClient>
+        <Intro />
+        <Projects />
+        <Achievements />
+        <Timeline />
+        <Skills />
+        <Contact />
+      </HomeClient>
     </div>
   );
-};
-
-export default Home;
+}

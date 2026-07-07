@@ -31,6 +31,7 @@ const AchievementCard = ({ item, delay = 0 }) => {
       {...linkProps}
       {...fadeUp(delay)}
       className="group block w-full border border-white/15 bg-[#0b0b0f]/90 p-5 backdrop-blur-sm transition-colors duration-300 hover:bg-[#11111a] md:w-[260px]"
+      style={{ borderTop: `2px solid ${item.accent || "rgba(255,255,255,0.15)"}` }}
     >
       <div className="flex items-center justify-between gap-2">
         <span className="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-white/35">
@@ -111,7 +112,7 @@ const Achievements = () => {
   return (
     <section
       id="achievements"
-      className="relative flex min-h-screen items-center justify-center overflow-clip bg-black py-20 text-white md:py-0"
+      className="relative flex items-center justify-center overflow-clip bg-black py-20 text-white md:min-h-screen md:py-0"
     >
       <EdgeLines />
 
@@ -142,6 +143,54 @@ const Achievements = () => {
 
       {/* ── Centered title ── */}
       <div className="relative z-10 flex w-full flex-col items-center px-5 text-center md:px-4">
+        {/* Micrographic radial emblem — award-seal geometry behind the title */}
+        <svg
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+          width="320" height="320" viewBox="-160 -160 320 320"
+          style={{ opacity: 0.055 }}
+        >
+          {/* Outer ring */}
+          <circle cx="0" cy="0" r="148" fill="none" stroke="white" strokeWidth="0.75" />
+          {/* Inner ring */}
+          <circle cx="0" cy="0" r="120" fill="none" stroke="white" strokeWidth="0.5" />
+          {/* Dashed mid ring */}
+          <circle cx="0" cy="0" r="134" fill="none" stroke="white" strokeWidth="0.4" strokeDasharray="4 6" />
+          {/* 12 radial spokes */}
+          {Array.from({ length: 12 }).map((_, i) => {
+            const angle = (i * 30 * Math.PI) / 180;
+            return (
+              <line
+                key={i}
+                x1={Math.cos(angle) * 122}
+                y1={Math.sin(angle) * 122}
+                x2={Math.cos(angle) * 146}
+                y2={Math.sin(angle) * 146}
+                stroke="white"
+                strokeWidth="0.75"
+              />
+            );
+          })}
+          {/* 6 long diagonal cross-lines */}
+          {Array.from({ length: 6 }).map((_, i) => {
+            const angle = (i * 30 * Math.PI) / 180;
+            return (
+              <line
+                key={i}
+                x1={Math.cos(angle) * -118}
+                y1={Math.sin(angle) * -118}
+                x2={Math.cos(angle) * 118}
+                y2={Math.sin(angle) * 118}
+                stroke="white"
+                strokeWidth="0.3"
+              />
+            );
+          })}
+          {/* Center dot */}
+          <circle cx="0" cy="0" r="3" fill="white" />
+          <circle cx="0" cy="0" r="8" fill="none" stroke="white" strokeWidth="0.5" />
+        </svg>
+
         <motion.span
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}

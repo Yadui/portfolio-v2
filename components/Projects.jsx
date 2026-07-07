@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 
 import { projects } from "@/data/projectsMenuData";
+import { useIntroComplete } from "@/lib/intro-context";
 
 import ProjectListMenu from "./ProjectListMenu";
 import RevealText from "./RevealText";
@@ -19,10 +20,10 @@ const getPrimaryLink = (project) =>
  * Reduced-motion visitors see the final state immediately.
  */
 export default function Projects({
-  introComplete = true,
   projectsSectionRef,
   projectsSurfaceRef,
 }) {
+  const introComplete = useIntroComplete();
   const rootRef = useRef(null);
   const playedRef = useRef(false);
 
@@ -95,38 +96,50 @@ export default function Projects({
         className="relative z-10 flex min-h-below-nav flex-col gap-0"
       >
         <div className="w-full bg-black px-[clamp(1.25rem,3vw,3rem)] pt-[clamp(2.25rem,7vh,5rem)] pb-2 md:pb-3">
-          {/* The title rises in only after the preloader curtain has lifted
-              (mounting RevealText early would play it under the curtain). */}
-          {introComplete ? (
-            <RevealText
-              as="h2"
-              className="portfolio-title text-5xl uppercase text-white md:text-6xl xl:text-7xl"
-            >
-              WORK
-            </RevealText>
-          ) : (
-            <h2
-              aria-hidden="true"
-              className="portfolio-title text-5xl uppercase text-white opacity-0 md:text-6xl xl:text-7xl"
-            >
-              WORK
-            </h2>
-          )}
+          {/* Heading + metadata counterweight */}
+          <div className="flex items-end justify-between gap-4">
+            {/* The title rises in only after the preloader curtain has lifted
+                (mounting RevealText early would play it under the curtain). */}
+            {introComplete ? (
+              <RevealText
+                as="h2"
+                className="portfolio-title text-5xl uppercase text-white md:text-6xl xl:text-7xl"
+              >
+                WORK
+              </RevealText>
+            ) : (
+              <h2
+                aria-hidden="true"
+                className="portfolio-title text-5xl uppercase text-white opacity-0 md:text-6xl xl:text-7xl"
+              >
+                WORK
+              </h2>
+            )}
+            <div className="mb-1 hidden flex-col items-end gap-1 md:flex">
+              <span className="text-[0.6rem] font-bold uppercase tracking-[0.28em] text-white/25">
+                {menuItems.length} projects
+              </span>
+              <span className="text-[0.6rem] font-bold uppercase tracking-[0.28em] text-white/25">
+                2022 – 2025
+              </span>
+            </div>
+          </div>
         </div>
 
         <div className="relative w-full px-[clamp(1.25rem,4vw,4rem)] pb-[clamp(3rem,8vh,5.5rem)] pt-[clamp(0.5rem,2vh,1.25rem)]">
-          {/* Subtle grid behind the list, fading toward the edges. */}
+          {/* Ledger rule system — horizontal lines aligned to list rhythm */}
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-0"
             style={{
               backgroundImage:
-                "linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px)",
-              backgroundSize: "72px 72px",
+                "linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px)",
+              backgroundSize: "100% 72px",
+              backgroundPosition: "0 0",
               WebkitMaskImage:
-                "radial-gradient(ellipse 75% 70% at 50% 50%, black 45%, transparent 100%)",
+                "linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%)",
               maskImage:
-                "radial-gradient(ellipse 75% 70% at 50% 50%, black 45%, transparent 100%)",
+                "linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%)",
             }}
           />
           <ProjectListMenu items={menuItems} />

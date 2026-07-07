@@ -29,7 +29,16 @@ const JourneyCard = ({ item, index, onOpenModal, delay = 0 }) => {
   const inner = (
     <motion.div
       {...fadeUp(delay)}
-      className="group w-full border border-white/15 bg-[#0b0b0f]/90 p-5 backdrop-blur-sm transition-colors duration-300 hover:bg-[#11111a] md:w-[260px]"
+      className="group w-full backdrop-blur-sm transition-colors duration-300 hover:bg-[#11111a] md:w-[260px]"
+      style={{
+        background: "rgba(11,11,15,0.9)",
+        border: "1px solid rgba(255,255,255,0.15)",
+        // Work entries: red left accent. Education: faint white.
+        borderLeft: isWork
+          ? `3px solid ${PATH_COLOR}`
+          : "3px solid rgba(255,255,255,0.12)",
+        padding: "1.25rem",
+      }}
     >
       <div className="flex items-baseline gap-2">
         <span
@@ -117,7 +126,7 @@ const Timeline = () => {
     <>
       <section
         id="timeline"
-        className="relative flex min-h-screen items-center justify-center overflow-clip bg-black py-20 text-white md:py-0"
+        className="relative flex items-center justify-center overflow-clip bg-black py-16 text-white md:min-h-screen md:py-0"
       >
         {/* ── Desktop / tablet: floating parallax layer (md and up) ── */}
         <div className="hidden md:block">
@@ -171,16 +180,29 @@ const Timeline = () => {
             shipping cloud and AI systems in production.
           </motion.p>
 
-          {/* ── Mobile: simple stacked cards (below md) ── */}
-          <div className="mt-10 flex w-full max-w-sm flex-col gap-4 text-left md:hidden">
+          {/* ── Mobile: stacked cards with drawn connecting line ── */}
+          <div className="relative mt-10 flex w-full max-w-sm flex-col gap-0 text-left md:hidden">
+            {/* Vertical red line connecting all stops */}
+            <div
+              aria-hidden="true"
+              className="absolute left-[1.35rem] top-3 bottom-3 w-px"
+              style={{ background: `linear-gradient(180deg, transparent 0%, ${PATH_COLOR} 8%, ${PATH_COLOR} 92%, transparent 100%)`, opacity: 0.4 }}
+            />
             {stops.map((item, i) => (
-              <JourneyCard
-                key={item.slug ?? `m-stop-${i}`}
-                item={item}
-                index={i}
-                onOpenModal={handleOpenModal}
-                delay={0.05 * i}
-              />
+              <div key={item.slug ?? `m-stop-${i}`} className="relative pl-10 pb-4">
+                {/* Node dot on the line */}
+                <span
+                  aria-hidden="true"
+                  className="absolute left-[0.9rem] top-[1.55rem] h-2 w-2 rounded-full border border-black"
+                  style={{ backgroundColor: item.slug ? PATH_COLOR : "rgba(255,255,255,0.3)" }}
+                />
+                <JourneyCard
+                  item={item}
+                  index={i}
+                  onOpenModal={handleOpenModal}
+                  delay={0.05 * i}
+                />
+              </div>
             ))}
           </div>
         </div>
