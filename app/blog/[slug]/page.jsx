@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { posts } from "@/lib/schema";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import React from "react";
 import ReactMarkdown from "react-markdown";
 import { notFound } from "next/navigation";
@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { FiHeart, FiBookmark, FiShare2, FiGithub, FiTwitter, FiLinkedin, FiLink, FiInfo, FiAlertCircle, FiCheckCircle } from "react-icons/fi";
 import Image from "next/image";
 import { verifyAuth } from "@/lib/auth";
-import { getSeededBlogPostBySlug, normalizeStoredPost } from "@/data/blogPosts";
+import { getSeededBlogPostBySlug, mergeBlogPosts, normalizeStoredPost } from "@/data/blogPosts";
 
 const BASE_URL = "https://abhinav.maoverse.xyz";
 
@@ -20,6 +20,33 @@ async function getPost(slug) {
     if (storedPost) post = normalizeStoredPost(storedPost);
   } catch {}
   return post;
+}
+
+async function getRelatedPosts(currentPost) {
+  let storedPosts = [];
+  try {
+    storedPosts = await db.select().from(posts).orderBy(desc(posts.createdAt));
+  } catch {}
+
+  const currentTags = new Set(
+    (currentPost.tags ?? "")
+      .split(",")
+      .map((tag) => tag.trim().toLowerCase())
+      .filter(Boolean)
+  );
+
+  return mergeBlogPosts(storedPosts)
+    .filter((post) => post.slug !== currentPost.slug)
+    .map((post) => ({
+      post,
+      score: (post.tags ?? "")
+        .split(",")
+        .map((tag) => tag.trim().toLowerCase())
+        .filter((tag) => currentTags.has(tag)).length,
+    }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 3)
+    .map(({ post }) => post);
 }
 
 export async function generateMetadata({ params }) {
@@ -216,6 +243,8 @@ export default async function BlogPost({ params }) {
     notFound();
   }
 
+  const relatedPosts = await getRelatedPosts(post);
+
   const postUrl = `${BASE_URL}/blog/${slug}`;
   const postImage = post.coverImage && !post.coverImage.startsWith("data:") ? post.coverImage : `${BASE_URL}/opengraph-image`;
   const description = post.excerpt || post.content.replace(/[#*`>\[\]]/g, "").slice(0, 155).trim();
@@ -310,7 +339,11 @@ export default async function BlogPost({ params }) {
             <h1 className="mb-6 text-4xl font-extrabold leading-tight tracking-tight text-[#101828] md:text-6xl">
                 {post.title}
             </h1>
-            <div className="font-mono text-[#8892a4]">
+            <div className="flex flex-wrap items-center justify-center gap-2 font-mono text-sm text-[#8892a4]">
+                <span>
+                  By <Link href="/" className="text-[#00805b] hover:underline">Abhinav Yadav</Link>
+                </span>
+                <span aria-hidden="true">·</span>
                 {new Date(post.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
             </div>
         </div>
@@ -367,11 +400,29 @@ export default async function BlogPost({ params }) {
                 </div>
 
                 {/* Content */}
-                <article className="prose prose-lg max-w-none prose-headings:scroll-mt-24 prose-headings:text-[#101828] prose-p:text-[#2a3648] prose-a:text-[#00805b] hover:prose-a:text-[#101828] prose-strong:text-[#101828] prose-li:text-[#2a3648] prose-code:rounded prose-code:bg-[#101828]/5 prose-code:px-1 prose-code:text-[#00734a] prose-pre:border prose-pre:border-[#101828]/10 prose-pre:bg-zinc-950 prose-img:rounded-2xl">
+                <article className="prose prose-lg max-w-none prose-headings:scroll-mt-24 prose-headings:text-[#101828] prose-p:text-[#2a3648] prose-a:text-[#00805b] hover:prose-a:text-[#101828] prose-strong:text-[#101828] prose-li:text-[#2a3648] prose-code:rounded prose-code:bg-[#101828]/5 prose-code:px-1 prose-code:text-[#00734a] prose-pre:border prose-pre:border-[#101828]/10 prose-img:rounded-2xl">
                     <ReactMarkdown components={MarkdownComponents}>
                         {post.content}
                     </ReactMarkdown>
                 </article>
+
+                {relatedPosts.length > 0 && (
+                  <aside aria-labelledby="related-posts" className="border-t border-[#101828]/10 pt-8">
+                    <h2 id="related-posts" className="mb-4 text-2xl font-light text-[#101828]">Related writing</h2>
+                    <div className="grid gap-3 sm:grid-cols-3">
+                      {relatedPosts.map((related) => (
+                        <Link
+                          key={related.slug}
+                          href={`/blog/${related.slug}`}
+                          className="rounded-xl border border-[#101828]/10 bg-white/70 p-4 transition-colors hover:border-[#00b86b]/50"
+                        >
+                          <h3 className="text-sm font-medium leading-snug text-[#101828]">{related.title}</h3>
+                          <span className="mt-3 block text-xs font-semibold uppercase tracking-wider text-[#00805b]">Read article →</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </aside>
+                )}
                 
                 {isAdmin && post.sourceType === "database" && (
                   <div className="flex justify-end border-t border-[#101828]/10 pt-10">
