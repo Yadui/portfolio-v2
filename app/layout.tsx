@@ -57,6 +57,13 @@ const lettersII = localFont({
   fallback: ["Georgia", "ui-serif", "serif"],
 });
 
+const fluctuation = localFont({
+  src: "../public/fonts/Fluctuation-Lt.otf",
+  variable: "--font-fluctuation",
+  display: "swap",
+  fallback: ["ui-sans-serif", "system-ui", "sans-serif"],
+});
+
 export const metadata = {
   metadataBase: new URL("https://abhinav.maoverse.xyz"),
   title: {
@@ -189,63 +196,45 @@ export default function RootLayout({ children }) {
         />
         <script
           dangerouslySetInnerHTML={{
-            __html: `
-              (() => {
-                const root = document.documentElement;
-                const previousVisibility = root.style.visibility;
-                let finalized = false;
-
-                if ("scrollRestoration" in history) {
-                  history.scrollRestoration = "manual";
-                }
+              __html: `
+               (() => {
+                 if ("scrollRestoration" in history) {
+                   history.scrollRestoration = "manual";
+                 }
 
                 const navigationEntry = performance.getEntriesByType("navigation")[0];
                 const isReload = navigationEntry
                   ? navigationEntry.type === "reload"
                   : performance.navigation && performance.navigation.type === 1;
 
-                if (location.pathname === "/" && isReload && location.hash) {
-                  history.replaceState(null, "", location.pathname + location.search);
-                }
+                 if (location.pathname === "/" && isReload && location.hash) {
+                   history.replaceState(null, "", location.pathname + location.search);
+                 }
 
-                root.style.visibility = "hidden";
+                 const scrollToTop = () => {
+                   window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+                 };
+                 scrollToTop();
+                 requestAnimationFrame(scrollToTop);
 
-                const scrollToTop = () => {
-                  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-                };
-
-                const reveal = () => {
-                  root.style.visibility = previousVisibility;
-                };
-
-                const finalize = () => {
-                  if (finalized) {
-                    return;
-                  }
-
-                  finalized = true;
-                  scrollToTop();
-                  requestAnimationFrame(() => {
-                    scrollToTop();
-                    requestAnimationFrame(() => {
-                      scrollToTop();
-                      reveal();
-                    });
-                  });
-                };
-
-                window.setTimeout(reveal, 1200);
-
-                scrollToTop();
-                window.addEventListener("load", finalize, { once: true });
-                window.addEventListener("pageshow", finalize, { once: true });
-                requestAnimationFrame(finalize);
-              })();
-            `,
+                 // The home hero runs a load sequence that the header pill
+                 // must stay out of. Set the flag before first paint so the
+                 // pill never flashes; the hero clears it when it finishes.
+                 // The timeout is a failsafe so the header cannot be lost if
+                 // the hero never mounts.
+                 if (location.pathname === "/") {
+                   var root = document.documentElement;
+                   root.classList.add("intro-running", "hero-unpainted");
+                   setTimeout(function () {
+                     root.classList.remove("intro-running", "hero-unpainted");
+                   }, 9000);
+                 }
+               })();
+             `,
           }}
         />
       </head>
-      <body className={`${clashDisplay.variable} ${clashGrotesk.variable} ${morsa.variable} ${ffComma.variable} ${letters.variable} ${lettersII.variable}`}>
+      <body className={`${clashDisplay.variable} ${clashGrotesk.variable} ${morsa.variable} ${ffComma.variable} ${letters.variable} ${lettersII.variable} ${fluctuation.variable}`}>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}

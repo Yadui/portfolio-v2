@@ -1,0 +1,11 @@
+---
+description: Always-on anti-slop design rules for the Portfolio website
+globs:
+  - "app/**/*.{js,jsx,ts,tsx,mdx}"
+  - "components/**/*.{js,jsx,ts,tsx,mdx}"
+  - "data/**/*.{js,jsx,ts,tsx,mdx}"
+  - "public/**/*"
+alwaysApply: true
+---
+
+Read `AGENTS.md` and `docs/PORTFOLIO_TASTE_STANDARD.md` before planning or editing portfolio UI. Use the vendored upstream Taste Skill under `vendor/taste-skill/`. Declare the Design Read and three dials before code, use the existing Portfolio design system and dependencies, audit before redesigning, and complete the pre-flight checklist before declaring the work done.

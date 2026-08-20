@@ -21,6 +21,16 @@
     --portfolio-sun: #ffbf73;
     --portfolio-sun-soft: rgba(255, 191, 115, 0.18);
     --portfolio-steel: #cad4e3;
+    /* Work-section accent. Deep enough that white body copy clears
+       WCAG AA (5.03:1); the hero shader resolves into this colour. */
+    --work-orange: #cc3a0d;
+    --work-line: rgba(255, 255, 255, 0.28);
+    --work-muted: rgba(255, 255, 255, 0.62);
+    /* Geometry of the expanding orange band, published by the hero.
+       Defaults to fully open so the work section is never trapped behind
+       a closed band if the hero never runs. */
+    --band-x: 50%;
+    --band-h: 100%;
     --portfolio-shadow: 0 24px 80px rgba(16, 24, 40, 0.12);
     --portfolio-shadow-strong: 0 34px 120px rgba(16, 24, 40, 0.18);
   }
@@ -134,12 +144,82 @@
 
   /* Used by Projects, Achievements, Skills, Contact inner min-heights */
   .min-h-below-nav {
-    min-height: calc(100vh - var(--site-header-h));
+    min-height: calc(100dvh - var(--site-header-h));
   }
 
   .h-below-nav {
-    height: calc(100vh - var(--site-header-h));
+    height: calc(100dvh - var(--site-header-h));
   }
+
+  /* ── Hero stage ──────────────────────────────────────────────────────
+     Replaces the former .intro-hero / .intro-logo-* system, which was
+     removed with the shader-gradient hero rework. Backup of the previous
+     stylesheet lives in .backup-animations/globals.css.
+  ─────────────────────────────────────────────────────────────────────── */
+
+  .hero-shader-canvas canvas {
+    display: block;
+  }
+
+  /* The resting rule carries the same palette the shader resolves into,
+     so the hand-off from the live canvas is not a visible change. Stops
+     follow the Halo preset top-to-bottom. */
+  .hero-rule {
+    background: linear-gradient(
+      180deg,
+      #d0bce1 0%,
+      #dbba95 45%,
+      #ff5005 100%
+    );
+  }
+
+  .hero-rule-fill {
+    position: absolute;
+    inset: 0;
+    background: var(--work-orange);
+  }
+
+  .hero-hello {
+    font-size: clamp(3.5rem, 13vw, 11rem);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: #fff;
+    will-change: transform, opacity;
+  }
+
+  .hero-name {
+    font-size: clamp(2.5rem, 7.5vw, 6rem);
+    font-weight: 500;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+  }
+
+  .hero-role {
+    font-size: clamp(1rem, 1.9vw, 1.45rem);
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+  }
+
+  .hero-action {
+    font-size: clamp(0.9rem, 1.2vw, 1.05rem);
+    letter-spacing: 0.02em;
+    text-underline-offset: 0.35em;
+    text-decoration: underline;
+    text-decoration-color: rgba(255, 255, 255, 0.3);
+  }
+
+  .hero-action:hover,
+  .hero-action:focus-visible {
+    text-decoration-color: rgba(255, 255, 255, 0.9);
+  }
+
+  @media (max-width: 639px) {
+    .hero-role {
+      max-width: 26ch;
+    }
+  }
+
 
   .stacked-scroll-site .portfolio-section {
     padding-top: 1.75rem;
@@ -348,4 +428,676 @@
     transform: scaleY(0.7);
   }
   .ay-shimmer.ay-shimmer-go { animation: none; }
+}
+
+/* ── Work index ────────────────────────────────────────────────────────
+   The selected-work ledger. Geometry mirrors the reference composition:
+   a spine at 60.5%, titles right-aligned against it, numbered chips
+   straddling it, category copy to its right.
+─────────────────────────────────────────────────────────────────────── */
+@layer components {
+  .work-section {
+    background-color: var(--work-orange);
+    color: #fff;
+    /* Only visible inside the orange band the hero is opening. */
+    clip-path: inset(
+      0
+      max(0%, calc(100% - var(--band-x) - var(--band-h)))
+      0
+      max(0%, calc(var(--band-x) - var(--band-h)))
+    );
+  }
+
+  .work-surface {
+    /* Clears the fixed site header so the section eyebrow is never hidden
+       underneath it when the work section lands at the top of the viewport. */
+    padding: calc(var(--site-header-h) + clamp(1rem, 3vh, 2rem))
+      clamp(1.25rem, 4vw, 4rem) clamp(3rem, 8vh, 6rem);
+  }
+
+  .work-index {
+    position: relative;
+    margin: 0 auto;
+    max-width: 1400px;
+  }
+
+  /* Section-height vertical rule. The list-level .work-spine carries the
+     travelling marker; this one is the static full-height structure. */
+  .work-spine-full {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--work-line);
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+
+  /* Header row */
+  .work-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .work-eyebrow,
+  .work-counter,
+  .work-meta,
+  .work-row-label,
+  .work-num {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: clamp(0.62rem, 0.8vw, 0.72rem);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .work-eyebrow,
+  .work-counter {
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  .work-intro {
+    display: grid;
+    gap: clamp(1rem, 3vw, 2rem);
+    grid-template-columns: 1fr;
+    align-items: end;
+    margin-top: clamp(1rem, 3vh, 2rem);
+    padding-bottom: clamp(1.25rem, 3vh, 2rem);
+  }
+
+  .work-title {
+    font-family: var(--font-clash-grotesk), ui-sans-serif, system-ui, sans-serif;
+    font-size: clamp(2.25rem, 5.4vw, 4.5rem);
+    font-weight: 600;
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+  }
+
+  .work-standfirst {
+    max-width: 46ch;
+    font-size: clamp(0.95rem, 1.2vw, 1.15rem);
+    line-height: 1.45;
+    color: rgba(255, 255, 255, 0.86);
+  }
+
+  /* Ledger shell */
+  .work-list {
+    position: relative;
+  }
+
+  .work-rows {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Vertical spine */
+  .work-spine {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--work-line);
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+
+  .work-spine-marker {
+    position: absolute;
+    left: 0;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.95);
+    will-change: transform;
+  }
+
+  /* Separator rules — N + 1, independently lit */
+  /* Every boundary keeps a faint rule; the two bounding the active row
+     brighten. Because the rule shared by two adjacent rows stays in the lit
+     set across the transition, it is never re-animated — only the outgoing
+     top rule and the incoming bottom rule move. */
+  .work-sep {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.22);
+    pointer-events: none;
+    top: calc(var(--sep-index) * var(--work-row-h));
+  }
+
+  .work-sep::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.92);
+    transform: scaleX(0);
+    /* Grows out of the spine intersection in both directions. */
+    transform-origin: 60.5% center;
+    transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .work-sep[data-lit="true"]::after {
+    transform: scaleX(1);
+  }
+
+  /* Rows */
+  .work-list {
+    --work-row-h: clamp(6rem, 12vh, 11.7rem);
+  }
+
+  .work-row {
+    height: var(--work-row-h);
+  }
+
+  .work-row-link {
+    position: relative;
+    display: grid;
+    grid-template-columns: calc(60.5% - 1.15rem) 2.3rem 1fr;
+    align-items: center;
+    height: 100%;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .work-row-link:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: -4px;
+  }
+
+  /* Left meta bracket — active row only */
+  .work-meta {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.85);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    white-space: nowrap;
+  }
+
+  .work-row[data-active="true"] .work-meta {
+    opacity: 1;
+  }
+
+  /* Title */
+  .work-row-title {
+    grid-column: 1;
+    justify-self: end;
+    padding-right: clamp(0.75rem, 1.5vw, 1.5rem);
+    font-family: var(--font-clash-grotesk), ui-sans-serif, system-ui, sans-serif;
+    font-size: clamp(1.6rem, 3.4vw, 3rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.55);
+    transition: color 0.35s ease;
+  }
+
+  .work-row[data-active="true"] .work-row-title {
+    color: #fff;
+  }
+
+  /* Number box. Fills and empties in place — the box itself never moves. */
+  .work-num {
+    position: relative;
+    grid-column: 2;
+    display: grid;
+    place-items: center;
+    width: 2.3rem;
+    height: 1.5rem;
+    border: 1px solid var(--work-line);
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.7);
+    transition: color 0.3s ease, border-color 0.35s ease;
+  }
+
+  .work-num::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: #fff;
+    transform: scaleY(0);
+    transform-origin: bottom center;
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* Sits above the fill so the digits invert against it. */
+  .work-num > span {
+    position: relative;
+  }
+
+  .work-row[data-active="true"] .work-num {
+    color: var(--work-orange);
+    border-color: #fff;
+  }
+
+  .work-row[data-active="true"] .work-num::before {
+    transform: scaleY(1);
+  }
+
+  /* Right-hand copy */
+  .work-row-body {
+    grid-column: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    padding-left: clamp(0.75rem, 1.5vw, 1.5rem);
+    padding-right: clamp(2.5rem, 5vw, 5rem);
+    min-width: 0;
+  }
+
+  .work-row-label {
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  .work-row-desc {
+    max-width: 46ch;
+    font-size: clamp(0.9rem, 1.05vw, 1.05rem);
+    line-height: 1.4;
+    color: #fff;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+
+  .work-row[data-active="true"] .work-row-desc {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .work-arrow {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.35rem;
+    line-height: 1;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+  }
+
+  .work-row[data-active="true"] .work-arrow {
+    opacity: 1;
+  }
+
+  /* ── Desktop refinement ─────────────────────────────────────────── */
+  @media (min-width: 960px) {
+    .work-intro {
+      grid-template-columns: 1fr auto;
+    }
+
+    .work-standfirst {
+      text-align: right;
+      justify-self: end;
+    }
+  }
+
+  /* ── Mobile: one column, no spine ───────────────────────────────── */
+  @media (max-width: 767px) {
+    .work-list {
+      --work-row-h: auto;
+    }
+
+    .work-spine,
+    .work-spine-full,
+    .work-sep,
+    .work-meta,
+    .work-arrow {
+      display: none;
+    }
+
+    .work-row {
+      height: auto;
+      border-bottom: 1px solid var(--work-line);
+    }
+
+    .work-row-link {
+      grid-template-columns: auto 1fr;
+      align-items: start;
+      gap: 0.35rem 0.85rem;
+      padding: 1.35rem 0;
+    }
+
+    .work-row-title {
+      grid-column: 2;
+      grid-row: 1;
+      justify-self: start;
+      padding-right: 0;
+      font-size: clamp(1.5rem, 7vw, 2.1rem);
+      color: #fff;
+    }
+
+    .work-num {
+      grid-column: 1;
+      grid-row: 1;
+      align-self: center;
+    }
+
+    .work-row-body {
+      grid-column: 2;
+      grid-row: 2;
+      padding: 0;
+    }
+
+    /* On touch there is no hover, so every row shows its description. */
+    .work-row-desc {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* Rows are not hover-driven on touch, so the fill would read as an
+       arbitrary highlight. Keep every number in its outlined state. */
+    .work-num::before {
+      display: none;
+    }
+
+    /* The counter reports a hover state that does not exist on touch, and
+       it sits underneath the fixed header pill at this width. */
+    .work-counter {
+      display: none;
+    }
+
+    .work-row[data-active="true"] .work-num {
+      color: #fff;
+      border-color: var(--work-line);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .work-sep::after,
+    .work-num::before,
+    .work-row-title,
+    .work-row-desc,
+    .work-meta,
+    .work-arrow,
+    .work-num {
+      transition: none;
+    }
+  }
+}
+
+/* ── Site header pill ──────────────────────────────────────────────────
+   A floating capsule in the top-right rather than a full-width bar. On the
+   home page it is suppressed until the hero load sequence completes.
+─────────────────────────────────────────────────────────────────────── */
+@layer components {
+  .site-header-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.4rem 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 999px;
+    background: rgba(12, 12, 14, 0.72);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+
+  .site-header-link {
+    border-radius: 999px;
+    padding: 0.45rem 0.9rem;
+    font-family: var(--font-clash-display), ui-sans-serif, system-ui, sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.62);
+    transition: color 0.2s ease, background-color 0.2s ease;
+  }
+
+  .site-header-link:hover,
+  .site-header-link:focus-visible {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .site-header-link[data-active="true"] {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.14);
+  }
+
+  /* Hidden for the duration of the hero load sequence. */
+  .intro-running .site-header {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .site-header {
+    transition: opacity 0.5s ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .site-header {
+      transition: none;
+    }
+  }
+
+  /* Reduced transparency: drop the blur and use a solid surface. */
+  @media (prefers-reduced-transparency: reduce) {
+    .site-header-pill {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      background: #0c0c0e;
+    }
+  }
+}
+
+/* ── Work outro stage ──────────────────────────────────────────────────
+   Pins the work section so scrolling past it first strips the projects
+   away, then wipes the following section down over the top. Only active
+   at >=768px with motion allowed; otherwise both sections stay in normal
+   document flow and these rules do nothing.
+─────────────────────────────────────────────────────────────────────── */
+@layer components {
+  .work-stage {
+    position: relative;
+  }
+
+  .work-stage[data-staged="true"] .work-stage-pin {
+    position: relative;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .work-stage[data-staged="true"] .work-stage-layer {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  .work-stage[data-staged="true"] .work-stage-layer > * {
+    height: 100%;
+  }
+
+  .work-stage[data-staged="true"] .work-stage-next {
+    /* Must clear the work section's own z-10: the layer wrappers have
+       `z-index: auto` and so create no stacking context of their own, which
+       means #projects competes directly with this element. */
+    z-index: 30;
+    /* Closed until the reveal drives it open. */
+    clip-path: inset(0% 0% 100% 0%);
+  }
+
+  /* A stripped row keeps only its number, latched into the filled state as
+     a spent marker. */
+  .work-row[data-erased="true"] .work-num {
+    color: var(--work-orange);
+    border-color: #fff;
+  }
+
+  .work-row[data-erased="true"] .work-num::before {
+    transform: scaleY(1);
+  }
+
+  /* Nothing can be pulled back once the strip has started. */
+  .work-index[data-dismantling="true"] .work-row-link {
+    pointer-events: none;
+  }
+
+  /* The strip writes opacity inline every frame. Leaving the hover-state
+     transitions on would low-pass those writes, so erased content lags
+     behind the scroll instead of tracking it. */
+  .work-index[data-dismantling="true"] .work-meta,
+  .work-index[data-dismantling="true"] .work-row-title,
+  .work-index[data-dismantling="true"] .work-row-desc,
+  .work-index[data-dismantling="true"] .work-arrow {
+    transition: none;
+  }
+}
+
+/* ── Hero first-paint guard ────────────────────────────────────────────
+   The hero copy and greeting are hidden by GSAP, but that only happens
+   after hydration. Without this the server HTML paints the finished hero
+   for a beat, so the text is seen before the gradient and the greeting.
+   `intro-running` is set by the inline script in the root layout before
+   first paint and cleared by the hero when the copy reveal starts, with a
+   failsafe timeout, so nothing can stay hidden if the hero never mounts.
+─────────────────────────────────────────────────────────────────────── */
+@layer components {
+  /* Targets the elements GSAP itself controls: the greeting *wrapper* (not
+     the inner span) and the copy lines. Inline styles from GSAP override
+     these as soon as the hero initialises. This flag is cleared at that
+     point, which is much earlier than `intro-running` — the header stays
+     hidden for the whole sequence, but the copy must be released to GSAP
+     immediately or the greeting could never play. */
+  .hero-unpainted .hero-hello-layer,
+  .hero-unpainted [data-hero-line] > * {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* ── Skills solar system ───────────────────────────────────────────────
+   Multi-ring orbit layout. One shared stage is scaled by SkillOrbits so
+   every ring stays concentric; the rings themselves sit at their natural
+   design size inside it.
+─────────────────────────────────────────────────────────────────────── */
+@layer components {
+  .skill-orbits {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  /* The vendored stylesheet sets will-change unconditionally. Release the
+     layers whenever the system is idle (off-screen or reduced motion). */
+  .skill-orbits[data-animating="false"] .orbit-item {
+    will-change: auto;
+  }
+
+  .skill-orbits-stage {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    margin-left: -700px;
+    transform-origin: top center;
+  }
+
+  .skill-orbit-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    pointer-events: none;
+  }
+
+  /* Only the glyphs themselves should take the pointer, not the ring boxes. */
+  .skill-orbit-glyph {
+    position: relative;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(12, 12, 16, 0.86);
+    pointer-events: auto;
+    transition: border-color 0.25s ease, transform 0.25s ease;
+  }
+
+  .skill-orbit-glyph > svg,
+  .skill-orbit-glyph > img {
+    width: 52%;
+    height: 52%;
+    object-fit: contain;
+    font-size: 0;
+  }
+
+  .skill-orbit-glyph:hover,
+  .skill-orbit-glyph:focus-visible {
+    border-color: rgba(255, 255, 255, 0.55);
+    transform: scale(1.14);
+  }
+
+  .skill-orbit-tip {
+    position: absolute;
+    top: calc(100% + 0.4rem);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.15rem 0.45rem;
+    border-radius: 0.25rem;
+    background: #101014;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    color: #fff;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .skill-orbit-glyph:hover .skill-orbit-tip,
+  .skill-orbit-glyph:focus-visible .skill-orbit-tip {
+    opacity: 1;
+  }
+
+  /* Central star */
+  .skill-orbits-core {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: grid;
+    place-items: center;
+    width: 160px;
+    height: 160px;
+    margin: -80px 0 0 -80px;
+    border-radius: 999px;
+    text-align: center;
+  }
+
+  .skill-orbits-core-glow {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    background: radial-gradient(
+      circle at 50% 50%,
+      rgba(255, 106, 43, 0.5) 0%,
+      rgba(255, 80, 5, 0.16) 45%,
+      transparent 72%
+    );
+  }
+
+  .skill-orbits-core-label {
+    position: relative;
+    font-family: var(--font-clash-grotesk), ui-sans-serif, system-ui, sans-serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    color: #fff;
+  }
+
+  @media (hover: none) {
+    .skill-orbit-tip {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .skill-orbit-glyph,
+    .skill-orbit-tip {
+      transition: none;
+    }
+  }
 }

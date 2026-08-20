@@ -11,6 +11,18 @@ import { achievements, certifications } from "@/data/siteContent";
 
 const EASE = [0.22, 1, 0.36, 1];
 
+/**
+ * Rounds computed geometry to a fixed precision.
+ *
+ * Raw doubles out of Math.sin/cos can serialise to slightly different strings
+ * in Node and in the browser (e.g. -105.65509926170148 vs -105.6550992617015).
+ * Rendered straight into SVG attributes that difference is a genuine React
+ * hydration mismatch, which is what produces the large diff in the terminal.
+ * Snapping to 3dp makes both sides emit identical markup.
+ */
+const snap = (value) => Math.round(value * 1000) / 1000;
+
+
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 24 },
   whileInView: { opacity: 1, y: 0 },
@@ -162,10 +174,10 @@ const Achievements = () => {
             return (
               <line
                 key={i}
-                x1={Math.cos(angle) * 122}
-                y1={Math.sin(angle) * 122}
-                x2={Math.cos(angle) * 146}
-                y2={Math.sin(angle) * 146}
+                x1={snap(Math.cos(angle) * 122)}
+                y1={snap(Math.sin(angle) * 122)}
+                x2={snap(Math.cos(angle) * 146)}
+                y2={snap(Math.sin(angle) * 146)}
                 stroke="white"
                 strokeWidth="0.75"
               />
@@ -177,10 +189,10 @@ const Achievements = () => {
             return (
               <line
                 key={i}
-                x1={Math.cos(angle) * -118}
-                y1={Math.sin(angle) * -118}
-                x2={Math.cos(angle) * 118}
-                y2={Math.sin(angle) * 118}
+                x1={snap(Math.cos(angle) * -118)}
+                y1={snap(Math.sin(angle) * -118)}
+                x2={snap(Math.cos(angle) * 118)}
+                y2={snap(Math.sin(angle) * 118)}
                 stroke="white"
                 strokeWidth="0.3"
               />

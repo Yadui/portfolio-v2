@@ -1,58 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { AnimatePresence } from "framer-motion";
-import Preloader from "@/components/Preloader";
+import { useEffect } from "react";
 import { getLenis } from "@/lib/smooth-scroll";
-import { isIntroDone, markIntroDone } from "@/lib/intro-state";
 import { IntroContext } from "@/lib/intro-context";
 
 /**
- * HomeClient — owns the preloader lifecycle only.
+ * HomeClient — keeps the interactive home sections in a client boundary.
  * All SEO-critical content (header, sections, JSON-LD) lives in the Server
  * Component (app/page.jsx) and is delivered in the initial HTML to crawlers.
  *
- * Provides IntroContext so child client components (e.g. Projects) can gate
- * entrance animations on `introComplete` without requiring prop-drilling
- * through the server component tree.
+ * The former full-screen greeting preloader intentionally no longer blocks the
+ * first view. The hero is the loading state: it is rendered immediately and
+ * the context stays complete so downstream sections do not park underneath a
+ * curtain.
  */
 export default function HomeClient({ children }) {
-  const [isIntroActive, setIsIntroActive] = useState(() => !isIntroDone());
-  const [introComplete, setIntroComplete] = useState(() => isIntroDone());
-
-  // Lock scroll until the preloader's slide-up finishes.
   useEffect(() => {
-    if (introComplete) return undefined;
-
-    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-    getLenis()?.stop();
-    const html = document.documentElement;
-    const body = document.body;
-    const prevHtmlOverflow = html.style.overflow;
-    const prevBodyOverflow = body.style.overflow;
-    html.style.overflow = "hidden";
-    body.style.overflow = "hidden";
-
-    return () => {
-      html.style.overflow = prevHtmlOverflow;
-      body.style.overflow = prevBodyOverflow;
-      getLenis()?.start();
-    };
-  }, [introComplete]);
+    getLenis()?.start();
+    document.documentElement.style.overflow = "";
+    document.body.style.overflow = "";
+  }, []);
 
   return (
-    <IntroContext.Provider value={introComplete}>
-      <AnimatePresence
-        mode="wait"
-        onExitComplete={() => {
-          setIntroComplete(true);
-          markIntroDone();
-        }}
-      >
-        {isIntroActive && (
-          <Preloader onComplete={() => setIsIntroActive(false)} />
-        )}
-      </AnimatePresence>
+    <IntroContext.Provider value={true}>
       {children}
     </IntroContext.Provider>
   );

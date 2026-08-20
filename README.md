@@ -37,6 +37,8 @@ npm run lint
 ## Documentation Index
 
 - [Design System](docs/DESIGN_SYSTEM.md)
+- [Always-on Portfolio Taste Standard](docs/PORTFOLIO_TASTE_STANDARD.md)
+- [Taste Skill integration](docs/TASTE_SKILL_INTEGRATION.md)
 - [Design Roadmap](docs/DESIGN_ROADMAP.md)
 - [Content Strategy](docs/CONTENT_STRATEGY.md)
 - [Technical Architecture](docs/TECH_ARCHITECTURE.md)

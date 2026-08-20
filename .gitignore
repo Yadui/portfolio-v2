@@ -38,3 +38,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Local pre-change backups (animation rework)
+.backup-animations/
+
+# Browser-automation artifacts (screenshots, traces, console logs)
+.playwright-mcp/
+
+# Generated response cache (hash-named blobs)
+cache/

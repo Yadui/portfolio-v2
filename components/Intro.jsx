@@ -1,352 +1,431 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import {
-  SiOpenai, SiHuggingface, SiGithubcopilot, SiTensorflow,
-  SiMicrosoftazure, SiAzuredevops, SiKubernetes, SiTerraform,
-} from "react-icons/si";
-import { FaAws, FaDocker } from "react-icons/fa";
-import { FaPython } from "react-icons/fa";
-import MediaBetweenText from "@/components/fancy/MediaBetweenText";
-import Image from "next/image";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
 
-/* ─── Claude SVG ─────────────────────────────────────────────────────────── */
-const ClaudeIcon = () => (
-  <svg height="1em" width="1em" viewBox="0 0 24 24" aria-label="Claude" style={{ display: "inline-block", flexShrink: 0 }}>
-    <path clipRule="evenodd" d="M20.998 10.949H24v3.102h-3v3.028h-1.487V20H18v-2.921h-1.487V20H15v-2.921H9V20H7.488v-2.921H6V20H4.487v-2.921H3V14.05H0V10.95h3V5h17.998v5.949zM6 10.949h1.488V8.102H6v2.847zm10.51 0H18V8.102h-1.49v2.847z" fill="#D97757" fillRule="evenodd" />
-  </svg>
-);
+import HeroGradient from "./hero/HeroGradient";
 
-/* ─── Icon lists (from the skills section, correct groups) ─────────────────
-   AI  → Claude, OpenAI, HuggingFace, GitHub Copilot, Python, TensorFlow
-   Cloud → Azure, Docker, K8s, Terraform, AWS, Azure DevOps
-───────────────────────────────────────────────────────────────────────────── */
-const AI_ICONS = [
-  { el: <ClaudeIcon />,                            label: "Claude"         },
-  { el: <SiOpenai       color="#10A37F" />,        label: "OpenAI"         },
-  { el: <SiHuggingface  color="#FFCC00" />,        label: "HuggingFace"    },
-  { el: <SiGithubcopilot color="#8957e5" />,       label: "GitHub Copilot" },
-  { el: <FaPython        color="#3776AB" />,       label: "Python"         },
-  { el: <SiTensorflow    color="#FF6F00" />,       label: "TensorFlow"     },
-];
+gsap.registerPlugin(ScrollTrigger, useGSAP);
 
-const CLOUD_ICONS = [
-  { el: <SiMicrosoftazure color="#0078D4" />,      label: "Azure"          },
-  { el: <FaDocker         color="#2496ED" />,      label: "Docker"         },
-  { el: <SiKubernetes     color="#326CE5" />,      label: "Kubernetes"     },
-  { el: <SiTerraform      color="#7B42BC" />,      label: "Terraform"      },
-  { el: <FaAws            color="#FF9900" />,      label: "AWS"            },
-  { el: <SiAzuredevops    color="#0072C6" />,      label: "Azure DevOps"   },
-];
+/** Half-width of the resting rule, in px. The rule is RULE_W * 2 wide. */
+const RULE_W = 6;
 
-const AI_ROTATE    = 1400; // AI icons cycle faster
-const CLOUD_ROTATE = 2200; // cloud icons cycle slower → the two desync
-
-/* ─── RotatingIcon ───────────────────────────────────────────────────────── */
-const RotatingIcon = ({ icons, fontSize, interval = 1800, startDelay = 0 }) => {
-  const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    let id;
-    const startTimer = setTimeout(() => {
-      id = setInterval(() => setIndex(i => (i + 1) % icons.length), interval);
-    }, startDelay);
-    return () => {
-      clearTimeout(startTimer);
-      if (id) clearInterval(id);
-    };
-  }, [icons.length, interval, startDelay]);
-
-  const { el, label } = icons[index];
-
-  return (
-    <AnimatePresence mode="wait">
-      <motion.span
-        key={index}
-        initial={{ opacity: 0, scale: 0.55, y: 5 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.55, y: -5 }}
-        transition={{ duration: 0.22, ease: "easeOut" }}
-        aria-label={label}
-        title={label}
-        className="inline-flex items-center justify-center"
-        style={{ fontSize }}
-      >
-        {el}
-      </motion.span>
-    </AnimatePresence>
-  );
+/** Maps 0..1 across a sub-range of the scroll, clamped and eased. */
+const phase = (p, start, end, ease) => {
+  const t = gsap.utils.clamp(0, 1, (p - start) / (end - start));
+  return ease ? ease(t) : t;
 };
 
-/* ─── Constants ──────────────────────────────────────────────────────────── */
-const headingSize = "clamp(2.2rem,7.5vw,5.5rem)";
-const iconSize    = "clamp(1.8rem,5.6vw,4.4rem)";
-const iconSlotH   = "clamp(2.2rem,6.8vw,5rem)";
+const easeInOut = gsap.parseEase("power2.inOut");
+const easeOut = gsap.parseEase("power2.out");
+const easeIn = gsap.parseEase("power2.in");
 
-// No bg — bare icon, centered in its slot
-const slotCls = "overflow-hidden mx-[0.06em] flex items-center justify-center self-center";
+/**
+ * Intro — the hero choreography.
+ *
+ * Load sequence:
+ *   1. The shader field holds full-bleed for 1s while it settles.
+ *   2. "Hello" wipes in from the right, centred in the viewport.
+ *   3. The field slices down to a slim vertical rule under the cursor
+ *      (viewport centre if the pointer has not moved). At the end of the
+ *      slice the live shader hands off to a DOM rule carrying the same
+ *      gradient, so the resting rule can be moved with pure transforms.
+ *   4. The name and role lines reveal, and the header pill is released.
+ *
+ * At rest the rule trails the cursor, stretching while it has ground to
+ * cover and settling back to its base width once it arrives.
+ *
+ * Scroll sequence: the rule recolours to the work orange and scales out from
+ * wherever it was last sitting until it fills the viewport. The same geometry
+ * is published as `--band-x` / `--band-h` on the document element, which the
+ * work section uses to clip itself, so the section is only ever visible
+ * inside the orange band.
+ */
+export default function Intro() {
+  const rootRef = useRef(null);
+  const fieldRef = useRef(null);
+  const ruleRef = useRef(null);
+  const fillRef = useRef(null);
+  const helloRef = useRef(null);
+  const copyRef = useRef(null);
 
-// Spread open on reveal; starts collapsed (width:0)
-const spreadVariant = (delay = 0) => ({
-  initial: { width: 0, opacity: 0 },
-  animate: {
-    width: iconSlotH,
-    opacity: 1,
-    transition: { duration: 0.55, type: "spring", bounce: 0.25, delay },
-  },
-});
-
-// Connecting words ("I build", "and", "the things in between") — reduced
-// to 0.78em so they sit at the same optical size as the highlight fonts,
-// which keeps the whole line visually level.
-const segCls       = "font-heading font-light tracking-tight text-white leading-none text-[0.78em]";
-const lettersCls   = "font-letters leading-none";
-const lettersIICls = "font-letters-ii leading-none";
-
-/* ─── Spread-controlled MediaBetweenText wrapper ────────────────────────────
-   Uses triggerType="ref" so the spread fires exactly when `open` flips true
-   (i.e. when the section reveals), giving the "text spreads apart" effect.
-───────────────────────────────────────────────────────────────────────────── */
-const SpreadSlot = ({ icons, open, delay, reduceMotion, rotateInterval, rotateStartDelay = 0 }) => {
-  const ref = useRef(null);
-
-  useEffect(() => {
-    if (open) ref.current?.animate();
-    else ref.current?.reset();
-  }, [open]);
-
-  return (
-    <MediaBetweenText
-      ref={ref}
-      firstText="" secondText="" mediaUrl="" mediaType="image"
-      triggerType="ref"
-      className="inline-flex items-center"
-      mediaContainerClassName={slotCls}
-      animationVariants={
-        reduceMotion
-          ? { initial: { width: 0, opacity: 0 }, animate: { width: iconSlotH, opacity: 1, transition: { duration: 0 } } }
-          : spreadVariant(delay)
-      }
-    >
-      <span className="flex h-full w-full items-center justify-center" style={{ height: iconSlotH }}>
-        <RotatingIcon
-          icons={icons}
-          fontSize={iconSize}
-          interval={rotateInterval}
-          startDelay={rotateStartDelay}
-        />
-      </span>
-    </MediaBetweenText>
-  );
-};
-
-/* ─── Section ────────────────────────────────────────────────────────────── */
-const Intro = () => {
-  const sectionRef = useRef(null);
-  const [revealed, setRevealed] = useState(false);
+  // Live pointer X. Ref-only: never sets state, so pointer movement cannot
+  // trigger a React render.
+  const pointerXRef = useRef(null);
   const [reduce, setReduce] = useState(false);
+  const [shaderActive, setShaderActive] = useState(true);
 
   useEffect(() => {
-    setReduce(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReduce(mq.matches);
+    update();
+    mq.addEventListener?.("change", update);
+    return () => mq.removeEventListener?.("change", update);
   }, []);
 
   useEffect(() => {
-    const node = sectionRef.current;
-    if (!node) return undefined;
-    const io = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setRevealed(true); io.disconnect(); } },
-      { threshold: 0.25 }
-    );
-    io.observe(node);
-    return () => io.disconnect();
+    const onMove = (event) => {
+      pointerXRef.current = event.clientX;
+    };
+    window.addEventListener("pointermove", onMove, { passive: true });
+    return () => window.removeEventListener("pointermove", onMove);
   }, []);
 
-  const show = reduce || revealed;
+  const handleContactClick = useCallback(
+    (event) => {
+      event.preventDefault();
+      const contact = document.getElementById("contact");
+      if (!contact) return;
+      contact.scrollIntoView({
+        behavior: reduce ? "auto" : "smooth",
+        block: "start",
+      });
+    },
+    [reduce]
+  );
 
-  const handleContactClick = useCallback((e) => {
-    e.preventDefault();
-    const el = document.getElementById("contact");
-    if (!el) return;
-    if (reduce) { el.scrollIntoView({ behavior: "auto", block: "start" }); return; }
-    el.style.transition = "none";
-    el.style.opacity = "0";
-    el.scrollIntoView({ behavior: "auto", block: "start" });
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      el.style.transition = "opacity 0.65s ease";
-      el.style.opacity = "1";
-      el.addEventListener("transitionend", () => { el.style.transition = ""; el.style.opacity = ""; }, { once: true });
-    }));
-  }, [reduce]);
+  useGSAP(
+    () => {
+      const field = fieldRef.current;
+      const rule = ruleRef.current;
+      const fill = fillRef.current;
+      const hello = helloRef.current;
+      const copy = copyRef.current;
+      if (!field || !rule || !fill || !hello || !copy) return;
+
+      const doc = document.documentElement;
+      const copyLines = copy.querySelectorAll("[data-hero-line] > *");
+      const reduceMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches;
+
+      const releaseHeader = () => doc.classList.remove("intro-running");
+      // Hand the hero copy over to GSAP. Must run immediately after the
+      // initial states are set, otherwise the first-paint guard would also
+      // suppress the greeting it is meant to sequence.
+      const releasePaint = () => doc.classList.remove("hero-unpainted");
+
+      /** Publishes the band geometry the work section clips itself against. */
+      const publishBand = (centerX, halfWidth) => {
+        const vw = window.innerWidth || 1;
+        doc.style.setProperty("--band-x", `${(centerX / vw) * 100}%`);
+        doc.style.setProperty("--band-h", `${(halfWidth / vw) * 100}%`);
+      };
+
+      /* ---------------------------------------------------------------
+       * Reduced motion: no performance, no shader, no wipe. Show the
+       * resting state and leave the work section fully revealed.
+       * ------------------------------------------------------------- */
+      if (reduceMotion) {
+        const x = window.innerWidth / 2;
+        gsap.set(field, { autoAlpha: 0 });
+        gsap.set(rule, { autoAlpha: 1, x, scaleX: 1 });
+        gsap.set(hello, { autoAlpha: 0 });
+        gsap.set(copyLines, { yPercent: 0, autoAlpha: 1 });
+        doc.style.setProperty("--band-h", "100%");
+        releasePaint();
+        releaseHeader();
+        return;
+      }
+
+      /* ---------------------------------------------------------------
+       * Load choreography
+       * ------------------------------------------------------------- */
+      const startX = () => {
+        const x = pointerXRef.current;
+        const vw = window.innerWidth;
+        if (x == null || Number.isNaN(x)) return vw / 2;
+        return gsap.utils.clamp(RULE_W, vw - RULE_W, x);
+      };
+
+      gsap.set(field, { clipPath: "inset(0px 0px 0px 0px)", autoAlpha: 1 });
+      gsap.set(rule, { autoAlpha: 0, x: window.innerWidth / 2, scaleX: 1 });
+      gsap.set(fill, { autoAlpha: 0 });
+      gsap.set(hello, { autoAlpha: 0, xPercent: 12, clipPath: "inset(0 0 0 100%)" });
+      gsap.set(copyLines, { yPercent: 115, autoAlpha: 0 });
+      doc.style.setProperty("--band-h", "0%");
+      releasePaint();
+
+      let restedX = window.innerWidth / 2;
+
+      const intro = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+      intro
+        .to(
+          hello,
+          {
+            autoAlpha: 1,
+            xPercent: 0,
+            clipPath: "inset(0 0 0 0%)",
+            duration: 0.9,
+            ease: "power4.out",
+          },
+          1
+        )
+        .to(
+          hello,
+          { autoAlpha: 0, xPercent: -6, duration: 0.5, ease: "power2.in" },
+          "+=0.55"
+        )
+        .to(
+          field,
+          {
+            duration: 1.15,
+            ease: "power3.inOut",
+            clipPath: () => {
+              restedX = startX();
+              const right = Math.max(0, window.innerWidth - restedX - RULE_W);
+              const left = Math.max(0, restedX - RULE_W);
+              return `inset(0px ${right}px 0px ${left}px)`;
+            },
+            onComplete: () => {
+              // Hand the live shader off to the DOM rule. The rule carries
+              // the same gradient, so the swap is invisible, and from here
+              // the rule can be moved with transforms alone.
+              gsap.set(rule, { x: restedX, scaleX: 1, autoAlpha: 1 });
+              gsap.set(field, { autoAlpha: 0 });
+              setShaderActive(false);
+              publishBand(restedX, RULE_W);
+              startRender(restedX);
+            },
+          },
+          "<0.15"
+        )
+        .to(
+          copyLines,
+          {
+            yPercent: 0,
+            autoAlpha: 1,
+            duration: 0.85,
+            stagger: 0.12,
+            ease: "power3.out",
+            onStart: releaseHeader,
+          },
+          "-=0.5"
+        );
+
+      /* ---------------------------------------------------------------
+       * Rule renderer.
+       *
+       * One always-on ticker owns both `x` and `scaleX`. An earlier version
+       * used a quickTo for `x` while the scroll handler wrote `x` directly
+       * with gsap.set; the surviving tween and the scroll writes then fought
+       * each other every frame, which is what made the rule jitter on the way
+       * into the work section. With a single writer and manual smoothing the
+       * hand-over between cursor-follow and scroll-fill is continuous, so no
+       * mode change can produce a snap.
+       * ------------------------------------------------------------- */
+      // Assigned further down. Declared here so `render` can read it without
+      // depending on declaration order — the ticker only ever starts after
+      // the trigger exists, but a `const` in the temporal dead zone would
+      // throw rather than fall back if that ever stopped being true.
+      let scrollTrigger = null;
+      let curX = window.innerWidth / 2;
+      let curScale = 1;
+      let anchorX = null;
+      // After the scroll returns to the top the rule glides back to the
+      // pointer at its base width before the stretch response is re-armed,
+      // so it does not lunge across the screen the moment the hero lands.
+      let settling = false;
+      let rendering = false;
+
+      const render = () => {
+        // Progress is read from the trigger rather than pushed in from
+        // onUpdate. onUpdate only fires for scrolls ScrollTrigger hears
+        // about, so a programmatic jump that bypasses Lenis would leave a
+        // pushed value stale and strand the rule mid-fill.
+        const p = scrollTrigger ? scrollTrigger.progress : 0;
+
+        if (p > 0.0005) {
+          // Freeze the launch point at wherever the rule was last sitting.
+          if (anchorX == null) anchorX = curX;
+        } else if (anchorX != null) {
+          // Back at the top with the hero fully in view: hand control back
+          // to the pointer, but settle first.
+          anchorX = null;
+          settling = true;
+        }
+
+        gsap.set(fill, { autoAlpha: phase(p, 0, 0.18, easeOut) });
+
+        // `hello` is deliberately excluded: it has already been retired by
+        // the intro timeline, and writing autoAlpha here at progress 0
+        // would bring it back.
+        const out = phase(p, 0.06, 0.36, easeIn);
+        gsap.set(copy, { autoAlpha: 1 - out, y: -40 * out });
+
+        const vw = window.innerWidth;
+        let targetX;
+        let targetScale;
+        let kx;
+        let kUp;
+        let kDown;
+
+        if (p <= 0.0005) {
+          targetX = startX();
+          const distance = Math.abs(targetX - curX);
+          if (settling) {
+            targetScale = 1;
+            if (distance < 2) settling = false;
+          } else {
+            targetScale = gsap.utils.clamp(1, 9, 1 + distance / 26);
+          }
+          kx = 0.12;
+          // Fast attack, slow release: the rule snaps open when it has
+          // ground to cover and eases back as it arrives.
+          kUp = 0.34;
+          kDown = 0.07;
+        } else {
+          targetX = anchorX;
+          // Distance from the launch point to the furthest viewport edge.
+          // A 2px epsilon avoids a sub-pixel seam without an overshoot
+          // factor, which would reach full coverage before the end of the
+          // scroll and make the fill look like it finished early.
+          const reach = Math.max(targetX, vw - targetX) + 2;
+          const half =
+            RULE_W + (reach - RULE_W) * phase(p, 0.05, 1, easeInOut);
+          targetScale = half / RULE_W;
+          kx = 0.3;
+          kUp = 0.24;
+          kDown = 0.24;
+        }
+
+        curX += (targetX - curX) * kx;
+        curScale +=
+          (targetScale - curScale) * (targetScale > curScale ? kUp : kDown);
+
+        gsap.set(rule, { x: curX, scaleX: curScale });
+        restedX = curX;
+        publishBand(curX, RULE_W * curScale);
+      };
+
+      function startRender(x) {
+        if (typeof x === "number") {
+          curX = x;
+          curScale = 1;
+        }
+        if (rendering) return;
+        rendering = true;
+        gsap.ticker.add(render);
+      }
+
+      function stopRender() {
+        if (!rendering) return;
+        rendering = false;
+        gsap.ticker.remove(render);
+      }
+
+      /* ---------------------------------------------------------------
+       * Scroll sequence. Driven from onUpdate rather than a scrubbed
+       * tween so the rule and the work-section band are derived from one
+       * progress value and can never drift apart. Lenis already smooths
+       * the scroll, so no additional scrub is needed.
+       * ------------------------------------------------------------- */
+      scrollTrigger = ScrollTrigger.create({
+        trigger: rootRef.current,
+        start: "top top",
+        end: "bottom top",
+        invalidateOnRefresh: true,
+        onLeave: () => {
+          // Fully filled: the work section covers the viewport, so release
+          // the rule and let the section own the surface.
+          gsap.set(rule, { autoAlpha: 0 });
+          doc.style.setProperty("--band-h", "100%");
+        },
+        onEnterBack: () => {
+          gsap.set(rule, { autoAlpha: 1 });
+        },
+      });
+
+      const onResize = () => {
+        if (intro.progress() < 1) return;
+        ScrollTrigger.refresh();
+      };
+      window.addEventListener("resize", onResize);
+
+      return () => {
+        window.removeEventListener("resize", onResize);
+        stopRender();
+        intro.kill();
+        scrollTrigger?.kill();
+        releaseHeader();
+      };
+    },
+    { scope: rootRef }
+  );
 
   return (
     <section
       id="intro"
-      ref={sectionRef}
-      className="relative flex flex-col items-center justify-center overflow-hidden bg-black px-6 py-[clamp(3.5rem,10vh,8rem)] sm:min-h-below-nav"
+      ref={rootRef}
+      className="hero-stage relative isolate z-0 min-h-[100dvh] overflow-hidden"
     >
-      {/* Radial glow */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 70% 55% at 50% 54%, rgba(0,255,153,0.07) 0%, transparent 70%)" }} />
-
-      {/* ── Map left-half — desktop only, hidden on mobile to protect LCP ── */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-y-0 left-0 hidden sm:block"
-        style={{
-          width: "clamp(260px, 38vw, 580px)",
-          WebkitMaskImage:
-            "linear-gradient(to right, black 0%, black 25%, rgba(0,0,0,0.5) 60%, transparent 100%), linear-gradient(to bottom, black 0%, black 65%, transparent 100%)",
-          maskImage:
-            "linear-gradient(to right, black 0%, black 25%, rgba(0,0,0,0.5) 60%, transparent 100%), linear-gradient(to bottom, black 0%, black 65%, transparent 100%)",
-          WebkitMaskComposite: "intersect",
-          maskComposite: "intersect",
-          mixBlendMode: "screen",
-          opacity: 0.85,
-        }}
-      >
-        <Image
-          src="/delhi-map-left.webp"
-          alt=""
-          fill
-          style={{ objectFit: "cover", objectPosition: "center left", transform: "scale(0.72)", transformOrigin: "top left" }}
-          priority={false}
-          sizes="38vw"
-        />
+      {/* Live shader field — full bleed, then sliced down to the rule */}
+      <div ref={fieldRef} className="absolute inset-0 z-0" aria-hidden="true">
+        <HeroGradient active={shaderActive} />
       </div>
 
-      {/* ── Map right-half — desktop only, hidden on mobile to protect LCP ── */}
+      {/* The rule. Carries the shader's gradient at rest and the work orange
+          once the scroll wipe takes over. Fixed so it stays in the viewport
+          while it fills. */}
       <div
+        ref={ruleRef}
         aria-hidden="true"
-        className="pointer-events-none absolute inset-y-0 right-0 hidden sm:block"
+        className="hero-rule pointer-events-none fixed inset-y-0 left-0 z-[1]"
         style={{
-          width: "clamp(260px, 38vw, 580px)",
-          WebkitMaskImage:
-            "linear-gradient(to left, black 0%, black 25%, rgba(0,0,0,0.5) 60%, transparent 100%), linear-gradient(to bottom, black 0%, black 65%, transparent 100%)",
-          maskImage:
-            "linear-gradient(to left, black 0%, black 25%, rgba(0,0,0,0.5) 60%, transparent 100%), linear-gradient(to bottom, black 0%, black 65%, transparent 100%)",
-          WebkitMaskComposite: "intersect",
-          maskComposite: "intersect",
-          mixBlendMode: "screen",
-          opacity: 0.85,
+          width: RULE_W * 2,
+          marginLeft: -RULE_W,
+          transformOrigin: "50% 50%",
+          willChange: "transform",
         }}
       >
-        <Image
-          src="/delhi-map-right.webp"
-          alt=""
-          fill
-          style={{ objectFit: "cover", objectPosition: "center right", transform: "scale(0.72)", transformOrigin: "top right" }}
-          priority={false}
-          sizes="38vw"
-        />
+        <div ref={fillRef} className="hero-rule-fill" />
       </div>
 
+      {/* Centred greeting */}
       <div
-        className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center text-center"
-        style={{
-          opacity: show ? 1 : 0,
-          transform: show ? "translateY(0)" : "translateY(32px)",
-          transition: reduce ? "none" : "opacity 0.85s ease, transform 0.85s cubic-bezier(0.22,1,0.36,1)",
-        }}
+        ref={helloRef}
+        aria-hidden="true"
+        className="hero-hello-layer pointer-events-none absolute inset-0 z-[2] flex items-center justify-center"
       >
-        {/* Kicker */}
-        <p className="font-body text-[0.7rem] font-semibold uppercase tracking-[0.32em] text-white/40">
-          Abhinav Yadav — Cloud &amp; AI Engineer
+        <span className="hero-hello font-heading">Hello</span>
+      </div>
+
+      {/* Left column: name, role, action */}
+      <div
+        ref={copyRef}
+        className="relative z-[3] flex min-h-[100dvh] flex-col justify-center px-[clamp(1.25rem,4vw,4rem)]"
+      >
+        <h2
+          className="hero-name font-heading text-white"
+          aria-label="I'm Abhinav, an Azure and AI engineer based in Gurugram, India"
+        >
+          <span data-hero-line className="block overflow-hidden pb-[0.08em]">
+            <span className="block">I&apos;m Abhinav</span>
+          </span>
+        </h2>
+
+        <p className="hero-role mt-[clamp(0.75rem,2vh,1.5rem)] max-w-[34ch] text-white/70">
+          <span data-hero-line className="block overflow-hidden pb-[0.12em]">
+            <span className="block">
+              Azure and AI engineer, based in Gurugram, India.
+            </span>
+          </span>
         </p>
 
-        {/* ── Mobile headline: clean, no special fonts, no animations ──────── */}
-        <h2
-          className="mt-5 w-full sm:hidden"
-          style={{ fontSize: "clamp(2.4rem, 11vw, 3.4rem)", lineHeight: 1.1 }}
-          aria-label="I build AI systems, cloud infrastructure, and the things in between"
-        >
-          <span className="block font-heading font-light tracking-tight text-white">
-            I build{" "}
-            <span style={{ color: "#00ff99" }}>AI</span>
-            {" "}systems,
-          </span>
-          <span className="mt-1 block font-heading font-light tracking-tight text-white">
-            cloud
-          </span>
-          <span className="block font-heading font-light tracking-tight text-white">
-            infrastructure
-          </span>
-          <span className="mt-1 block font-heading font-light tracking-tight text-white/50" style={{ fontSize: "0.72em" }}>
-            and the things in between
-          </span>
-        </h2>
-
-        {/* ── Desktop headline: full animated version (sm and up) ───────────── */}
-        <h2
-          className="mt-6 hidden w-full sm:block"
-          style={{ fontSize: headingSize }}
-          aria-label="I build AI systems, cloud infrastructure, and the things in between"
-        >
-          {/* Line 1 · I build AI [icon] systems */}
-          <span className="flex flex-wrap items-center justify-center gap-x-[0.18em] leading-[1]">
-            <span className={`${segCls} inline-flex items-center`}>I build</span>
-
-            <span className={`${lettersCls} ay-shimmer inline-flex items-center${show && !reduce ? " ay-shimmer-go" : ""}`} style={{ color: "#00ff99" }}>
-              AI
-            </span>
-
-            {/* Icon slot opens between "AI" and "systems" */}
-            <SpreadSlot icons={AI_ICONS} open={show} delay={0.05} reduceMotion={reduce} rotateInterval={AI_ROTATE} />
-
-            <span className={`${lettersCls} ay-shimmer inline-flex items-center${show && !reduce ? " ay-shimmer-go" : ""}`} style={{ color: "#00ff99" }}>
-              systems
-            </span>
-          </span>
-
-          {/* Line 2 · cloud [icon] infrastructure */}
-          <span className="mt-[0.15em] flex flex-wrap items-center justify-center gap-x-[0.18em] leading-[1]">
-            <span className={`${lettersIICls} inline-flex items-center`} style={{ WebkitTextStroke: "1.5px rgba(255,255,255,0.9)", WebkitTextFillColor: "transparent", color: "transparent" }}>
-              cloud
-            </span>
-
-            {/* Icon slot opens between "cloud" and "infrastructure" */}
-            <SpreadSlot icons={CLOUD_ICONS} open={show} delay={0.2} reduceMotion={reduce} rotateInterval={CLOUD_ROTATE} rotateStartDelay={700} />
-
-            <span className={`${lettersIICls} inline-flex items-center`} style={{ WebkitTextStroke: "1.5px rgba(255,255,255,0.9)", WebkitTextFillColor: "transparent", color: "transparent" }}>
-              infrastructure
-            </span>
-          </span>
-
-          {/* Line 3 · and the things in between */}
-          <span className="mt-[0.15em] flex flex-wrap items-center justify-center gap-x-[0.18em] leading-[1]">
-            <span className={`${segCls} inline-flex items-center`}>and</span>
-            <span className={`${segCls} inline-flex items-center`}>
-              the things in between
-            </span>
-          </span>
-        </h2>
-
-        {/* Sub-line + CTA */}
-        <div
-          className="mt-7 flex flex-col items-center gap-5"
-          style={{ opacity: show ? 1 : 0, transition: reduce ? "none" : "opacity 0.7s ease 0.5s" }}
-        >
-          <p className="max-w-sm px-2 font-body text-[clamp(0.85rem,1.5vw,1.05rem)] leading-relaxed text-white/50 sm:max-w-xl sm:px-0">
-            Currently at{" "}
-            <a href="https://foetron.vercel.app" target="_blank" rel="noopener noreferrer" className="text-white/80 underline underline-offset-4 transition-colors hover:text-[#00ff99]">
-              Foetron
-            </a>
-            , building on Azure — shipping cloud + AI in production.
-          </p>
-
+        <div data-hero-line className="mt-[clamp(1.25rem,3vh,2rem)] overflow-hidden">
           <a
             href="#contact"
             onClick={handleContactClick}
-            className="group mt-1 flex items-center gap-3 font-heading text-lg font-light tracking-tight text-white transition-all duration-300 hover:text-[#00ff99] md:text-xl"
+            className="hero-action inline-flex items-center gap-2 text-white/80 transition-colors hover:text-white focus-visible:text-white"
           >
-            <span className="relative flex h-8 w-8 items-center justify-center rounded-full border border-white/20 transition-all duration-300 group-hover:border-[#00ff99] group-hover:bg-[#00ff99]/10">
-              <span className="text-sm transition-transform duration-300 ease-out group-hover:rotate-45">↗</span>
-            </span>
+            <span aria-hidden="true">↗</span>
             Let&apos;s work together
           </a>
         </div>
       </div>
     </section>
   );
-};
-
-export default Intro;
+}

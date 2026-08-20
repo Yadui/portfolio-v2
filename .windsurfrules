@@ -1,0 +1,3 @@
+# Portfolio rules for Windsurf
+
+Read `AGENTS.md` before working in this repository. For any portfolio website design task, `docs/PORTFOLIO_TASTE_STANDARD.md` is mandatory and the vendored upstream reference is under `vendor/taste-skill/`. Declare the Design Read and three dials before UI code, audit existing surfaces before redesigning them, preserve current functionality, and run the documented pre-flight checks.

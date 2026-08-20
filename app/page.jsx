@@ -1,6 +1,7 @@
 import Link from "next/link";
 import HomeClient from "@/components/HomeClient";
 import Projects from "@/components/Projects";
+import WorkStage from "@/components/work/WorkStage";
 import Intro from "@/components/Intro";
 import Achievements from "@/components/Achievements";
 import Contact from "@/components/Contact";
@@ -25,7 +26,7 @@ const profilePageJsonLd = {
 
 export default function Home() {
   return (
-    <div className="relative isolate bg-black page-top-offset">
+    <div className="relative isolate bg-black">
       {/* ── Crawlable, screen-reader-accessible intro ──────────────────────
           This markup is in the Server Component so it is present in the
           initial HTML response — Googlebot reads it before any JS runs.
@@ -72,8 +73,12 @@ export default function Home() {
       ──────────────────────────────────────────────────────────────────── */}
       <HomeClient>
         <Intro />
-        <Projects />
-        <Achievements />
+        {/* The work section pins on exit: the projects are stripped away
+            one at a time, then Achievements wipes down over the top of it.
+            See components/work/WorkStage.jsx. */}
+        <WorkStage next={<Achievements />}>
+          <Projects />
+        </WorkStage>
         <Timeline />
         <Skills />
         <Contact />

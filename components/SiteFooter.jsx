@@ -2,6 +2,17 @@
 
 import { usePathname } from "next/navigation";
 
+/**
+ * Rounds computed geometry to a fixed precision.
+ *
+ * Raw doubles out of Math.sin/cos can serialise to slightly different strings
+ * in Node and in the browser (e.g. -105.65509926170148 vs -105.6550992617015).
+ * Rendered straight into SVG attributes that difference is a genuine React
+ * hydration mismatch, which is what produces the large diff in the terminal.
+ * Snapping to 3dp makes both sides emit identical markup.
+ */
+const snap = (value) => Math.round(value * 1000) / 1000;
+
 const HIDDEN_PREFIXES = ["/login", "/blog/create", "/blog/edit"];
 
 /* ═══════════════════════════════════════════════════════════════════════════════
@@ -115,7 +126,7 @@ const COMPOS = [
       for (let i = 0; i < 90; i++) {
         const ang = rng() * Math.PI * 2;
         const rad = Math.sqrt(rng()) * r;
-        dots.push(<circle key={i} cx={cx + Math.cos(ang) * rad} cy={cy + Math.sin(ang) * rad} r="0.7" fill="#fff" opacity="0.8" />);
+        dots.push(<circle key={i} cx={snap(cx + Math.cos(ang) * rad)} cy={snap(cy + Math.sin(ang) * rad)} r="0.7" fill="#fff" opacity="0.8" />);
       }
       return <g key={k}><circle cx={cx} cy={cy} r={r} fill="none" stroke="#fff" strokeWidth="1" />{dots}</g>;
     },
@@ -180,7 +191,7 @@ const COMPOS = [
           <circle cx={cx} cy={cy} r={r * 0.5} />
           {Array.from({ length: 12 }).map((_, i) => {
             const a = (i / 12) * Math.PI * 2;
-            return <line key={i} x1={cx + Math.cos(a) * r} y1={cy + Math.sin(a) * r} x2={cx + Math.cos(a) * (r + 3)} y2={cy + Math.sin(a) * (r + 3)} />;
+            return <line key={i} x1={snap(cx + Math.cos(a) * r)} y1={snap(cy + Math.sin(a) * r)} x2={snap(cx + Math.cos(a) * (r + 3))} y2={snap(cy + Math.sin(a) * (r + 3))} />;
           })}
           <line x1={cx} y1={cy - r} x2={cx} y2={cy + r} />
           <line x1={cx - r} y1={cy} x2={cx + r} y2={cy} />
@@ -264,7 +275,7 @@ const COMPOS = [
       const W = 3 * S, H = 2 * S;
       let d = `M2,${H / 2}`;
       for (let x = 2; x <= W - 2; x += 3) {
-        const y = H / 2 + Math.sin((x / W) * Math.PI * 4) * (H * 0.32);
+        const y = snap(H / 2 + Math.sin((x / W) * Math.PI * 4) * (H * 0.32));
         d += ` L${x},${y}`;
       }
       return (
@@ -386,7 +397,7 @@ const COMPOS = [
           <ellipse cx={cx} cy={cy} rx={rx * 0.55} ry={ry * 0.55} />
           {Array.from({ length: 10 }).map((_, i) => {
             const a = (i / 10) * Math.PI * 2;
-            return <line key={i} x1={cx + Math.cos(a) * rx * 0.55} y1={cy + Math.sin(a) * ry * 0.55} x2={cx + Math.cos(a) * rx} y2={cy + Math.sin(a) * ry} />;
+            return <line key={i} x1={snap(cx + Math.cos(a) * rx * 0.55)} y1={snap(cy + Math.sin(a) * ry * 0.55)} x2={snap(cx + Math.cos(a) * rx)} y2={snap(cy + Math.sin(a) * ry)} />;
           })}
         </g>
       );
@@ -492,14 +503,14 @@ const COMPOS = [
         <g key={k} stroke="#fff" strokeWidth="1" fill="none">
           {Array.from({ length: 6 }).map((_, i) => {
             const a = (i / 6) * Math.PI * 2;
-            const ex = cx + Math.cos(a) * r, ey = cy + Math.sin(a) * r;
-            const bx = cx + Math.cos(a) * r * 0.55, by = cy + Math.sin(a) * r * 0.55;
+            const ex = snap(cx + Math.cos(a) * r), ey = snap(cy + Math.sin(a) * r);
+            const bx = snap(cx + Math.cos(a) * r * 0.55), by = snap(cy + Math.sin(a) * r * 0.55);
             const pa = a + 0.5, pb = a - 0.5;
             return (
               <g key={i}>
                 <line x1={cx} y1={cy} x2={ex} y2={ey} />
-                <line x1={bx} y1={by} x2={bx + Math.cos(pa) * r * 0.3} y2={by + Math.sin(pa) * r * 0.3} />
-                <line x1={bx} y1={by} x2={bx + Math.cos(pb) * r * 0.3} y2={by + Math.sin(pb) * r * 0.3} />
+                <line x1={bx} y1={by} x2={snap(bx + Math.cos(pa) * r * 0.3)} y2={snap(by + Math.sin(pa) * r * 0.3)} />
+                <line x1={bx} y1={by} x2={snap(bx + Math.cos(pb) * r * 0.3)} y2={snap(by + Math.sin(pb) * r * 0.3)} />
               </g>
             );
           })}
@@ -518,8 +529,8 @@ const COMPOS = [
       for (let i = 0; i <= n; i++) {
         const y = (i / n) * (H - 4) + 2;
         const ph = (i / n) * Math.PI * 3;
-        const lx = W / 2 + Math.sin(ph) * W * 0.32;
-        const rx = W / 2 - Math.sin(ph) * W * 0.32;
+        const lx = snap(W / 2 + Math.sin(ph) * W * 0.32);
+        const rx = snap(W / 2 - Math.sin(ph) * W * 0.32);
         left.push(`${lx},${y}`);
         right.push(`${rx},${y}`);
         if (i % 2 === 0) rungs.push(<line key={i} x1={lx} y1={y} x2={rx} y2={y} stroke="#fff" strokeWidth="0.7" opacity="0.6" />);
@@ -545,7 +556,7 @@ const COMPOS = [
           {/* serration */}
           {Array.from({ length: 24 }).map((_, i) => {
             const a = (i / 24) * Math.PI * 2;
-            return <line key={i} x1={cx + Math.cos(a) * r} y1={cy + Math.sin(a) * r} x2={cx + Math.cos(a) * (r + 2.2)} y2={cy + Math.sin(a) * (r + 2.2)} />;
+            return <line key={i} x1={snap(cx + Math.cos(a) * r)} y1={snap(cy + Math.sin(a) * r)} x2={snap(cx + Math.cos(a) * (r + 2.2))} y2={snap(cy + Math.sin(a) * (r + 2.2))} />;
           })}
           <text x={cx} y={cy + S * 0.18} fontSize={S * 0.5} fill="#fff" stroke="none" textAnchor="middle" fontFamily="serif">R</text>
         </g>
@@ -561,7 +572,7 @@ const COMPOS = [
       let d = `M2,${H / 2}`;
       for (let x = 2; x <= W - 2; x += 2) {
         const env = Math.sin((x / W) * Math.PI); // amplitude envelope
-        const y = H / 2 + (rng() - 0.5) * H * 0.9 * env;
+        const y = snap(H / 2 + (rng() - 0.5) * H * 0.9 * env);
         d += ` L${x},${y}`;
       }
       return <path key={k} d={d} fill="none" stroke="#fff" strokeWidth="1" />;
@@ -612,8 +623,8 @@ const COMPOS = [
         for (let i = 0; i <= n; i++) {
           const a = (i / n) * Math.PI * 2;
           const rr = 0.6 + rng() * 0.6;
-          const x = cx + Math.cos(a) * rw * rr;
-          const y = cy + Math.sin(a) * rh * rr;
+          const x = snap(cx + Math.cos(a) * rw * rr);
+          const y = snap(cy + Math.sin(a) * rh * rr);
           d += i === 0 ? `M${x},${y}` : ` L${x},${y}`;
         }
         d += " Z";
