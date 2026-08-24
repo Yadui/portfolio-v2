@@ -1,8 +1,7 @@
 "use client";
 
-import RevealText from "@/components/RevealText";
 import SkillOrbits from "@/components/skills/SkillOrbits";
-import { SKILL_RINGS } from "@/data/skillsData";
+import { SKILL_PLANETS } from "@/data/skillsData";
 
 /**
  * Skills — a solar system.
@@ -36,18 +35,6 @@ export default function Skills() {
       </div>
 
       <div className="relative z-10 flex w-full flex-col pt-[clamp(1.25rem,3vh,2rem)]">
-        <div className="flex-shrink-0 px-[clamp(1.25rem,3vw,3rem)]">
-          <span className="text-[0.65rem] font-bold uppercase tracking-[0.3em] text-white/40">
-            Capabilities
-          </span>
-          <RevealText
-            as="h2"
-            className="portfolio-title mt-1 text-4xl uppercase text-white md:text-5xl"
-          >
-            Skills
-          </RevealText>
-        </div>
-
         {/* Orbit: decorative, and only legible with room for the plane. */}
         <div className="mt-4 hidden w-full md:block">
           <SkillOrbits />
@@ -59,14 +46,19 @@ export default function Skills() {
             the document: the orbit is aria-hidden with non-focusable glyphs,
             so removing this outright would take the entire skill list off the
             page for assistive technology and for crawlers. */}
-        <div className="mt-6 grid gap-x-8 gap-y-7 px-[clamp(1.25rem,3vw,3rem)] sm:grid-cols-2 md:sr-only md:mt-0">
-          {SKILL_RINGS.map((ring: any) => (
-            <div key={ring.id}>
+        <div className="mt-6 grid gap-x-8 gap-y-7 px-[clamp(1.25rem,3vw,3rem)] sm:grid-cols-2 md:sr-only md:mt-0 lg:grid-cols-4">
+          {SKILL_PLANETS.map((planet: any) => (
+            <div key={planet.id}>
               <h3 className="text-[0.62rem] font-bold uppercase tracking-[0.26em] text-white/45">
-                {ring.label}
+                {planet.name}
               </h3>
               <ul className="mt-3 flex flex-wrap gap-x-2 gap-y-2">
-                {ring.skills.map((skill: any) => (
+                {/* Category planets (AI, Code, Web, Power Platform) are
+                    labels rather than skills, so only real ones are listed. */}
+                {(planet.isSkill
+                  ? [planet, ...planet.moons]
+                  : planet.moons
+                ).map((skill: any) => (
                   <li
                     key={skill.id}
                     className="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/[0.04] px-2.5 py-1 text-[0.72rem] text-white/80"

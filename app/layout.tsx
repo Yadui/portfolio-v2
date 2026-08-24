@@ -6,7 +6,6 @@ import PageTransition from "@/components/PageTransition";
 import TabPacman from "@/components/TabPacman";
 import SmoothScroll from "@/components/SmoothScroll";
 import SiteHeader from "@/components/SiteHeader";
-import SiteFooter from "@/components/SiteFooter";
 import AudioPlayer from "@/components/AudioPlayer";
 
 const morsa = localFont({
@@ -243,7 +242,6 @@ export default function RootLayout({ children }) {
         <SmoothScroll />
         <SiteHeader />
         <PageTransition>{children}</PageTransition>
-        <SiteFooter />
         <AudioPlayer />
       </body>
     </html>

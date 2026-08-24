@@ -1,17 +1,26 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useMotionValue } from "framer-motion";
 
-import { SKILL_RINGS } from "@/data/skillsData";
+import { SKILL_PLANETS } from "@/data/skillsData";
 
 import OrbitImages from "./OrbitImages";
 
 /**
  * SkillOrbits — the skills solar system.
  *
- * Each ring is one skill group, orbiting a shared centre on a common tilted
- * plane. Rings differ in radius, period and direction so the field never
- * settles into a repeating pattern.
+ * Seven planets orbit a shared centre on a common tilted plane, one per ring.
+ * Each planet carries its moons as small dots revolving around it at all
+ * times; hovering the planet enlarges it and sends the dots out along their
+ * axes, morphing into the full icons one after another. Every ring stops
+ * while a planet is open, because hovering a moving target is unpleasant and
+ * the moons need to be readable once they arrive.
+ *
+ * The seven planets are driven by the frame loop; the moon revolution is a
+ * pair of mount-time CSS animations (container spin plus body
+ * counter-rotation) that pause via animation-play-state while the section is
+ * off-screen.
  *
  * Layout note: OrbitImages' own `responsive` mode forces a 1:1 container,
  * which would leave a very tall box around a deliberately flat orbital plane.
@@ -22,44 +31,110 @@ import OrbitImages from "./OrbitImages";
 
 const BASE_WIDTH = 1400;
 /** Height of the design-space stage. Much shorter than BASE_WIDTH: the plane
- *  is viewed close to edge-on, so it needs little vertical room. */
-const STAGE_HEIGHT = 540;
-/** Shared tilt, so every ring reads as one orbital plane rather than N rings. */
-const TILT = -10;
-/**
- * Vertical squash. Matches the reference proportion (radiusY / radiusX of
- * roughly 0.24): high enough to keep the rings distinct, low enough that the
- * plane reads as skewed rather than as a stack of concentric circles.
- */
-const FLATTEN = 0.26;
+ *  is viewed close to edge-on. Sized so an open planet's moons and label
+ *  still clear the edge at the top and bottom of the outermost orbit. */
+const STAGE_HEIGHT = 400;
+/** Subtle shared tilt. The separation comes from explicit shell heights,
+ *  not aggressive plane rotations. */
+const TILT = -6;
 
 /**
- * Inward to outward. Radial spacing is set so the rings stay clearly separated
- * at their left and right extremes, which is where a flat ellipse is read.
- * Near the top and bottom the rings sit closer together and glyphs can pass
- * one another, which is the correct behaviour for an orbital plane seen at
- * this angle rather than something to design out.
- * The outer radius plus half its itemSize stays inside BASE_WIDTH / 2 so
- * nothing is clipped by the stage.
+ * Four wide rings, and every orbit shares a single period.
+ *
+ * Equal periods are what keep the planets at fixed distances from one
+ * another. Planets on different periods sweep through every alignment over
+ * time, so pairs inevitably bunch up and overlap, which makes hovering a
+ * lottery; with one period, the arclength gap between any two planets is
+ * invariant forever.
+ *
+ * The phases are not decorative either. They were chosen by search to
+ * maximise the closest approach between any two planets across the whole
+ * cycle, given these radii and sizes: worst-case edge-to-edge clearance of
+ * 20px for the previous phases after each ring received its own tilt.
+ * Adjacent-ring alignment is the binding constraint, since the radial gap
+ * between rings is only ~73px.
  */
+const ORBIT_PERIOD = 64;
 const RINGS = [
-  { radiusX: 200, duration: 26, direction: "normal", itemSize: 44 },
-  { radiusX: 370, duration: 38, direction: "reverse", itemSize: 46 },
-  { radiusX: 530, duration: 52, direction: "normal", itemSize: 48 },
-  { radiusX: 670, duration: 68, direction: "reverse", itemSize: 50 },
+  // Two planets per wide ring sit opposite one another. Every ring uses the
+  // same phase pattern, so corresponding planets remain radially separated
+  // instead of crossing through one another as their shells revolve.
+  { radiusX: 210, radiusY: 58, phase: 0, size: 58, tilt: 0 },
+  { radiusX: 340, radiusY: 96, phase: 24, size: 62, tilt: 0 },
+  { radiusX: 470, radiusY: 134, phase: 52, size: 66, tilt: 0 },
+  { radiusX: 600, radiusY: 172, phase: 77, size: 60, tilt: 0 },
 ];
 
-function SkillGlyph({ skill, size }) {
-  const { Icon, img, name, color } = skill;
+/** Reach of the hover pad: the moon orbit plus a moon radius and some slack,
+ *  so the pointer never crosses dead space between a planet and its moons. */
+const REACH = 92;
+
+const ellipsePath = (cx, cy, rx, ry) =>
+  `M ${cx - rx} ${cy} A ${rx} ${ry} 0 1 0 ${cx + rx} ${cy} A ${rx} ${ry} 0 1 0 ${cx - rx} ${cy}`;
+/** How far the moons travel out from their planet's centre. */
+const MOON_ORBIT = 62;
+
+/** Total window the moon sequence is allowed to occupy, in ms. */
+const MOON_WINDOW = 300;
+/** Longest gap between two moons arriving, in ms. */
+const MOON_STEP_MAX = 90;
+
+function Glyph({ item }) {
+  const { Icon, img, color } = item;
+  if (img) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={img} alt="" aria-hidden="true" draggable={false} />;
+  }
+  return <Icon aria-hidden="true" style={{ color }} />;
+}
+
+function Planet({ planet, size, open, onOpen, onClose }) {
+  const count = planet.moons.length;
+  // More moons arrive in quicker succession, so a large system does not take
+  // meaningfully longer to finish than a small one.
+  const step = Math.round(Math.min(MOON_STEP_MAX, MOON_WINDOW / count));
+
   return (
-    <span className="skill-orbit-glyph" style={{ width: size, height: size }}>
-      {img ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={img} alt="" aria-hidden="true" draggable={false} />
-      ) : (
-        <Icon aria-hidden="true" style={{ color }} />
-      )}
-      <span className="skill-orbit-tip">{name}</span>
+    <span
+      className="planet"
+      data-open={open ? "true" : "false"}
+      style={{
+        width: size,
+        height: size,
+        // Radius of the closed-state dot orbit: just outside the planet
+        // glyph, scaled with the planet so dots never sit on the icon.
+        "--dot-orbit": `${Math.round(size / 2 + 10)}px`,
+      }}
+      onMouseEnter={onOpen}
+      onMouseLeave={onClose}
+    >
+      {/* Keeps the planet open while the pointer crosses the gap between the
+          core and its moons. Only catches events while open, so it cannot
+          enlarge the hit area of a closed planet. */}
+      <span className="planet-reach" />
+
+      <span className="planet-moons">
+        {planet.moons.map((moon, i) => (
+          <span
+            key={moon.id}
+            className="moon"
+            style={{
+              "--moon-angle": `${(i / count) * 360 - 90}deg`,
+              "--moon-delay": `${open ? i * step : 0}ms`,
+            }}
+          >
+            <span className="moon-body">
+              <Glyph item={moon} />
+              <span className="moon-name">{moon.name}</span>
+            </span>
+          </span>
+        ))}
+      </span>
+
+      <span className="planet-core">
+        <Glyph item={planet} />
+      </span>
+      <span className="planet-name">{planet.name}</span>
     </span>
   );
 }
@@ -69,6 +144,11 @@ export default function SkillOrbits() {
   const [scale, setScale] = useState(null);
   const [reduceMotion, setReduceMotion] = useState(false);
   const [inView, setInView] = useState(false);
+  const [openId, setOpenId] = useState(null);
+  // One clock drives every ring. Independent OrbitImages effects can start a
+  // few milliseconds apart during HMR or hydration; a shared motion value
+  // makes shell phase spacing invariant instead of probabilistic.
+  const sharedProgress = useMotionValue(0);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -78,9 +158,8 @@ export default function SkillOrbits() {
     return () => mq.removeEventListener?.("change", update);
   }, []);
 
-  // Four infinite animation loops driving 36 transform subscribers is not
-  // work worth doing while the section is nowhere near the viewport, so the
-  // whole system idles until it is close to being seen.
+  // Four animation loops driving eight subscribers is not work worth doing
+  // while the section is nowhere near the viewport.
   useEffect(() => {
     const node = wrapRef.current;
     if (!node) return undefined;
@@ -91,8 +170,6 @@ export default function SkillOrbits() {
     observer.observe(node);
     return () => observer.disconnect();
   }, []);
-
-  const paused = reduceMotion || !inView;
 
   // One measurement drives every ring, so they cannot drift out of concentric.
   useLayoutEffect(() => {
@@ -105,13 +182,65 @@ export default function SkillOrbits() {
     return () => observer.disconnect();
   }, []);
 
+  // Closing is deferred briefly. Without this, moving from one planet to the
+  // next passes through a frame where nothing is open, every orbit snaps back
+  // to full speed, and the planet just released visibly darts away along its
+  // path before the new one takes hold. The grace period lets the handover
+  // happen without the system ever returning to 1x.
+  const closeTimer = useRef(null);
+
+  const open = useCallback((id) => {
+    if (closeTimer.current) {
+      clearTimeout(closeTimer.current);
+      closeTimer.current = null;
+    }
+    setOpenId(id);
+  }, []);
+
+  const close = useCallback(() => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    closeTimer.current = window.setTimeout(() => {
+      setOpenId(null);
+      closeTimer.current = null;
+    }, 180);
+  }, []);
+
+  useEffect(
+    () => () => {
+      if (closeTimer.current) clearTimeout(closeTimer.current);
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (reduceMotion || !inView) return undefined;
+    let frame = 0;
+    let last = performance.now();
+    const tick = (now) => {
+      const dt = (now - last) / 1000;
+      last = now;
+      const next = sharedProgress.get() + (100 / ORBIT_PERIOD) * dt;
+      sharedProgress.set(((next % 100) + 100) % 100);
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [inView, reduceMotion, sharedProgress]);
+
+  // Everything freezes together while a planet is open. Slowing or stopping
+  // individual rings would let their separations drift, undoing the fixed
+  // spacing the shared period buys; a full stop also keeps the open planet
+  // and its neighbours exactly where the user saw them when they committed
+  // to the hover.
+  const idle = reduceMotion || !inView;
+  const paused = idle || openId !== null;
+
   return (
     <div
       ref={wrapRef}
       className="skill-orbits"
-      // Drives will-change: promoting 36 elements to their own compositor
-      // layers is only worth paying for while they actually move.
-      data-animating={paused ? "false" : "true"}
+      data-animating={idle ? "false" : "true"}
+      data-open={openId ? "true" : "false"}
       style={{ height: scale ? STAGE_HEIGHT * scale : undefined }}
     >
       <div
@@ -123,12 +252,38 @@ export default function SkillOrbits() {
           visibility: scale === null ? "hidden" : undefined,
         }}
       >
-        {SKILL_RINGS.map((ring, i) => {
-          const cfg = RINGS[i];
-          if (!cfg) return null;
+        {/* Every orbit drawn in a single layer beneath the planets. Drawing
+            each path inside its own ring instead would trap it in that ring's
+            stacking context, so an outer ring's line would paint over an
+            inner ring's planet. */}
+        <svg
+          className="skill-orbits-paths"
+          viewBox={`0 0 ${BASE_WIDTH} ${STAGE_HEIGHT}`}
+          aria-hidden="true"
+        >
+          {RINGS.map((cfg) => (
+            <path
+              key={cfg.radiusX}
+              d={ellipsePath(
+                BASE_WIDTH / 2,
+                STAGE_HEIGHT / 2,
+                cfg.radiusX,
+                cfg.radiusY
+              )}
+              transform={`rotate(${cfg.tilt + TILT} ${BASE_WIDTH / 2} ${STAGE_HEIGHT / 2})`}
+              fill="none"
+              stroke="rgba(255,255,255,0.13)"
+              strokeWidth="1"
+            />
+          ))}
+        </svg>
+
+        {RINGS.map((cfg, ringIndex) => {
+          const planets = SKILL_PLANETS.filter((p) => p.ring === ringIndex);
+          if (!planets.length) return null;
           return (
             <div
-              key={ring.id}
+              key={ringIndex}
               className="skill-orbit-ring"
               style={{ marginTop: -BASE_WIDTH / 2, marginLeft: -BASE_WIDTH / 2 }}
             >
@@ -138,20 +293,21 @@ export default function SkillOrbits() {
                 width={BASE_WIDTH}
                 height={BASE_WIDTH}
                 radiusX={cfg.radiusX}
-                radiusY={Math.round(cfg.radiusX * FLATTEN)}
-                rotation={TILT}
-                duration={cfg.duration}
-                direction={cfg.direction}
-                itemSize={cfg.itemSize}
+                radiusY={cfg.radiusY}
+                rotation={cfg.tilt + TILT}
+                duration={ORBIT_PERIOD}
+                phase={cfg.phase}
+                itemSize={cfg.size}
                 paused={paused}
-                showPath
-                pathColor="rgba(255,255,255,0.13)"
-                pathWidth={1}
-                items={ring.skills.map((skill) => (
-                  <SkillGlyph
-                    key={skill.id}
-                    skill={skill}
-                    size={cfg.itemSize}
+                progressValue={sharedProgress}
+                items={planets.map((planet) => (
+                  <Planet
+                    key={planet.id}
+                    planet={planet}
+                    size={cfg.size}
+                    open={openId === planet.id}
+                    onOpen={() => open(planet.id)}
+                    onClose={close}
                   />
                 ))}
               />
@@ -159,16 +315,17 @@ export default function SkillOrbits() {
           );
         })}
 
-        {/* The star at the centre of the system. */}
+        {/* Animated star above the orbit lines. It stays pointer-inert so it
+            cannot steal hover from the inner planet. */}
         <div className="skill-orbits-core" aria-hidden="true">
-          <span className="skill-orbits-core-glow" />
-          <span className="skill-orbits-core-label">
-            Cloud
-            <br />
-            and AI
-          </span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/icons/summer-sun.gif" alt="" draggable={false} />
+          <span className="skill-sun-tip">Cool skills</span>
         </div>
+
       </div>
     </div>
   );
 }
+
+export { MOON_ORBIT };

@@ -14,7 +14,7 @@
 //     glyphs are react-icons components, not image URLs.
 
 import { useMemo, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { motion, useMotionValue, useTransform, animate } from "framer-motion";
+import { motion, useMotionValue, useTransform } from "framer-motion";
 
 import "./OrbitImages.css";
 
@@ -35,11 +35,12 @@ function OrbitItem({
   rotation,
   progress,
   fill,
+  phase,
 }) {
   const itemOffset = fill ? (index / totalItems) * 100 : 0;
 
   const offsetDistance = useTransform(progress, (p) => {
-    const offset = (((p + itemOffset) % 100) + 100) % 100;
+    const offset = (((p + itemOffset + phase) % 100) + 100) % 100;
     return `${offset}%`;
   });
 
@@ -84,6 +85,14 @@ export default function OrbitImages({
   pathWidth = 2,
   easing = "linear",
   paused = false,
+  progressValue,
+  // Local additions:
+  //  `phase`  — starting position along the path, 0-100. Needed because a
+  //             ring carrying a single item always begins at 0%, so every
+  //             single-item ring would otherwise start aligned.
+  //  `speed`  — rate multiplier applied to the frame driver.
+  phase = 0,
+  speed = 1,
   centerContent,
   responsive = false,
 }) {
@@ -117,16 +126,47 @@ export default function OrbitImages({
 
   const progress = useMotionValue(0);
 
+  // Local adaptation: progress is advanced by hand each frame instead of by
+  // a tween.
+  //
+  // The upstream approach animates a motion value to 100 on a loop. Pausing,
+  // resuming or re-rating that tween all re-derive its start time, which
+  // seeks the playhead — measured as single-frame jumps of up to 9% of an
+  // orbit when focus moved between planets. Because this integrates a rate
+  // over elapsed time, progress can only ever move by `dt * rate`, so a seek
+  // is not expressible. Rate and direction are read from refs so changing
+  // them never restarts the loop, and `last` is re-seeded on resume so a
+  // pause cannot accumulate into a catch-up leap.
+  //
+  // The driver is linear-only, which is the sole easing this project uses.
+  const speedRef = useRef(speed);
+  const dirRef = useRef(direction === "reverse" ? -1 : 1);
+
   useEffect(() => {
-    if (paused) return undefined;
-    const controls = animate(progress, direction === "reverse" ? -100 : 100, {
-      duration,
-      ease: easing,
-      repeat: Infinity,
-      repeatType: "loop",
-    });
-    return () => controls.stop();
-  }, [progress, duration, easing, direction, paused]);
+    speedRef.current = speed;
+  }, [speed]);
+
+  useEffect(() => {
+    dirRef.current = direction === "reverse" ? -1 : 1;
+  }, [direction]);
+
+  useEffect(() => {
+    if (progressValue || paused) return undefined;
+    let frame = 0;
+    let last = performance.now();
+    const perSecond = 100 / duration;
+
+    const tick = (now) => {
+      const dt = (now - last) / 1000;
+      last = now;
+      const next = progress.get() + dirRef.current * perSecond * speedRef.current * dt;
+      progress.set(((next % 100) + 100) % 100);
+      frame = requestAnimationFrame(tick);
+    };
+
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [paused, duration, progress, progressValue]);
 
   const containerWidth = responsive
     ? "100%"
@@ -209,8 +249,9 @@ export default function OrbitImages({
               path={path}
               itemSize={itemSize}
               rotation={rotation}
-              progress={progress}
+              progress={progressValue ?? progress}
               fill={fill}
+              phase={phase}
             />
           ))}
         </div>

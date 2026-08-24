@@ -860,6 +860,14 @@
   }
 
   /* Hidden for the duration of the hero load sequence. */
+  html.intro-running {
+    overflow: hidden;
+  }
+
+  html.intro-running body {
+    overflow: hidden;
+  }
+
   .intro-running .site-header {
     opacity: 0;
     pointer-events: none;
@@ -981,6 +989,17 @@
     width: 100%;
     overflow: hidden;
   }
+  /* Give the skills system a deliberate breath after the journey section. */
+  #timeline + #skills {
+    margin-top: clamp(2rem, 6vh, 5rem);
+  }
+
+  /* Keep the desktop orbit within one viewport even on unusually tall
+     coordinate-space scaling; its own JS stage remains the source of truth. */
+  .skill-orbits {
+    max-height: none;
+  }
+
 
   /* The vendored stylesheet sets will-change unconditionally. Release the
      layers whenever the system is idle (off-screen or reduced motion). */
@@ -996,6 +1015,14 @@
     transform-origin: top center;
   }
 
+  .skill-orbits-paths {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
   .skill-orbit-ring {
     position: absolute;
     top: 50%;
@@ -1003,58 +1030,244 @@
     pointer-events: none;
   }
 
-  /* Only the glyphs themselves should take the pointer, not the ring boxes. */
-  .skill-orbit-glyph {
+  /* ── Planets ─────────────────────────────────────────────────────
+     Only the planets take the pointer; the ring boxes stay inert. */
+  .planet {
     position: relative;
     display: grid;
     place-items: center;
-    border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    background: rgba(12, 12, 16, 0.86);
     pointer-events: auto;
-    transition: border-color 0.25s ease, transform 0.25s ease;
   }
 
-  .skill-orbit-glyph > svg,
-  .skill-orbit-glyph > img {
+  .planet-core {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    border-radius: 999px;
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .planet-core > svg,
+  .planet-core > img {
+    width: 50%;
+    height: 50%;
+    object-fit: contain;
+  }
+
+  .planet[data-open="true"] .planet-core {
+    transform: scale(1.22);
+  }
+
+  /* While one planet is being inspected the rest of the system recedes.
+     Scoped to at most six small elements and only on hover, so this is not
+     a filter riding on a large scrolling surface. */
+  .skill-orbits[data-open="true"] .planet:not([data-open="true"]) {
+    filter: blur(2.5px);
+    opacity: 0.4;
+  }
+
+  .planet {
+    transition: filter 0.35s ease, opacity 0.35s ease;
+  }
+
+  .planet-name {
+    position: absolute;
+    /* Clears the moon orbit: moons sit 62px out from the planet centre and
+       are 34px across, so their lowest edge is ~51px below the planet box. */
+    top: calc(100% + 3.3rem);
+    left: 50%;
+    transform: translateX(-50%) translateY(-4px);
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: rgba(255, 255, 255, 0.85);
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+  }
+
+  .planet[data-open="true"] .planet-name {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* A moon can rotate under a stationary pointer, and its tooltip lands in
+     the same place as the planet label. While a moon is being read, the
+     planet's own name is redundant, so it gives way. */
+  .planet:has(.moon-body:hover) .planet-name {
+    opacity: 0;
+  }
+
+  /* ── Moons ───────────────────────────────────────────────────────
+     Each moon travels out along its own axis from the planet centre and
+     fades in, one after another. */
+  /* Circular hover pad reaching from the planet centre past the moons, so
+     travelling from the core out to a moon never leaves the planet. Inert
+     until the planet is open. */
+  .planet-reach {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 184px;
+    height: 184px;
+    margin: -92px 0 0 -92px;
+    border-radius: 999px;
+    pointer-events: none;
+  }
+
+  .planet[data-open="true"] .planet-reach {
+    pointer-events: auto;
+  }
+
+  .planet-moons {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    /* The moon system turns permanently: a closed planet shows its moons as
+       revolving dots, so the revolution cannot be gated on hover. Container
+       and bodies start their animations together at mount, so the
+       counter-rotation cancels exactly and glyphs arrive upright when the
+       dots morph into icons. */
+    animation: moon-orbit 18s linear infinite;
+  }
+
+  .moon-body {
+    animation: moon-orbit-counter 18s linear infinite;
+  }
+
+  /* No animation work while the section is off-screen. */
+  .skill-orbits[data-animating="false"] .planet-moons,
+  .skill-orbits[data-animating="false"] .moon-body {
+    animation-play-state: paused;
+  }
+
+  @keyframes moon-orbit {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes moon-orbit-counter {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(-360deg); }
+  }
+
+  .moon {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    /* Rotate to the moon's axis, move out along it, then rotate back so the
+       payload stays upright. Closed moons rest on a tight dot orbit just
+       outside the planet glyph (--dot-orbit, set per planet size in JSX). */
+    transform: rotate(var(--moon-angle)) translateX(var(--dot-orbit, 40px))
+      rotate(calc(-1 * var(--moon-angle)));
+    transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1)
+      var(--moon-delay);
+  }
+
+  .planet[data-open="true"] .moon {
+    transform: rotate(var(--moon-angle)) translateX(62px)
+      rotate(calc(-1 * var(--moon-angle)));
+  }
+
+  .moon-body {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    pointer-events: auto;
+  }
+
+  /* Closed state: the moon is a small dot. Stacked in the same grid cell as
+     the glyph so the two cross-fade in place. */
+  .moon-body::before {
+    content: "";
+    grid-area: 1 / 1;
+    width: 5px;
+    height: 5px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.65);
+    transition: opacity 0.25s ease var(--moon-delay),
+      transform 0.25s ease var(--moon-delay);
+  }
+
+  .planet[data-open="true"] .moon-body::before {
+    opacity: 0;
+    transform: scale(2.4);
+  }
+
+  /* Dots are decorative until the planet opens; they must not catch stray
+     pointers half a planet away from the core. */
+  .planet:not([data-open="true"]) .moon-body {
+    pointer-events: none;
+  }
+
+  .moon-body > svg,
+  .moon-body > img {
+    grid-area: 1 / 1;
     width: 52%;
     height: 52%;
     object-fit: contain;
-    font-size: 0;
+    /* Hidden while the moon is a dot; morphs in as the dot travels out. */
+    opacity: 0;
+    transform: scale(0.3);
+    transition: transform 0.25s ease var(--moon-delay),
+      opacity 0.25s ease var(--moon-delay);
   }
 
-  .skill-orbit-glyph:hover,
-  .skill-orbit-glyph:focus-visible {
-    border-color: rgba(255, 255, 255, 0.55);
-    transform: scale(1.14);
+  .planet[data-open="true"] .moon-body > svg,
+  .planet[data-open="true"] .moon-body > img {
+    opacity: 1;
+    transform: scale(1);
   }
 
-  .skill-orbit-tip {
+  .planet[data-open="true"] .moon-body:hover > svg,
+  .planet[data-open="true"] .moon-body:hover > img {
+    transform: scale(1.18);
+    transition-delay: 0ms;
+  }
+
+  .moon-name {
     position: absolute;
-    top: calc(100% + 0.4rem);
+    top: calc(100% + 0.3rem);
     left: 50%;
     transform: translateX(-50%);
-    padding: 0.15rem 0.45rem;
+    padding: 0.12rem 0.4rem;
     border-radius: 0.25rem;
     background: #101014;
     border: 1px solid rgba(255, 255, 255, 0.14);
-    font-size: 0.62rem;
+    font-size: 0.58rem;
     font-weight: 600;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.05em;
     white-space: nowrap;
     color: #fff;
     opacity: 0;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.18s ease;
   }
 
-  .skill-orbit-glyph:hover .skill-orbit-tip,
-  .skill-orbit-glyph:focus-visible .skill-orbit-tip {
+  .moon-body:hover .moon-name {
     opacity: 1;
   }
 
+  /* An open planet and its moons sit above every other orbit. Each
+     .orbit-item is its own stacking context, so the lift has to be applied
+     to the ancestors rather than to .planet itself. */
+  .orbit-item:has(.planet[data-open="true"]),
+  .skill-orbit-ring:has(.planet[data-open="true"]) {
+    z-index: 5;
+  }
+
   /* Central star */
+  /* Decorative only — must never intercept a planet hover. */
   .skill-orbits-core {
+    pointer-events: auto;
     position: absolute;
+    z-index: 10;
     top: 50%;
     left: 50%;
     display: grid;
@@ -1066,38 +1279,320 @@
     text-align: center;
   }
 
-  .skill-orbits-core-glow {
+  .skill-orbits-core {
+    z-index: 10;
+  }
+
+  .skill-orbits-core > img {
+    width: 118px;
+    height: auto;
+    user-select: none;
+  }
+
+  .skill-sun-tip {
     position: absolute;
-    inset: 0;
-    border-radius: 999px;
-    background: radial-gradient(
-      circle at 50% 50%,
-      rgba(255, 106, 43, 0.5) 0%,
-      rgba(255, 80, 5, 0.16) 45%,
-      transparent 72%
-    );
-  }
-
-  .skill-orbits-core-label {
-    position: relative;
-    font-family: var(--font-clash-grotesk), ui-sans-serif, system-ui, sans-serif;
-    font-size: 1.05rem;
-    font-weight: 600;
-    line-height: 1.1;
-    letter-spacing: -0.01em;
+    left: 50%;
+    top: calc(100% + 0.7rem);
+    transform: translateX(-50%) translateY(4px);
+    padding: 0.22rem 0.55rem;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    background: #101014;
     color: #fff;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: none;
   }
 
+  .skill-orbits-core:hover .skill-sun-tip,
+  .skill-orbits-core:focus-visible .skill-sun-tip {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* The orbit is hover-driven and is not rendered below md anyway; hide the
+     labels outright on touch so a tap cannot strand one open. */
   @media (hover: none) {
-    .skill-orbit-tip {
+    .planet-name,
+    .moon-name {
       display: none;
     }
   }
 
+  /* Reduced motion: the reveal is instant rather than choreographed, and
+     the staggered delays are dropped so nothing appears to lag. */
   @media (prefers-reduced-motion: reduce) {
-    .skill-orbit-glyph,
-    .skill-orbit-tip {
+    .planet,
+    .planet-core,
+    .planet-name,
+    .moon,
+    .moon-body,
+    .moon-name {
+      transition-duration: 0.01ms;
+      transition-delay: 0ms;
+    }
+
+    .planet-moons,
+    .moon-body {
+      animation: none;
+    }
+
+    .moon-body::before {
       transition: none;
+    }
+  }
+}
+
+/* ── Contact panel / minimal footer ─────────────────────────────────── */
+@layer components {
+  .contact-panel-wrap {
+    position: relative;
+    height: 42rem;
+    min-height: 42rem;
+    box-sizing: border-box;
+    padding: 0 clamp(1.25rem, 7vw, 7rem) clamp(1.25rem, 7vw, 7rem);
+    background: #000;
+    color: #fff;
+    overflow: hidden;
+  }
+
+  .contact-panel-wrap::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 34.5%;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.14);
+  }
+
+  .contact-panel-stage {
+    height: 100%;
+  }
+
+  .contact-panel {
+    position: absolute;
+    top: 0;
+    bottom: auto;
+    /* Centred on the guide via xPercent: -50 in the timeline, so the line
+       runs through the middle of the finished card. */
+    left: 34.5%;
+    width: 38%;
+    min-height: 6.25rem;
+    box-sizing: border-box;
+    overflow: hidden;
+    will-change: transform, clip-path;
+    padding: clamp(1.1rem, 1.9vw, 1.9rem) clamp(1.5rem, 3vw, 3rem);
+    background: #c2410c;
+    transition: min-height 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .contact-panel.is-form-open {
+    min-height: 33rem;
+  }
+
+  .contact-panel-kicker {
+    margin-bottom: clamp(2rem, 5vw, 4rem);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.68);
+  }
+
+  .contact-panel-title {
+    display: inline-flex;
+    align-items: baseline;
+    gap: clamp(0.35rem, 1vw, 1rem);
+    font-family: var(--font-clash-grotesk), ui-sans-serif, system-ui, sans-serif;
+    font-size: clamp(1.5rem, 2.9vw, 3.2rem);
+    font-weight: 600;
+    white-space: nowrap;
+    line-height: 0.95;
+    letter-spacing: -0.045em;
+    color: #fff;
+    text-decoration: none;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .contact-bracket {
+    color: #ffd2b0;
+    font-weight: 400;
+  }
+
+  .contact-panel-title:hover .contact-bracket,
+  .contact-panel-title:focus-visible .contact-bracket {
+    color: #fff;
+  }
+
+  .contact-panel-rule {
+    height: 1px;
+    margin: clamp(1.35rem, 3vw, 2.6rem) 0 clamp(1.2rem, 2.6vw, 2.2rem);
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .contact-panel-email {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35em;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: clamp(0.8rem, 1.25vw, 1.15rem);
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .contact-panel-email a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    color: #fff;
+    text-decoration: underline;
+    text-decoration-color: rgba(255, 255, 255, 0.55);
+    text-underline-offset: 0.2em;
+  }
+
+  .contact-panel-email a:hover,
+  .contact-panel-email a:focus-visible {
+    text-decoration-color: #fff;
+  }
+
+  .contact-form {
+    display: grid;
+    gap: clamp(1rem, 2vw, 1.5rem);
+  }
+
+  .contact-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem 2rem;
+  }
+
+  .contact-form label {
+    display: grid;
+    gap: 0.45rem;
+    color: rgba(255, 255, 255, 0.72);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .contact-form input,
+  .contact-form textarea {
+    width: 100%;
+    resize: vertical;
+    border: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.32);
+    outline: 0;
+    background: transparent;
+    padding: 0.55rem 0;
+    color: #fff;
+    font: inherit;
+    letter-spacing: normal;
+    text-transform: none;
+  }
+
+  .contact-form input:focus-visible,
+  .contact-form textarea:focus-visible {
+    border-bottom-color: #fff;
+  }
+
+  .contact-form-actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .contact-form-submit {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    border: 1px solid rgba(255, 255, 255, 0.36);
+    border-radius: 999px;
+    padding: 0.65rem 1.1rem;
+    color: #fff;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .contact-form-submit:hover,
+  .contact-form-submit:focus-visible {
+    border-color: #fff;
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  .contact-form-submit:disabled {
+    cursor: wait;
+    opacity: 0.55;
+  }
+
+  .contact-form-status {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.72rem;
+  }
+
+  .contact-form-status.is-success { color: #b9ffdb; }
+  .contact-form-status.is-error { color: #ffd0d0; }
+
+  .site-footer-minimal {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.25rem clamp(1.25rem, 4vw, 4rem);
+    background: var(--portfolio-ink);
+    color: rgba(255, 255, 255, 0.6);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 767px) {
+    .contact-panel-wrap {
+      height: 38rem;
+      min-height: 38rem;
+      padding: 0 1rem;
+    }
+
+    .contact-panel-wrap::before {
+      left: 50%;
+    }
+
+    .contact-panel {
+      left: 50%;
+      width: calc(100% - 2rem);
+      min-height: 10rem;
+      padding: 1.1rem 1.25rem;
+    }
+
+    .contact-panel.is-form-open {
+      min-height: 31rem;
+    }
+
+    .contact-panel-title {
+      font-size: clamp(2rem, 9vw, 3.5rem);
+      white-space: normal;
+    }
+
+    .contact-panel-email {
+      justify-content: flex-start;
+      font-size: 0.9rem;
+    }
+
+    .contact-form-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
     }
   }
 }

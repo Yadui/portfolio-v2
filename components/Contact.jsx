@@ -1,67 +1,88 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
-import { MdOutlineEmail, MdOutlineTimer } from "react-icons/md";
-import { FaGithub, FaLinkedinIn } from "react-icons/fa";
-import { ArrowRight, ArrowDown } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
 
-const contactLinks = [
-  {
-    icon: <MdOutlineEmail className="text-[#4d5dff] text-xl" />,
-    label: "Email",
-    value: "abhinavyadav8@gmail.com",
-    href: "mailto:abhinavyadav8@gmail.com",
-  },
-  {
-    icon: <FaGithub className="text-[#4d5dff] text-xl" />,
-    label: "GitHub",
-    value: "Github",
-    href: "https://github.com/abhinavyadav88",
-  },
-  {
-    icon: <MdOutlineTimer className="text-[#4d5dff] text-xl" />,
-    label: "Response",
-    value: "24 Hours",
-    href: null,
-  },
-  {
-    icon: <FaLinkedinIn className="text-[#4d5dff] text-xl" />,
-    label: "LinkedIn",
-    value: "LinkedIn",
-    href: "https://www.linkedin.com/in/abhinavyadav88",
-  },
-];
+import { ArrowRight } from "lucide-react";
 
-const Contact = () => {
-  const [loading, setLoading] = useState(false);
+gsap.registerPlugin(ScrollTrigger, useGSAP);
+
+/**
+ * Contact — direct conversation panel.
+ *
+ * The panel begins as a compact mark and expands as the section enters the
+ * viewport. This keeps the contact CTA visually quiet until it is actually
+ * encountered, while preserving the direct mail action and #contact anchor.
+ */
+export default function Contact() {
+  const sectionRef = useRef(null);
+  const panelRef = useRef(null);
+  const [formOpen, setFormOpen] = useState(false);
   const [status, setStatus] = useState(null);
-  const textareaRef = useRef(null);
+  const [loading, setLoading] = useState(false);
 
-  // Auto-expand: reset to "auto" first so the field can also shrink.
-  const handleTextareaInput = useCallback(() => {
-    const el = textareaRef.current;
-    if (!el) return;
-    el.style.height = "auto";
-    el.style.height = `${el.scrollHeight}px`;
-  }, []);
+  // Opening the form changes the panel's intrinsic height after the scroll
+  // timeline has already measured it. Re-anchor it on the next paint so the
+  // larger card grows upward and its bottom edge stays inside the section.
+  const skipFirstAnchor = useRef(true);
+  useEffect(() => {
+    const panel = panelRef.current;
+    const section = sectionRef.current;
+    // On mount the card must stay in its collapsed pre-scroll state, so the
+    // first run is skipped; afterwards both opening *and* closing re-anchor.
+    // Closing without this left the shrunken card floating mid-section.
+    if (skipFirstAnchor.current) {
+      skipFirstAnchor.current = false;
+      return;
+    }
+    if (!panel || !section) return;
+    // min-height is transitioned over 0.5s, so a single rAF measures a
+    // mid-transition height and anchors the card past the section bottom.
+    // Re-anchor on each frame of the transition and once more when it ends.
+    const anchor = () => {
+      gsap.set(panel, {
+        xPercent: -50,
+        clipPath: "inset(0px 0px)",
+        y: (section.clientHeight - panel.offsetHeight) / 2,
+      });
+    };
+    let frame = requestAnimationFrame(function loop() {
+      anchor();
+      frame = requestAnimationFrame(loop);
+    });
+    const stop = () => {
+      cancelAnimationFrame(frame);
+      anchor();
+    };
+    panel.addEventListener("transitionend", stop);
+    const safety = setTimeout(stop, 900);
+    return () => {
+      cancelAnimationFrame(frame);
+      clearTimeout(safety);
+      panel.removeEventListener("transitionend", stop);
+    };
+  }, [formOpen]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const form = e.target;
-    const name = form.name.value.trim();
-    const organization = form.organization.value.trim();
-    const email = form.email.value.trim();
-    const message = form.message.value.trim();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    const name = String(data.get("name") || "").trim();
+    const email = String(data.get("email") || "").trim();
+    const message = String(data.get("message") || "").trim();
+    const organization = String(data.get("organization") || "").trim();
 
     if (!name || !email || !message) {
-      setStatus({ type: "error", message: "Please fill in all required fields." });
+      setStatus({ type: "error", message: "Please fill in the required fields." });
       return;
     }
 
     setLoading(true);
     setStatus(null);
     try {
-      const res = await fetch("/api/contact", {
+      const response = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -72,195 +93,153 @@ const Contact = () => {
           to: "abhinavyadav8+port@gmail.com",
         }),
       });
-
-      if (res.ok) {
-        setStatus({ type: "success", message: "Message sent successfully!" });
-        form.reset();
-        if (textareaRef.current) textareaRef.current.style.height = "auto";
-      } else {
-        setStatus({ type: "error", message: "Failed to send message." });
-      }
+      if (!response.ok) throw new Error("Request failed");
+      form.reset();
+      setStatus({ type: "success", message: "Message sent successfully." });
     } catch {
-      setStatus({ type: "error", message: "An error occurred." });
+      setStatus({ type: "error", message: "Could not send message. Please email directly." });
     } finally {
       setLoading(false);
     }
   };
 
+  useGSAP(
+    () => {
+      const panel = panelRef.current;
+      const section = sectionRef.current;
+      if (!panel || !section) return;
+
+      const reduceMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches;
+
+      // The card renders at full size with its content already laid out; a
+      // clip-path window is what grows. Scaling the panel instead would
+      // scale the text with it, and fading the text in made it appear on
+      // scroll rather than simply being revealed.
+      const SQUARE = 12;
+
+      const finalY = () => (section.clientHeight - panel.offsetHeight) / 2;
+      // The clipped window is centred, so the travelling square's centre is
+      // the panel's centre; offset the panel so that centre starts at the top.
+      const startY = () => -panel.offsetHeight / 2 + SQUARE / 2;
+      const closedClip = () =>
+        `inset(${(panel.offsetHeight - SQUARE) / 2}px ${
+          (panel.offsetWidth - SQUARE) / 2
+        }px)`;
+
+      const applyBase = () => {
+        gsap.set(panel, { xPercent: -50 });
+      };
+
+      if (reduceMotion) {
+        applyBase();
+        gsap.set(panel, {
+          y: finalY(),
+          clipPath: "inset(0px 0px)",
+          autoAlpha: 1,
+        });
+        return;
+      }
+
+      applyBase();
+      gsap.set(panel, {
+        y: startY(),
+        clipPath: closedClip(),
+        autoAlpha: 1,
+      });
+
+      const tween = gsap.timeline({
+        scrollTrigger: {
+          trigger: section,
+          // The contact section is the last block on the page. Ends tied to
+          // the section geometry ("top 18%", "bottom bottom") are unreachable
+          // because the document runs out of scroll first, and a short fixed
+          // range made the square finish its descent while the section was
+          // still below the fold. "max" spends exactly the remaining page
+          // scroll, so the square travels the line in view.
+          start: "top 85%",
+          end: "max",
+          // Lenis drives the scroll loop and goes idle when input stops, so a
+          // smoothed scrub (e.g. 0.7) leaves its catch-up tween permanently
+          // ~10% short: the panel froze at scale 0.897 / opacity 0.9. Direct
+          // scrub maps progress with no catch-up tween to stall.
+          scrub: true,
+          invalidateOnRefresh: true,
+          onRefresh: applyBase,
+        },
+      });
+      tween
+        // The square outruns the rising section if it starts immediately and
+        // eases out, dropping below the fold mid-descent. Starting at 15% and
+        // moving linearly keeps it on screen for the whole travel.
+        .to(panel, { y: finalY, duration: 0.6, ease: "none" }, 0.15)
+        // The window opens over the already-rendered content.
+        .to(
+          panel,
+          { clipPath: "inset(0px 0px)", duration: 0.25, ease: "power2.out" },
+          0.75
+        );
+
+      return () => {
+        tween.scrollTrigger?.kill();
+        tween.kill();
+      };
+    },
+    { scope: sectionRef }
+  );
+
   return (
-    <section
-      id="contact"
-      className="relative contact-fill bg-black text-white"
-    >
-      {/* Typographic watermark */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 flex items-end justify-start overflow-hidden"
-      >
-        <span
-          className="select-none font-heading font-light leading-none text-white"
-          style={{
-            fontSize: "clamp(6rem, 22vw, 20rem)",
-            opacity: 0.028,
-            letterSpacing: "-0.05em",
-            lineHeight: 0.85,
-            whiteSpace: "nowrap",
-            paddingLeft: "0.05em",
-          }}
+    <section id="contact" ref={sectionRef} className="contact-panel-wrap">
+      <div className="contact-panel-stage" aria-hidden="true" />
+      <div ref={panelRef} className={`contact-panel${formOpen ? " is-form-open" : ""}`}>
+        <button
+          type="button"
+          className="contact-panel-title"
+          onClick={() => setFormOpen((open) => !open)}
+          aria-expanded={formOpen}
         >
-          TALK
-        </span>
-      </div>
-
-      <div className="relative z-10 mx-auto max-w-5xl px-5 pb-2 pt-[clamp(2rem,5vh,4rem)] md:px-10">
-
-        {/* GET IN TOUCH YOUR WAY */}
-        <div className="mb-[clamp(1.5rem,3vh,3rem)] flex items-center gap-3">
-          <h2 className="text-sm font-bold uppercase tracking-widest text-white">
-            Get in touch your way
-          </h2>
-          <ArrowDown size={18} strokeWidth={2} className="text-white" />
-        </div>
-
-        {/* Contact grid */}
-        <div className="mb-[clamp(1.5rem,4vh,3.5rem)] grid grid-cols-1 gap-y-4 sm:grid-flow-col sm:grid-cols-none sm:grid-rows-2 sm:gap-x-24 sm:gap-y-5 max-w-2xl justify-start">
-          {contactLinks.map((item, idx) => {
-            const inner = (
-              <span className="flex min-w-0 items-center gap-3">
-                <span className="shrink-0">{item.icon}</span>
-                <span className="truncate text-xs font-bold uppercase tracking-widest text-white">
-                  {item.value}
-                </span>
-              </span>
-            );
-            return (
-              <div key={item.label} className="min-w-0">
-                {/* Faint separator between the two rows on desktop */}
-                {idx === 2 && (
-                  <div aria-hidden="true" className="mb-4 hidden h-px w-full max-w-[240px] bg-white/10 sm:block" />
-                )}
-                {item.href ? (
-                  <a
-                    href={item.href}
-                    target={item.href.startsWith("http") ? "_blank" : "_self"}
-                    rel={item.href.startsWith("http") ? "noreferrer" : undefined}
-                    aria-label={item.label}
-                    className="block min-w-0 transition-opacity hover:opacity-60"
-                  >
-                    {inner}
-                  </a>
-                ) : (
-                  <div className="min-w-0 cursor-default">{inner}</div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Divider */}
-        <div className="mb-[clamp(1.5rem,3vh,3rem)] flex items-center gap-3 md:ml-[42%]">
-          <ArrowDown size={18} strokeWidth={2} className="text-white" />
-          <p className="text-sm font-bold uppercase tracking-widest">
-            <span className="text-white/30 line-through decoration-white/30">
-              Or the right way
-            </span>{" "}
-            <span className="text-white">or my way</span>
-          </p>
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="max-w-4xl">
-
-          {/* Row 1 */}
-          <div className="mb-[clamp(1rem,2.5vh,2rem)] grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-10">
-            <div className="border-b border-white/20 pb-2">
-              <input
-                name="name"
-                type="text"
-                placeholder="NAME"
-                className="w-full bg-transparent text-xs font-bold uppercase tracking-widest text-white placeholder:text-white/30 outline-none"
-                required
-              />
+          <span aria-hidden="true" className="contact-bracket">[</span>
+          <span>{formOpen ? "Close conversation" : "Start a conversation"}</span>
+          <span aria-hidden="true" className="contact-bracket">]</span>
+        </button>
+        <div className="contact-panel-rule" aria-hidden="true" />
+        {!formOpen && <p className="contact-panel-email">
+          or write directly{" "}
+          <a href="mailto:abhinavyadav8@gmail.com">
+            abhinavyadav8@gmail.com
+            <ArrowRight aria-hidden="true" size={22} strokeWidth={1.5} />
+          </a>
+        </p>}
+        {formOpen && (
+          <form className="contact-form" onSubmit={handleSubmit}>
+            <div className="contact-form-grid">
+              <label>
+                Name
+                <input name="name" type="text" required autoComplete="name" />
+              </label>
+              <label>
+                Organization
+                <input name="organization" type="text" autoComplete="organization" />
+              </label>
+              <label>
+                Email
+                <input name="email" type="email" required autoComplete="email" />
+              </label>
+              <label>
+                Message
+                <textarea name="message" rows={3} required />
+              </label>
             </div>
-            <div className="border-b border-white/20 pb-2">
-              <input
-                name="organization"
-                type="text"
-                placeholder="ORGANIZATION"
-                className="w-full bg-transparent text-xs font-bold uppercase tracking-widest text-white placeholder:text-white/30 outline-none"
-              />
+            <div className="contact-form-actions">
+              <button type="submit" disabled={loading} className="contact-form-submit">
+                {loading ? "Sending..." : "Send"} <ArrowRight aria-hidden="true" size={18} />
+              </button>
             </div>
-          </div>
-
-          {/* Row 2 */}
-          <div className="mb-[clamp(1.5rem,3vh,2.5rem)] grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-10">
-            <div className="border-b border-white/20 pb-2">
-              <input
-                name="email"
-                type="email"
-                placeholder="EMAIL"
-                className="w-full bg-transparent text-xs font-bold uppercase tracking-widest text-white placeholder:text-white/30 outline-none"
-                required
-              />
-            </div>
-            {/* Auto-expanding message */}
-            <div className="border-b border-white/20 pb-2">
-              <textarea
-                ref={textareaRef}
-                name="message"
-                placeholder="MESSAGE"
-                rows={1}
-                onInput={handleTextareaInput}
-                className="w-full resize-none overflow-hidden bg-transparent text-xs font-bold uppercase tracking-widest text-white placeholder:text-white/30 outline-none"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Send */}
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-white transition-opacity hover:opacity-80 disabled:opacity-40"
-            >
-              {loading ? (
-                <span className="flex items-center gap-2">
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                  Sending…
-                </span>
-              ) : (
-                <>
-                  Send <ArrowRight size={18} strokeWidth={2} />
-                </>
-              )}
-              {/* Underline draws in on hover */}
-              <span
-                aria-hidden="true"
-                className="absolute -bottom-1 left-0 h-px w-0 bg-white transition-all duration-300 group-hover:w-full"
-              />
-            </button>
-          </div>
-
-          {status && (
-            <div
-              role="status"
-              aria-live="polite"
-              className={`mt-6 rounded border px-4 py-3 text-center text-xs font-bold uppercase tracking-widest ${
-                status.type === "success"
-                  ? "border-green-500/30 bg-green-500/10 text-green-300"
-                  : "border-red-500/30 bg-red-500/10 text-red-300"
-              }`}
-            >
-              {status.message}
-            </div>
-          )}
-        </form>
+            {status && <p className={`contact-form-status is-${status.type}`} role="status">{status.message}</p>}
+          </form>
+        )}
       </div>
     </section>
   );
-};
-
-export default Contact;
-
-
+}
