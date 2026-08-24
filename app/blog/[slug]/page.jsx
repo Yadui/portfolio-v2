@@ -232,7 +232,12 @@ const MarkdownComponents = {
   },
 };
 
-export const dynamic = 'force-dynamic';
+// Published posts change rarely, but force-dynamic meant every crawl was an
+// uncached DB round trip (~1.6s TTFB, x-vercel-cache: MISS on every request)
+// while static pages answered in ~0.13s from cache. For a site Google is
+// barely crawling, that cost is paid on every URL. ISR serves them from cache
+// and still picks up edits within the window.
+export const revalidate = 600;
 
 export default async function BlogPost({ params }) {
   const { slug } = await params;
