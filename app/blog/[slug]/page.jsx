@@ -8,7 +8,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { FiHeart, FiBookmark, FiShare2, FiGithub, FiTwitter, FiLinkedin, FiLink, FiInfo, FiAlertCircle, FiCheckCircle } from "react-icons/fi";
 import Image from "next/image";
-import { verifyAuth } from "@/lib/auth";
+import AdminEditButton from "@/components/blog/AdminEditButton";
 import { getSeededBlogPostBySlug, mergeBlogPosts, normalizeStoredPost } from "@/data/blogPosts";
 
 const BASE_URL = "https://abhinav.maoverse.xyz";
@@ -239,6 +239,20 @@ const MarkdownComponents = {
 // and still picks up edits within the window.
 export const revalidate = 600;
 
+// Without this the dynamic segment has no known slugs at build time, so Next
+// renders it on demand (marked "ƒ") and `revalidate` never takes effect —
+// Vercel reported x-vercel-cache: MISS on every request. Prerendering the
+// known posts makes them cacheable; posts added later are still rendered on
+// demand and then cached, because dynamicParams defaults to true.
+export async function generateStaticParams() {
+  try {
+    const rows = await db.select({ slug: posts.slug }).from(posts);
+    return rows.filter((r) => r?.slug).map((r) => ({ slug: r.slug }));
+  } catch {
+    return [];
+  }
+}
+
 export default async function BlogPost({ params }) {
   const { slug } = await params;
 
@@ -305,9 +319,6 @@ export default async function BlogPost({ params }) {
       },
     ],
   };
-
-  const user = await verifyAuth();
-  const isAdmin = !!user;
 
   // Extract headings for TOC
   const headings = [];
@@ -429,14 +440,8 @@ export default async function BlogPost({ params }) {
                   </aside>
                 )}
                 
-                {isAdmin && post.sourceType === "database" && (
-                  <div className="flex justify-end border-t border-[#101828]/10 pt-10">
-                    <Link href={`/blog/edit/${post.id}`}>
-                      <Button variant="outline" className="border-[#101828]/20 text-[#101828] hover:bg-[#101828]/5 hover:text-[#101828]">
-                        Edit Post
-                      </Button>
-                    </Link>
-                  </div>
+                {post.sourceType === "database" && (
+                  <AdminEditButton postId={post.id} />
                 )}
             </main>
 
