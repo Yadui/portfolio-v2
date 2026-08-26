@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { SITE_HOST as CANONICAL_HOST } from "@/lib/site";
 
 // The single canonical host. Every production request served on a different
 // host (e.g. the default *.vercel.app alias) is 308-redirected here so search
 // engines and backlinks consolidate onto one domain instead of a duplicate.
-const CANONICAL_HOST = "abhinav.maoverse.xyz";
+
 
 export function middleware(request: NextRequest) {
   // Only enforce the canonical host on real production deployments. Local dev

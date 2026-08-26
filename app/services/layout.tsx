@@ -1,4 +1,5 @@
-const BASE_URL = "https://abhinav.maoverse.xyz";
+import { SITE_URL } from "@/lib/site";
+const BASE_URL = SITE_URL;
 
 // Mirrors the visible services on /services (app/services/page.jsx) so the
 // structured data matches on-page content.

@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import { workDetails } from "@/data/workDetails";
 import WorkDetailClient from "@/components/WorkDetailClient";
+import { SITE_URL as BASE_URL } from "@/lib/site";
 
-const BASE_URL = "https://abhinav.maoverse.xyz";
 
 export async function generateStaticParams() {
   return Object.keys(workDetails).map((company) => ({ company }));

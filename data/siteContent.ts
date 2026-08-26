@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site";
 /**
  * Site Content Configuration
  *
@@ -147,7 +148,7 @@ export const siteMeta: SiteMeta = {
   ],
   authorName: "Abhinav Yadav",
   creatorName: "Abhinav Yadav",
-  url: "https://abhinav.maoverse.xyz",
+  url: SITE_URL,
   siteName: "Abhinav Yadav Portfolio",
   ogTitle: "Abhinav Yadav | Software Engineer & Creative Developer",
   ogDescription:

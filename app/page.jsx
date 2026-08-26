@@ -10,8 +10,8 @@ import Achievements from "@/components/Achievements";
 import Contact from "@/components/Contact";
 import Timeline from "@/components/Timeline";
 import Skills from "@/components/Skills";
+import { SITE_URL } from "@/lib/site";
 
-const SITE_URL = "https://abhinav.maoverse.xyz";
 
 // The homepage is the only URL Google currently crawls, so every indexable
 // page must be reachable from it in one hop. Search Console reported 23 of 27

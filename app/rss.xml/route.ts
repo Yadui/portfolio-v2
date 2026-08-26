@@ -2,8 +2,8 @@ import { db } from "@/lib/db";
 import { posts } from "@/lib/schema";
 import { desc } from "drizzle-orm";
 import { mergeBlogPosts } from "@/data/blogPosts";
+import { SITE_URL as BASE_URL } from "@/lib/site";
 
-const BASE_URL = "https://abhinav.maoverse.xyz";
 const FEED_TITLE = "Abhinav Yadav — Blog";
 const FEED_DESCRIPTION =
   "Articles on full-stack development, AI, system design, and building software — by Abhinav Yadav.";

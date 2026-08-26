@@ -7,23 +7,23 @@ import { verifyAuth } from "@/lib/auth";
 import DeleteButton from "@/components/DeleteButton";
 import LogoutButton from "@/components/LogoutButton";
 import { mergeBlogPosts } from "@/data/blogPosts";
+import { SITE_URL, SITE_URL as BASE_URL } from "@/lib/site";
 
-const BASE_URL = "https://abhinav.maoverse.xyz";
 
 export const metadata = {
   // "Blog" becomes the title suffix; root template makes it "Blog | Abhinav Yadav"
   // This page OWNS the blogging/writing cluster — no keyword overlap with homepage.
   title: "Blog",
   description: "Technical writing by Abhinav Yadav — deep-dives on Azure, AI pipelines, full-stack development, and cloud engineering from Gurugram, India.",
-  alternates: { canonical: "https://abhinav.maoverse.xyz/blog" },
+  alternates: { canonical: `${SITE_URL}/blog` },
   openGraph: {
     type: "website",
-    url: "https://abhinav.maoverse.xyz/blog",
+    url: `${SITE_URL}/blog`,
     title: "Blog | Abhinav Yadav",
     description: "Technical writing by Abhinav Yadav — Azure, AI pipelines, full-stack development, and cloud engineering.",
     images: [
       {
-        url: "https://abhinav.maoverse.xyz/opengraph-image",
+        url: `${SITE_URL}/opengraph-image`,
         width: 1200,
         height: 630,
         alt: "Abhinav Yadav — Blog",
@@ -34,7 +34,7 @@ export const metadata = {
     card: "summary_large_image",
     title: "Blog | Abhinav Yadav",
     description: "Technical writing by Abhinav Yadav — Azure, AI pipelines, full-stack development, and cloud engineering.",
-    images: ["https://abhinav.maoverse.xyz/opengraph-image"],
+    images: [`${SITE_URL}/opengraph-image`],
   },
 };
 

@@ -1,18 +1,19 @@
+import { SITE_URL } from "@/lib/site";
 export const metadata = {
   title: "Contact",
   description:
     "Hire or collaborate with Abhinav Yadav — Cloud & AI Engineer based in Gurugram, India. Available for Azure infrastructure, AI pipeline development, and full-stack web projects.",
   alternates: {
-    canonical: "https://abhinav.maoverse.xyz/contact",
+    canonical: `${SITE_URL}/contact`,
   },
   openGraph: {
     title: "Contact | Abhinav Yadav",
     description:
       "Hire or collaborate with Abhinav Yadav — Cloud & AI Engineer, Gurugram, India. Available for Azure, AI, and full-stack projects.",
-    url: "https://abhinav.maoverse.xyz/contact",
+    url: `${SITE_URL}/contact`,
     images: [
       {
-        url: "https://abhinav.maoverse.xyz/opengraph-image",
+        url: `${SITE_URL}/opengraph-image`,
         width: 1200,
         height: 630,
         alt: "Contact Abhinav Yadav",
@@ -24,7 +25,7 @@ export const metadata = {
     title: "Contact | Abhinav Yadav",
     description:
       "Hire or collaborate with Abhinav Yadav — Cloud & AI Engineer, Gurugram, India.",
-    images: ["https://abhinav.maoverse.xyz/opengraph-image"],
+    images: [`${SITE_URL}/opengraph-image`],
   },
 };
 

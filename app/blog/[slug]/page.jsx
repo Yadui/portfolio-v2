@@ -11,7 +11,6 @@ import Image from "next/image";
 import AdminEditButton from "@/components/blog/AdminEditButton";
 import { getSeededBlogPostBySlug, mergeBlogPosts, normalizeStoredPost } from "@/data/blogPosts";
 
-const BASE_URL = "https://abhinav.maoverse.xyz";
 
 async function getPost(slug) {
   let post = getSeededBlogPostBySlug(slug);
@@ -95,6 +94,7 @@ function generateId(text) {
 }
 
 import { CodeBlock, CodeBlockCopyButton } from "@/components/ai-elements/code-block";
+import { SITE_URL as BASE_URL } from "@/lib/site";
 
 // Custom Markdown Components for Coloring and IDs
 const MarkdownComponents = {

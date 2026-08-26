@@ -1,11 +1,11 @@
 import { ImageResponse } from "next/og";
+import { SITE_URL } from "@/lib/site";
 
 export const runtime = "edge";
 export const alt = "Abhinav Yadav — Software Engineer & Cloud/AI Developer";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-const SITE_URL = "https://abhinav.maoverse.xyz";
 
 export default function Image() {
   return new ImageResponse(

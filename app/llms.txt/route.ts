@@ -1,4 +1,4 @@
-const SITE_URL = "https://abhinav.maoverse.xyz";
+import { SITE_URL } from "@/lib/site";
 
 export const revalidate = 3600;
 

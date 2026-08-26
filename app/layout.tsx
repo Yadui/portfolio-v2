@@ -7,6 +7,7 @@ import TabPacman from "@/components/TabPacman";
 import SmoothScroll from "@/components/SmoothScroll";
 import SiteHeader from "@/components/SiteHeader";
 import AudioPlayer from "@/components/AudioPlayer";
+import { SITE_URL } from "@/lib/site";
 
 const morsa = localFont({
   src: "../public/fonts/MORSA.ttf",
@@ -64,7 +65,7 @@ const fluctuation = localFont({
 });
 
 export const metadata = {
-  metadataBase: new URL("https://abhinav.maoverse.xyz"),
+  metadataBase: new URL(SITE_URL),
   title: {
     // Homepage owns the personal brand query. Sub-pages get "Page | Abhinav Yadav".
     default: "Abhinav Yadav — Cloud & AI Engineer | Gurugram, India",
@@ -73,7 +74,7 @@ export const metadata = {
   description:
     "Abhinav Yadav is a Cloud & AI Engineer at Foetron, Gurugram. Builds Azure infrastructure, AI pipelines, and full-stack web apps with Next.js and React. Open to freelance and full-time roles.",
   alternates: {
-    canonical: "https://abhinav.maoverse.xyz/",
+    canonical: `${SITE_URL}/`,
   },
   keywords: [
     "Abhinav Yadav",
@@ -89,19 +90,19 @@ export const metadata = {
     "Azure OpenAI engineer",
     "full-stack developer Gurugram",
   ],
-  authors: [{ name: "Abhinav Yadav", url: "https://abhinav.maoverse.xyz" }],
+  authors: [{ name: "Abhinav Yadav", url: SITE_URL }],
   creator: "Abhinav Yadav",
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://abhinav.maoverse.xyz/",
+    url: `${SITE_URL}/`,
     siteName: "Abhinav Yadav",
     title: "Abhinav Yadav — Cloud & AI Engineer | Gurugram, India",
     description:
       "Portfolio of Abhinav Yadav — Cloud & AI Engineer at Foetron, Gurugram. Azure infrastructure, AI pipelines, and full-stack web projects.",
     images: [
       {
-        url: "https://abhinav.maoverse.xyz/opengraph-image",
+        url: `${SITE_URL}/opengraph-image`,
         width: 1200,
         height: 630,
         alt: "Abhinav Yadav — Cloud & AI Engineer, Gurugram India",
@@ -114,7 +115,7 @@ export const metadata = {
     description:
       "Portfolio of Abhinav Yadav — Cloud & AI Engineer at Foetron, Gurugram. Azure infrastructure, AI pipelines, and full-stack projects.",
     creator: "@abhinavyadav88",
-    images: ["https://abhinav.maoverse.xyz/opengraph-image"],
+    images: [`${SITE_URL}/opengraph-image`],
   },
   icons: {
     icon: "/pacman.svg",
@@ -126,7 +127,6 @@ export const metadata = {
 // Site-wide structured data (JSON-LD). A Person + WebSite graph helps Google
 // understand the entity behind the site (knowledge-graph / rich-result signals)
 // and is especially valuable for a personal brand / portfolio.
-const SITE_URL = "https://abhinav.maoverse.xyz";
 const structuredData = {
   "@context": "https://schema.org",
   "@graph": [

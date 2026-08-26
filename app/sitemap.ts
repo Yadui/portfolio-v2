@@ -6,8 +6,8 @@ import { seededBlogPosts } from "@/data/blogPosts";
 // Committed snapshot of published slugs, used only when the DB is
 // unreachable. Regenerate with: node scripts/refresh-sitemap-fallback.mjs
 import blogSlugsFallback from "@/data/blogSlugsFallback.json";
+import { SITE_URL as BASE_URL } from "@/lib/site";
 
-const BASE_URL = "https://abhinav.maoverse.xyz";
 
 // Regenerate the sitemap at most once an hour so blog posts added to the DB
 // after a deploy are picked up automatically (without a full rebuild).
