@@ -124,6 +124,7 @@ export default async function Home() {
             one at a time, then Achievements wipes down over the top of it.
             See components/work/WorkStage.jsx. */}
         <WorkStage
+          continuousNext
           next={
             <div id="journey" className="journey-achievements-flow">
               <Timeline />

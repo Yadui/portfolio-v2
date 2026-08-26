@@ -948,6 +948,25 @@
     min-height: 100%;
   }
 
+  /* A multi-section incoming composition cannot live inside the pinned
+     one-viewport WorkStage. continuousNext opts that instance into ordinary
+     document flow so both sections remain scrollable and visible. */
+  .work-stage[data-continuous-next="true"] .work-stage-pin,
+  .work-stage[data-continuous-next="true"] .work-stage-layer {
+    position: relative;
+    inset: auto;
+    height: auto;
+    overflow: visible;
+  }
+
+  .work-stage[data-continuous-next="true"] .work-stage-layer > * {
+    height: auto;
+  }
+
+  .work-stage[data-continuous-next="true"] .work-stage-next {
+    clip-path: none;
+  }
+
   .work-stage[data-staged="true"] .work-stage-next {
     /* Must clear the work section's own z-10: the layer wrappers have
        `z-index: auto` and so create no stacking context of their own, which

@@ -46,7 +46,7 @@ const REVEAL_END = 0.92;
  * Below 768px, and for anyone who prefers reduced motion, no pin is created:
  * both sections render in ordinary document flow.
  */
-export default function WorkStage({ children, next }) {
+export default function WorkStage({ children, next, continuousNext = false }) {
   const stageRef = useRef(null);
   const pinRef = useRef(null);
   const nextRef = useRef(null);
@@ -58,7 +58,7 @@ export default function WorkStage({ children, next }) {
       const stage = stageRef.current;
       const pin = pinRef.current;
       const nextLayer = nextRef.current;
-      if (!stage || !pin || !nextLayer) return;
+       if (!stage || !pin || !nextLayer || continuousNext) return;
 
       const mm = gsap.matchMedia();
 
@@ -141,7 +141,12 @@ export default function WorkStage({ children, next }) {
 
   return (
     <WorkStageContext.Provider value={{ erased, staged }}>
-      <div ref={stageRef} className="work-stage" data-staged="false">
+      <div
+        ref={stageRef}
+        className="work-stage"
+        data-staged="false"
+        data-continuous-next={continuousNext ? "true" : "false"}
+      >
         <div ref={pinRef} className="work-stage-pin">
           <div className="work-stage-layer">{children}</div>
           <div ref={nextRef} className="work-stage-layer work-stage-next">
