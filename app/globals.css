@@ -1558,6 +1558,36 @@
     text-transform: uppercase;
   }
 
+  .site-footer-nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: clamp(1rem, 3vw, 2.25rem);
+  }
+
+  .site-footer-nav a {
+    /* Padding, not font-size, lifts these to the 24px minimum target size;
+       the footer's small mono type is intentional. */
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 0.25rem 0;
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .site-footer-nav a:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 3px;
+  }
+
+  .site-footer-nav a:hover,
+  .site-footer-nav a:focus-visible,
+  .site-footer-nav a[aria-current="page"] {
+    color: #fff;
+  }
+
   @media (max-width: 767px) {
     .contact-panel-wrap {
       height: 38rem;

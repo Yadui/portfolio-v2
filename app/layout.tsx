@@ -3,6 +3,7 @@ import "./globals.css";
 
 // Components
 import PageTransition from "@/components/PageTransition";
+import SiteFooter from "@/components/SiteFooter";
 import TabPacman from "@/components/TabPacman";
 import SmoothScroll from "@/components/SmoothScroll";
 import SiteHeader from "@/components/SiteHeader";
@@ -242,6 +243,7 @@ export default function RootLayout({ children }) {
         <SmoothScroll />
         <SiteHeader />
         <PageTransition>{children}</PageTransition>
+        <SiteFooter />
         <AudioPlayer />
       </body>
     </html>
