@@ -933,6 +933,21 @@
     height: 100%;
   }
 
+  /* The incoming layer normally receives one viewport-sized section. Journey
+     and Achievements intentionally arrive as one continuous, two-section
+     flow, so preserve its natural height and let the stage reveal the whole
+     composition instead of clipping the second section at the viewport edge. */
+  .work-stage[data-staged="true"] .work-stage-next {
+    height: auto;
+    min-height: 100%;
+    overflow: visible;
+  }
+
+  .work-stage[data-staged="true"] .work-stage-next > .journey-achievements-flow {
+    height: auto;
+    min-height: 100%;
+  }
+
   .work-stage[data-staged="true"] .work-stage-next {
     /* Must clear the work section's own z-10: the layer wrappers have
        `z-index: auto` and so create no stacking context of their own, which
