@@ -123,17 +123,10 @@ export default async function Home() {
         {/* The work section pins on exit: the projects are stripped away
             one at a time, then Achievements wipes down over the top of it.
             See components/work/WorkStage.jsx. */}
-        <WorkStage
-          continuousNext
-          next={
-            <div id="journey" className="journey-achievements-flow">
-              <Timeline />
-              <Achievements />
-            </div>
-          }
-        >
+        <WorkStage next={<Achievements />}>
           <Projects />
         </WorkStage>
+        <Timeline />
         <Skills />
         <Contact />
       </HomeClient>
