@@ -58,7 +58,11 @@ export default function WorkStage({ children, next, continuousNext = false }) {
       const stage = stageRef.current;
       const pin = pinRef.current;
       const nextLayer = nextRef.current;
-       if (!stage || !pin || !nextLayer || continuousNext) return;
+      // continuousNext only removes the wipe-over reveal — the pin and the
+      // row-by-row dismantle ARE the Projects animation, so they must still
+      // run. Bailing out here is what silently disabled it.
+      if (!stage || !pin) return;
+      if (!continuousNext && !nextLayer) return;
 
       const mm = gsap.matchMedia();
 
@@ -69,21 +73,24 @@ export default function WorkStage({ children, next, continuousNext = false }) {
           if (!rows.length) return;
 
           const count = rows.length;
-          const per = DISMANTLE_END / count;
+          // With no wipe-over reveal to follow, the dismantle owns the whole
+          // pin; otherwise it would finish at 62% and leave dead scroll.
+          const dismantleEnd = continuousNext ? 1 : DISMANTLE_END;
+          const per = dismantleEnd / count;
           const eraseTargets = rows.map((row) =>
             row.querySelectorAll("[data-erase]")
           );
 
           stage.dataset.staged = "true";
           setStaged(true);
-          gsap.set(nextLayer, { clipPath: "inset(0% 0% 100% 0%)" });
+          if (nextLayer) gsap.set(nextLayer, { clipPath: "inset(0% 0% 100% 0%)" });
 
           let lastErased = -1;
 
           const trigger = ScrollTrigger.create({
             trigger: stage,
             start: "top top",
-            end: "+=320%",
+            end: continuousNext ? `+=${Math.round(320 * DISMANTLE_END)}%` : "+=320%",
             pin: pin,
             pinSpacing: true,
             anticipatePin: 1,
@@ -112,11 +119,15 @@ export default function WorkStage({ children, next, continuousNext = false }) {
                 setErased(erasedNow);
               }
 
-              // The following section wipes down from the top edge.
-              const r = phase(p, REVEAL_START, REVEAL_END, easeInOut);
-              gsap.set(nextLayer, {
-                clipPath: `inset(0% 0% ${(1 - r) * 100}% 0%)`,
-              });
+              // The following section wipes down from the top edge. In
+              // continuous mode it simply flows after the pin, so there is
+              // nothing to wipe.
+              if (nextLayer) {
+                const r = phase(p, REVEAL_START, REVEAL_END, easeInOut);
+                gsap.set(nextLayer, {
+                  clipPath: `inset(0% 0% ${(1 - r) * 100}% 0%)`,
+                });
+              }
             },
           });
 
@@ -129,7 +140,7 @@ export default function WorkStage({ children, next, continuousNext = false }) {
               row.dataset.erased = "false";
               gsap.set(eraseTargets[i], { clearProps: "all" });
             });
-            gsap.set(nextLayer, { clearProps: "clipPath" });
+            if (nextLayer) gsap.set(nextLayer, { clearProps: "clipPath" });
           };
         }
       );
