@@ -151,6 +151,18 @@ function pick(result) {
   mismatched.forEach((r) => console.log(`  ${r.url}\n     yours:  ${r.userCanonical}\n     google: ${r.googleCanonical}`));
 
   const never = rows.filter((r) => r.lastCrawlTime === "never");
+  // Google's own record of when it last fetched each URL. There is no API
+  // for "Request Indexing" history, so this is the closest evidence of when
+  // a crawl actually happened.
+  console.log("\n=== Last crawl time (most recent first) ===");
+  const crawled = rows
+    .filter((r) => r.lastCrawlTime !== "never")
+    .sort((a, b) => new Date(b.lastCrawlTime) - new Date(a.lastCrawlTime));
+  if (!crawled.length) console.log("  none of the inspected URLs has ever been crawled");
+  crawled.forEach((r) =>
+    console.log(`  ${r.lastCrawlTime}  ${r.url.replace(ORIGIN, "") || "/"}`)
+  );
+
   console.log(`\n=== Never crawled === ${never.length}`);
   never.forEach((r) => console.log(`  ${r.url}`));
 

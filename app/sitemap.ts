@@ -3,12 +3,21 @@ import { db } from "@/lib/db";
 import { posts } from "@/lib/schema";
 import { desc } from "drizzle-orm";
 import { seededBlogPosts } from "@/data/blogPosts";
+// Committed snapshot of published slugs, used only when the DB is
+// unreachable. Regenerate with: node scripts/refresh-sitemap-fallback.mjs
+import blogSlugsFallback from "@/data/blogSlugsFallback.json";
 
 const BASE_URL = "https://abhinav.maoverse.xyz";
 
 // Regenerate the sitemap at most once an hour so blog posts added to the DB
 // after a deploy are picked up automatically (without a full rebuild).
 export const revalidate = 3600;
+
+function blogRoutesWouldBeEmpty(
+  slugs: { slug: string }[]
+): boolean {
+  return slugs.filter((p) => typeof p?.slug === "string" && p.slug.trim()).length === 0;
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Evergreen pages.
@@ -38,15 +47,45 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let blogSlugs: { slug: string; createdAt: Date | number }[] = seededBlogPosts.map(
     (p: { slug: string; createdAt: string }) => ({ slug: p.slug, createdAt: new Date(p.createdAt) })
   );
+  // The seeded array is now empty (every post was migrated to the DB), so a
+  // swallowed DB error here used to emit a sitemap containing only the 8
+  // static routes — Google reads a shrunken sitemap as "these were removed".
+  // Retry once, then fall back to a committed slug snapshot so the sitemap
+  // stays complete without failing the build.
+  const fetchDbPosts = async () =>
+    (db as any)
+      .select({ slug: posts.slug, createdAt: posts.createdAt })
+      .from(posts)
+      .orderBy(desc(posts.createdAt));
+
+  let dbPosts: { slug: string; createdAt: Date | number }[] = [];
   try {
-    const dbPosts = await (db as any).select({ slug: posts.slug, createdAt: posts.createdAt }).from(posts).orderBy(desc(posts.createdAt));
-    if (dbPosts.length > 0) {
-      // Merge: DB posts override seeded ones, then append any seeded not in DB
-      const dbSlugsSet = new Set(dbPosts.map((p) => p.slug));
-      const seededOnly = blogSlugs.filter((p) => !dbSlugsSet.has(p.slug));
-      blogSlugs = [...dbPosts, ...seededOnly];
+    dbPosts = await fetchDbPosts();
+  } catch {
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 400));
+      dbPosts = await fetchDbPosts();
+    } catch {
+      // Handled below by the committed snapshot.
+      dbPosts = [];
     }
-  } catch {}
+  }
+
+  if (dbPosts.length > 0) {
+    // Merge: DB posts override seeded ones, then append any seeded not in DB
+    const dbSlugsSet = new Set(dbPosts.map((p) => p.slug));
+    const seededOnly = blogSlugs.filter((p) => !dbSlugsSet.has(p.slug));
+    blogSlugs = [...dbPosts, ...seededOnly];
+  }
+
+  // Last resort: a DB outage must not silently drop 19 URLs from the sitemap,
+  // and must not fail the build either. Fall back to the committed snapshot.
+  if (blogRoutesWouldBeEmpty(blogSlugs)) {
+    blogSlugs = blogSlugsFallback.map((p) => ({
+      slug: p.slug,
+      createdAt: p.createdAt ? new Date(p.createdAt) : new Date(),
+    }));
+  }
 
   const blogRoutes: MetadataRoute.Sitemap = blogSlugs
     .filter(({ slug }) => typeof slug === "string" && slug.trim().length > 0)

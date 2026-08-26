@@ -1,0 +1,78 @@
+[
+  {
+    "slug": "llm-kv-cache-why-not-query",
+    "createdAt": "2026-05-29T00:00:00.000Z"
+  },
+  {
+    "slug": "jwt-localstorage-cookie-auth",
+    "createdAt": "2026-05-27T00:00:00.000Z"
+  },
+  {
+    "slug": "github-actions-persist-credentials-security",
+    "createdAt": "2026-05-25T00:00:00.000Z"
+  },
+  {
+    "slug": "microsoft-foundry-agent-service-cloud-runtime",
+    "createdAt": "2026-04-29T00:00:00.000Z"
+  },
+  {
+    "slug": "automating-azure-app-service-deployments-with-github-actions-and-secure-secrets",
+    "createdAt": "2026-03-07T09:00:00.000Z"
+  },
+  {
+    "slug": "gpt-5-4-coding-and-computer-use",
+    "createdAt": "2026-03-05T00:00:00.000Z"
+  },
+  {
+    "slug": "dockerizing-a-complex-app-lightweight-images-multi-stage-builds-and-secrets",
+    "createdAt": "2026-02-20T09:00:00.000Z"
+  },
+  {
+    "slug": "nextjs-fastapi-the-full-stack-combination-that-replaced-our-monolith",
+    "createdAt": "2026-02-05T09:00:00.000Z"
+  },
+  {
+    "slug": "connecting-custom-ai-agents-to-openwebui-auth-latency-and-api-design",
+    "createdAt": "2026-01-24T09:00:00.000Z"
+  },
+  {
+    "slug": "schemaforge-extracting-structured-data-from-unstructured-documents-with-azure-ai",
+    "createdAt": "2026-01-08T09:00:00.000Z"
+  },
+  {
+    "slug": "sql-database-scheduled-backup-to-azure-blob",
+    "createdAt": "2025-12-12T11:09:35.000Z"
+  },
+  {
+    "slug": "designing-agentic-ai-workflows-tool-calling-memory-and-multi-modal-integration",
+    "createdAt": "2025-12-12T09:00:00.000Z"
+  },
+  {
+    "slug": "building-a-production-rag-pipeline-with-azure-ai-search-and-gpt-4",
+    "createdAt": "2025-11-29T09:00:00.000Z"
+  },
+  {
+    "slug": "building-a-cloud-cost-calculator-with-the-azure-retail-prices-api",
+    "createdAt": "2025-11-15T09:00:00.000Z"
+  },
+  {
+    "slug": "private-endpoints-on-azure-the-dns-gotchas-nobody-warns-you-about",
+    "createdAt": "2025-10-28T09:00:00.000Z"
+  },
+  {
+    "slug": "securing-azure-virtual-desktop-with-entra-id-and-passwordless-mfa",
+    "createdAt": "2025-10-03T09:00:00.000Z"
+  },
+  {
+    "slug": "monolith-to-microservices-on-azure-a-production-migration-playbook",
+    "createdAt": "2025-09-12T09:00:00.000Z"
+  },
+  {
+    "slug": "vercel-ai-sdk-5-type-safe-agents",
+    "createdAt": "2025-07-31T00:00:00.000Z"
+  },
+  {
+    "slug": "openai-responses-api-agentic-web-apps",
+    "createdAt": "2025-03-11T00:00:00.000Z"
+  }
+]
