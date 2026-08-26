@@ -122,19 +122,6 @@
 }
 
 @layer components {
-  /* Journey and Achievements share one uninterrupted stage. The component
-     IDs remain on their own sections for deep links and accessibility, while
-     this wrapper keeps the black field and structural rhythm continuous. */
-  .journey-achievements-flow {
-    position: relative;
-    background: #000;
-  }
-
-  .journey-achievements-flow > #timeline,
-  .journey-achievements-flow > #achievements {
-    background: transparent;
-  }
-
   /* Contact section — sized to its content plus a little breathing room,
      not the full viewport, so the Send button sits close to the footer. */
   .contact-fill {
@@ -933,40 +920,6 @@
     height: 100%;
   }
 
-  /* The incoming layer normally receives one viewport-sized section. Journey
-     and Achievements intentionally arrive as one continuous, two-section
-     flow, so preserve its natural height and let the stage reveal the whole
-     composition instead of clipping the second section at the viewport edge. */
-  .work-stage[data-staged="true"] .work-stage-next {
-    height: auto;
-    min-height: 100%;
-    overflow: visible;
-  }
-
-  .work-stage[data-staged="true"] .work-stage-next > .journey-achievements-flow {
-    height: auto;
-    min-height: 100%;
-  }
-
-  /* A multi-section incoming composition cannot live inside the pinned
-     one-viewport WorkStage. continuousNext opts that instance into ordinary
-     document flow so both sections remain scrollable and visible. */
-  .work-stage[data-continuous-next="true"] .work-stage-pin,
-  .work-stage[data-continuous-next="true"] .work-stage-layer {
-    position: relative;
-    inset: auto;
-    height: auto;
-    overflow: visible;
-  }
-
-  .work-stage[data-continuous-next="true"] .work-stage-layer > * {
-    height: auto;
-  }
-
-  .work-stage[data-continuous-next="true"] .work-stage-next {
-    clip-path: none;
-  }
-
   .work-stage[data-staged="true"] .work-stage-next {
     /* Must clear the work section's own z-10: the layer wrappers have
        `z-index: auto` and so create no stacking context of their own, which
@@ -1590,6 +1543,24 @@
 
   .contact-form-status.is-success { color: #b9ffdb; }
   .contact-form-status.is-error { color: #ffd0d0; }
+
+  /* The pinned achievements stage is exactly viewport-height, while the
+     floating cards are positioned in absolute pixels. On short viewports the
+     composition (about 700px tall) cannot fit, so scale it down rather than
+     let `overflow: clip` cut a card in half. */
+  @media (min-width: 768px) and (max-height: 800px) {
+    .achievements-float {
+      transform: scale(0.82);
+      transform-origin: center center;
+    }
+  }
+
+  @media (min-width: 768px) and (min-height: 801px) and (max-height: 900px) {
+    .achievements-float {
+      transform: scale(0.92);
+      transform-origin: center center;
+    }
+  }
 
   .site-footer-minimal {
     display: flex;

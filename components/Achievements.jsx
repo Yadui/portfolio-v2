@@ -83,12 +83,12 @@ const AchievementCard = ({ item, delay = 0 }) => {
 const CertCard = ({ delay = 0 }) => (
   <motion.div
     {...fadeUp(delay)}
-    className="w-full border border-white/15 bg-[#0b0b0f]/90 p-5 backdrop-blur-sm md:w-[220px]"
+    className="w-full border border-white/15 bg-[#0b0b0f]/90 p-5 backdrop-blur-sm md:w-[252px]"
   >
     <p className="text-[0.6rem] font-bold uppercase tracking-[0.28em] text-white/35">
       Certifications ×{certifications.length}
     </p>
-    <ul className="mt-4 flex flex-col gap-3">
+    <ul className="mt-4 flex flex-col gap-2.5">
       {certifications.map((cert) => (
         <li key={cert.code} className="flex items-start justify-between gap-3">
           <div className="min-w-0">
@@ -128,26 +128,30 @@ const Achievements = () => {
     >
       <EdgeLines />
 
-      {/* ── Desktop / tablet: floating parallax layer (md and up) ── */}
-      <div className="hidden md:block">
+      {/* ── Desktop / tablet: floating parallax layer (md and up) ──
+          Offsets are absolute pixels from the stage centre, but the stage is
+          pinned at viewport height, so the composition is balanced around the
+          centre (+/-350px) and scaled down on short viewports. A fifth
+          certification previously pushed the card past the clipped floor. */}
+      <div className="achievements-float hidden md:block">
         <Floating sensitivity={0.8} easingFactor={0.04}>
           {/* Left-top — achievement 1 */}
-          <FloatingElement depth={1.2} className="top-1/2 left-1/2" style={{ translate: "-520px -280px" }}>
+          <FloatingElement depth={1.2} className="top-1/2 left-1/2" style={{ translate: "-520px -350px" }}>
             <AchievementCard item={first} delay={0.05} />
           </FloatingElement>
 
           {/* Right-top — achievement 2 */}
-          <FloatingElement depth={0.7} className="top-1/2 left-1/2" style={{ translate: "260px -260px" }}>
+          <FloatingElement depth={0.7} className="top-1/2 left-1/2" style={{ translate: "260px -330px" }}>
             <AchievementCard item={second} delay={0.12} />
           </FloatingElement>
 
           {/* Left-bottom — achievement 3 */}
-          <FloatingElement depth={1.6} className="top-1/2 left-1/2" style={{ translate: "-500px 120px" }}>
+          <FloatingElement depth={1.6} className="top-1/2 left-1/2" style={{ translate: "-500px 50px" }}>
             <AchievementCard item={third} delay={0.18} />
           </FloatingElement>
 
           {/* Right-bottom — certifications */}
-          <FloatingElement depth={0.9} className="top-1/2 left-1/2" style={{ translate: "280px 120px" }}>
+          <FloatingElement depth={0.9} className="top-1/2 left-1/2" style={{ translate: "280px -60px" }}>
             <CertCard delay={0.22} />
           </FloatingElement>
         </Floating>
