@@ -578,3 +578,12 @@
 - **After:** Certifications ×5 displays AZ-104 with a two-star rating; GH-300 remains two stars.
 - **Why:** User requested AZ-104 2 stars and GH-300 2 stars.
 - **Fix/Notes:** Confirmed the existing `CertificationItem.stars` field is rendered as filled stars out of 3 by `components/Achievements.jsx`; added the new item to the existing typed array without changing the component. Lint 0 errors / 13 warnings (baseline); isolated clean-install production build compiled. Port 3100 untouched.
+
+#### [FEAT] Join Journey and Achievements into one continuous section
+- **Template/File:** `app/page.jsx`, `app/globals.css`
+- **Record:** `journey-achievements-flow`
+- **What changed:** Wrapped `Timeline` and `Achievements` in a shared `journey-achievements-flow` black stage while preserving both existing section IDs, components, interactions, and the `WorkStage` transition boundary.
+- **Before:** Journey and Achievements were separate siblings in the homepage composition, with the next section rendered directly after Timeline.
+- **After:** They share one uninterrupted black visual field with no boundary gap; both `#timeline` and `#achievements` remain addressable.
+- **Why:** User requested Journey and Achievements as one continuous section.
+- **Fix/Notes:** The first structural placement was corrected after inspecting `WorkStage`: putting the wrapper outside `WorkStage` would have bypassed its desktop pinned transition and regress the existing wipe choreography. The wrapper therefore lives inside the `next` layer, where Journey + Achievements already arrive as one incoming composition. Existing section IDs remain on their own sections for deep links and accessibility; their black backgrounds are made transparent so the shared wrapper owns continuity. Composition read: preserve the dark guided-editorial system, DESIGN_VARIANCE 7, MOTION_INTENSITY 6, VISUAL_DENSITY 4. Verified with clean-install production build and Playwright: desktop flow exists, both IDs/headings render, boundary gap is 0px, shared background is black, six sections remain, no horizontal overflow. Mobile 390px: boundary gap 0px, flow height 2086px, four timeline cards render, achievements content present, no horizontal overflow. Lint 0 errors / 13 warnings (baseline); port 3100 untouched.

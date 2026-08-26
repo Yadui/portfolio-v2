@@ -122,6 +122,19 @@
 }
 
 @layer components {
+  /* Journey and Achievements share one uninterrupted stage. The component
+     IDs remain on their own sections for deep links and accessibility, while
+     this wrapper keeps the black field and structural rhythm continuous. */
+  .journey-achievements-flow {
+    position: relative;
+    background: #000;
+  }
+
+  .journey-achievements-flow > #timeline,
+  .journey-achievements-flow > #achievements {
+    background: transparent;
+  }
+
   /* Contact section — sized to its content plus a little breathing room,
      not the full viewport, so the Send button sits close to the footer. */
   .contact-fill {
