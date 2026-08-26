@@ -148,10 +148,19 @@ export default function WorkStage({ children, next, continuousNext = false }) {
         data-continuous-next={continuousNext ? "true" : "false"}
       >
         <div ref={pinRef} className="work-stage-pin">
-          <div className="work-stage-layer">{children}</div>
-          <div ref={nextRef} className="work-stage-layer work-stage-next">
-            {next}
-          </div>
+          {continuousNext ? (
+            <>
+              <div className="work-stage-layer">{children}</div>
+              {next}
+            </>
+          ) : (
+            <>
+              <div className="work-stage-layer">{children}</div>
+              <div ref={nextRef} className="work-stage-layer work-stage-next">
+                {next}
+              </div>
+            </>
+          )}
         </div>
       </div>
     </WorkStageContext.Provider>
