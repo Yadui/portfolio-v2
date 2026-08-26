@@ -569,3 +569,12 @@
 - **After:** 27 URLs are served whether the DB is up or down, and the build stays green either way.
 - **Why:** Investigating why `sitemap.xml` has been stuck pending since 2026-08-04.
 - **Fix/Notes:** Verified the XML itself is not malformed - well-formed, correct namespace, 27 URLs, 19 valid W3C `lastmod` values, no BOM, no future dates, 200 as `application/xml` in ~114ms - so "always fails" is a stuck pending registration rather than a defect. The likely trigger is this truncation bug: a failed DB read at fetch time would have served a sitemap missing every post. First attempt rethrew on failure, on the reasoning that an error is safer than a shrunken sitemap because Google retains the last good copy. Testing disproved that as a whole solution: with the DB unreachable the build aborted on `/sitemap.txt` prerender, so a DB outage would block deploys entirely. Replaced with a committed slug snapshot, which keeps the sitemap complete without coupling deploys to DB availability. Verified both paths end to end: healthy DB gives HTTP 200 with 27 `<loc>` and 19 `<lastmod>`; with `TURSO_DATABASE_URL` pointed at a nonexistent host the build still compiles and the route still serves 27 `<loc>`. Lint 0 errors / 13 warnings (baseline). Not done: deleting and re-submitting `sitemap.xml` in Search Console - the supplied OAuth token carries only `webmasters.readonly`, so `DELETE` and `PUT` on the sitemaps endpoint both returned 403 `PERMISSION_DENIED`; that needs the `https://www.googleapis.com/auth/webmasters` scope.
+
+#### [FEAT] Add AZ-104 certification with two-star rating
+- **Template/File:** `data/siteContent.ts`
+- **Record:** `certifications`
+- **What changed:** Added AZ-104 — Azure Administrator, Microsoft, Associate, with `stars: 2`. GH-300 already had `stars: 2`, so no duplicate change was needed.
+- **Before:** Certifications list contained AB-100, AI-102, GH-300 (already 2 stars), and AZ-900.
+- **After:** Certifications ×5 displays AZ-104 with a two-star rating; GH-300 remains two stars.
+- **Why:** User requested AZ-104 2 stars and GH-300 2 stars.
+- **Fix/Notes:** Confirmed the existing `CertificationItem.stars` field is rendered as filled stars out of 3 by `components/Achievements.jsx`; added the new item to the existing typed array without changing the component. Lint 0 errors / 13 warnings (baseline); isolated clean-install production build compiled. Port 3100 untouched.

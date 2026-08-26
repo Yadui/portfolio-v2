@@ -267,6 +267,14 @@ export const certifications: CertificationItem[] = [
     stars: 2,
   },
   {
+    code: "AZ-104",
+    name: "Azure Administrator",
+    brand: "Microsoft",
+    accent: "#2563eb",
+    level: "Associate",
+    stars: 2,
+  },
+  {
     code: "GH-300",
     name: "GitHub Copilot",
     brand: "GitHub",
