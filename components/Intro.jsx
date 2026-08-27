@@ -13,6 +13,12 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
  *  drama comes from the stretch response when the pointer moves. */
 const RULE_W = 1;
 
+/** Pointer lag, in px, at which the rule reaches full viewport width. */
+const FULL_OPEN_LAG = 220;
+
+/** How long the rule holds its width after the pointer stops, in ms. */
+const OPEN_HOLD_MS = 900;
+
 /** Maps 0..1 across a sub-range of the scroll, clamped and eased. */
 const phase = (p, start, end, ease) => {
   const t = gsap.utils.clamp(0, 1, (p - start) / (end - start));
@@ -55,6 +61,9 @@ export default function Intro() {
   // Live pointer X. Ref-only: never sets state, so pointer movement cannot
   // trigger a React render.
   const pointerXRef = useRef(null);
+  // Timestamp of the last pointer movement. The rule stays open for a beat
+  // after the pointer stops before it collapses back to the hairline.
+  const lastMoveRef = useRef(0);
   const [reduce, setReduce] = useState(false);
 
   useEffect(() => {
@@ -68,6 +77,7 @@ export default function Intro() {
   useEffect(() => {
     const onMove = (event) => {
       pointerXRef.current = event.clientX;
+      lastMoveRef.current = performance.now();
     };
     window.addEventListener("pointermove", onMove, { passive: true });
     return () => window.removeEventListener("pointermove", onMove);
@@ -245,6 +255,12 @@ export default function Intro() {
       // so it does not lunge across the screen the moment the hero lands.
       let settling = false;
       let rendering = false;
+      // Widest *openness* (0..1) reached during the current gesture. Latching
+      // the fraction rather than the scale matters: the rule keeps travelling
+      // during the hold, and the half-width needed to touch both edges changes
+      // with it. A latched scale goes stale and under-covers; a latched
+      // fraction is re-resolved against the current reach every frame.
+      let peakOpenness = 0;
 
       const render = () => {
         // Progress is read from the trigger rather than pushed in from
@@ -285,16 +301,38 @@ export default function Intro() {
             targetScale = 1;
             if (distance < 2) settling = false;
           } else {
-            // 2px at rest, opening to a ~144px band when the pointer
-            // outruns it. The ceiling is expressed against the 2px base, so
-            // it is far higher than it looks: 72 * 2px = 144px.
-            targetScale = gsap.utils.clamp(1, 72, 1 + distance / 2.2);
+            // Full-bleed at the top of the range. The ceiling has to be the
+            // distance to the *furthest* edge, not half the viewport: the band
+            // is centred on the rule, so an off-centre rule needs a wider
+            // half-width to touch both sides. Using vw / (RULE_W * 2) capped a
+            // move to the right-hand side at ~75% of the screen.
+            const maxScale = Math.max(curX, vw - curX) / RULE_W;
+            const openness = gsap.utils.clamp(0, 1, distance / FULL_OPEN_LAG);
+
+            // Once the pointer stops, `distance` collapses to zero within a
+            // few frames, which would snap the rule shut instantly. Hold the
+            // openness it reached until the delay expires, then let it fall.
+            // Latching the *fraction* rather than the scale matters: the rule
+            // keeps travelling during the hold, so the half-width needed to
+            // reach both edges changes. A latched scale goes stale and
+            // under-covers; a fraction is re-resolved against the current
+            // reach every frame.
+            const sinceMove = performance.now() - lastMoveRef.current;
+            let held;
+            if (sinceMove < OPEN_HOLD_MS) {
+              peakOpenness = Math.max(peakOpenness, openness);
+              held = peakOpenness;
+            } else {
+              peakOpenness = 0;
+              held = openness;
+            }
+            targetScale = 1 + (maxScale - 1) * held;
           }
           kx = 0.12;
           // Fast attack, slow release: the rule snaps open when it has
           // ground to cover and eases back as it arrives.
-          kUp = 0.34;
-          kDown = 0.07;
+          kUp = 0.55;
+          kDown = 0.1;
         } else {
           targetX = anchorX;
           // Distance from the launch point to the furthest viewport edge.
