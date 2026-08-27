@@ -8,8 +8,10 @@ import { useGSAP } from "@gsap/react";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
-/** Half-width of the resting rule, in px. The rule is RULE_W * 2 wide. */
-const RULE_W = 6;
+/** Half-width of the resting rule, in px. The rule is RULE_W * 2 wide.
+ *  Deliberately hairline at rest so the painting reads as a sliver, and the
+ *  stretch response below does the talking when the pointer moves. */
+const RULE_W = 3;
 
 /** Maps 0..1 across a sub-range of the scroll, clamped and eased. */
 const phase = (p, start, end, ease) => {
@@ -182,7 +184,8 @@ export default function Intro() {
         .to(
           hello,
           { autoAlpha: 0, xPercent: -6, duration: 0.5, ease: "power2.in" },
-          "+=0.55"
+          // Longer beat on the full-bleed painting before it closes down.
+          "+=1.7"
         )
         .to(
           field,
@@ -282,7 +285,8 @@ export default function Intro() {
             targetScale = 1;
             if (distance < 2) settling = false;
           } else {
-            targetScale = gsap.utils.clamp(1, 9, 1 + distance / 26);
+            // 6px at rest, opening to ~144px when the pointer outruns it.
+            targetScale = gsap.utils.clamp(1, 24, 1 + distance / 7);
           }
           kx = 0.12;
           // Fast attack, slow release: the rule snaps open when it has
