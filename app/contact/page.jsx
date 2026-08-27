@@ -15,6 +15,7 @@ import {
 
 import { FaEnvelope, FaMapMarkedAlt, FaLinkedin } from "react-icons/fa";
 import { motion } from "framer-motion";
+import PageIntro from "@/components/PageIntro";
 import { useState } from "react";
 
 const info = [
@@ -128,6 +129,12 @@ const Contact = () => {
       className="min-h-screen bg-[#fffdf8] pb-16 pt-28 text-[#101828]"
     >
       <div className="container mx-auto">
+        <PageIntro
+          kicker="Get in touch"
+          title="Let's work together"
+          lede="Tell me what you are building and where it is stuck. I read every message and reply personally."
+        />
+
         <div className="flex flex-col gap-[30px] xl:flex-row">
           {/* form */}
           <div className="order-2 xl:order-none xl:w-[54%]">
@@ -135,11 +142,6 @@ const Contact = () => {
               className="flex flex-col gap-6 rounded-2xl border border-[#101828]/10 bg-white/80 p-10 shadow-[0_24px_80px_rgba(16,24,40,0.1)]"
               onSubmit={handleSubmit}
             >
-              <h1 className="portfolio-title text-4xl">Let&apos;s work together</h1>
-              <p className="text-[#536074]">
-                Collaborate with me to bring your ideas to life with creativity
-                and precision.
-              </p>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div>
                   <label htmlFor="contact-firstname" className={fieldLabelClass}>
@@ -272,7 +274,7 @@ const Contact = () => {
                           target={item.isExternal ? "_blank" : "_self"}
                           rel={item.isExternal ? "noopener noreferrer" : ""}
                           aria-label={item.title}
-                          className="transition-all hover:scale-125"
+                          className="flex h-full w-full items-center justify-center rounded-full transition-transform hover:scale-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#00805b]"
                         >
                           <div>{item.icon}</div>
                         </a>

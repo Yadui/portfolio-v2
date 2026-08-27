@@ -5,7 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 
 import { services } from "@/data/siteContent";
-import RevealText from "@/components/RevealText";
+import PageIntro from "@/components/PageIntro";
 
 const EASE = [0.22, 1, 0.36, 1];
 
@@ -13,16 +13,11 @@ const Services = () => {
   return (
     <section className="flex min-h-[80vh] flex-col justify-center bg-[#fffdf8] pb-16 pt-28 text-[#101828]">
       <div className="container mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE } }}
-          className="mb-14 flex flex-col gap-3"
-        >
-          <span className="portfolio-kicker">What I can do for you</span>
-          <RevealText as="h1" className="portfolio-title text-5xl md:text-6xl">
-            Services
-          </RevealText>
-        </motion.div>
+        <PageIntro
+          kicker="What I can do for you"
+          title="Services"
+          lede="Cloud infrastructure, AI workflows and full-stack delivery, scoped to what the problem actually needs."
+        />
 
         <div className="grid grid-cols-1 gap-[60px] md:grid-cols-2">
           {services.map((service, index) => {

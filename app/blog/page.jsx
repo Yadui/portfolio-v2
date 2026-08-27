@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { posts } from "@/lib/schema";
 import { desc } from "drizzle-orm";
 import Link from "next/link";
+import PageIntro from "@/components/PageIntro";
 import { Button } from "@/components/ui/button";
 import { verifyAuth } from "@/lib/auth";
 import DeleteButton from "@/components/DeleteButton";
@@ -93,93 +94,104 @@ export default async function BlogList() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(blogJsonLd) }}
       />
       <div className="container mx-auto">
-        <div className="flex justify-between items-center mb-12">
-          {/* ... Home Link and Title */}
-          <div className="flex items-center gap-4">
-            <Link href="/">
-              <Button
-                variant="outline"
-                className="gap-2 border-[#101828]/20 text-[#101828] hover:bg-[#101828]/5 hover:text-[#101828]"
-              >
-                ← Home
-              </Button>
-            </Link>
-            <h1 className="text-4xl font-light text-[#101828]">Blog</h1>
-          </div>
-
-          <div className="flex gap-4 items-center">
-            {isAdmin ? (
-              <>
+        <PageIntro
+          kicker="Writing"
+          title="Blog"
+          lede="Notes on cloud architecture, AI systems, and the details that only surface once something is running in production."
+          actions={
+            isAdmin ? (
+              <div className="flex items-center gap-3">
                 <Link href="/blog/create">
                   <Button className="bg-accent text-primary transition-all">Create Post</Button>
                 </Link>
                 <LogoutButton />
-              </>
+              </div>
             ) : canShowLogin ? (
-                <Link href="/login">
-                  <Button
-                    variant="outline"
-                    className="border-[#101828]/20 text-[#101828] hover:bg-[#101828]/5 hover:text-[#101828]"
-                  >
-                    Login
-                  </Button>
-                </Link>
-            ) : null}
-          </div>
-        </div>
+              <Link href="/login">
+                <Button
+                  variant="outline"
+                  className="border-[#101828]/20 text-[#101828] hover:bg-[#101828]/5 hover:text-[#101828]"
+                >
+                  Login
+                </Button>
+              </Link>
+            ) : null
+          }
+        />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
-          {allPosts.map((post) => (
-            <div key={post.id} className="group relative h-full">
-              <Link href={`/blog/${post.slug}`} className="block h-full">
-                <div className="flex h-full flex-col overflow-hidden rounded-xl border border-[#101828]/10 bg-white/80 shadow-[0_14px_50px_rgba(16,24,40,0.07)] transition-all duration-300 hover:-translate-y-1 hover:border-[#00b86b]/50 hover:shadow-[0_24px_80px_rgba(16,24,40,0.12)]">
-                  {post.coverImage && (
-                    <div className="relative w-full h-48 overflow-hidden">
-                      <img
-                        src={post.coverImage}
-                        alt={post.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    </div>
+        {/* Editorial list rather than a three-up card grid: the posts differ in
+            weight, and equal cards flattened that. Structural rules carry the
+            grouping, so no elevation is needed. */}
+        <div className="border-t border-[#101828]/10 pb-24">
+          {allPosts.map((post, index) => (
+            <article
+              key={post.id}
+              className="group relative border-b border-[#101828]/10"
+            >
+              <Link
+                href={`/blog/${post.slug}`}
+                className="grid gap-3 py-8 md:grid-cols-12 md:items-baseline md:gap-8"
+              >
+                <span className="font-mono text-xs text-[#8892a4] md:col-span-1">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+
+                <div className="md:col-span-7">
+                  <h2 className="portfolio-title text-2xl transition-colors group-hover:text-[#00805b] md:text-3xl">
+                    {post.title}
+                  </h2>
+                  {(post.excerpt || post.content) && (
+                    <p className="portfolio-body mt-2 max-w-[62ch] line-clamp-2 text-sm">
+                      {post.excerpt || `${post.content.substring(0, 150)}...`}
+                    </p>
                   )}
-                  <div className="p-6 flex flex-col flex-grow">
-                    <h2 className="mb-3 text-2xl font-light text-[#101828] transition-colors group-hover:text-[#00805b]">{post.title}</h2>
-
-                    {post.tags && (
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {post.tags.split(',').map((tag, i) => (
-                          <span key={i} className="rounded-full bg-[#101828]/5 px-2 py-1 text-xs text-[#536074]">
-                            #{tag.trim()}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-                    <p className="mb-4 flex-grow text-[#536074] line-clamp-3">{post.excerpt || post.content.substring(0, 150)}...</p>
-                    <div className="mt-auto border-t border-[#101828]/5 pt-4 text-sm text-[#8892a4]">
-                      {new Date(post.createdAt).toLocaleDateString()}
-                    </div>
-                  </div>
                 </div>
+
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 md:col-span-3 md:justify-end">
+                  {post.tags &&
+                    post.tags
+                      .split(",")
+                      .slice(0, 2)
+                      .map((tag) => (
+                        <span
+                          key={tag}
+                          className="font-mono text-[0.68rem] uppercase tracking-[0.14em] text-[#8892a4]"
+                        >
+                          {tag.trim()}
+                        </span>
+                      ))}
+                </div>
+
+                <time
+                  dateTime={new Date(post.createdAt).toISOString()}
+                  className="font-mono text-xs text-[#8892a4] md:col-span-1 md:text-right"
+                >
+                  {new Date(post.createdAt).toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </time>
               </Link>
 
               {isAdmin && post.sourceType === "database" && (
-                <div className="absolute top-4 right-4 z-10 flex items-center gap-1.5">
+                <div className="absolute right-0 top-3 z-10 flex items-center gap-1.5">
                   <Link
                     href={`/blog/edit/${post.id}`}
-                    onClick={e => e.stopPropagation()}
-                    className="flex h-8 w-8 items-center justify-center rounded-full bg-[#101828]/80 text-white backdrop-blur-sm hover:bg-[#101828] transition-colors"
-                    title="Edit post"
+                    className="flex h-8 items-center rounded-full border border-[#101828]/15 px-3 font-mono text-[0.68rem] uppercase tracking-[0.12em] text-[#536074] transition-colors hover:border-[#101828]/40 hover:text-[#101828]"
                   >
-                    ✎
+                    Edit
                   </Link>
                   <DeleteButton id={post.id} />
                 </div>
               )}
-            </div>
+            </article>
           ))}
+
           {allPosts.length === 0 && (
-            <p className="col-span-full text-center text-[#536074]">No posts yet.</p>
+            <p className="portfolio-body py-16 text-center">
+              No posts published yet.
+            </p>
           )}
         </div>
       </div>

@@ -7,7 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { projects } from "@/data/projectsMenuData";
-import RevealText from "@/components/RevealText";
+import PageIntro from "@/components/PageIntro";
 
 const Work = () => {
   const [filter, setFilter] = useState("all");
@@ -21,36 +21,37 @@ const Work = () => {
   return (
     <section className="min-h-screen bg-[#fffdf8] pb-24 pt-28 text-[#101828]">
       <div className="container mx-auto px-4">
-        <div className="mb-16 flex flex-col items-center space-y-8">
-          <div className="flex flex-col items-center gap-3 text-center">
-            <span className="portfolio-kicker">Selected work</span>
-            <RevealText as="h1" className="portfolio-title text-5xl md:text-6xl">
-              My Projects
-            </RevealText>
-          </div>
-
-          {/* Filter Tabs */}
-          <div className="flex flex-wrap justify-center gap-4">
-            {tabs.map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setFilter(tab)}
-                aria-pressed={filter === tab}
-                className={`rounded-full border px-6 py-2 text-sm font-bold uppercase tracking-wider transition-all duration-300 ${
-                  filter === tab
-                    ? "border-[#101828] bg-[#101828] text-[#fffdf8] shadow-[0_14px_40px_rgba(16,24,40,0.22)]"
-                    : "border-[#101828]/10 bg-white/70 text-[#536074] hover:border-[#101828]/40 hover:text-[#101828]"
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-        </div>
+        <PageIntro
+          kicker="Selected work"
+          title="Projects"
+          lede="Cloud, AI and product builds. Each one is a system I designed, shipped and still maintain."
+          actions={
+            /* Filters live with the intro so the page opens with one block
+               rather than a centred header stacked on a centred pill row. */
+            <div className="flex flex-wrap gap-2" role="group" aria-label="Filter projects">
+              {tabs.map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setFilter(tab)}
+                  aria-pressed={filter === tab}
+                  className={`rounded-full border px-5 py-2 text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
+                    filter === tab
+                      ? "border-[#101828] bg-[#101828] text-[#fffdf8]"
+                      : "border-[#101828]/15 bg-transparent text-[#536074] hover:border-[#101828]/40 hover:text-[#101828]"
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+          }
+        />
 
         <motion.div
           layout
-          className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3"
+          /* Asymmetric: the lead project spans two columns so the grid has a
+             focal point instead of three identical tiles. */
+          className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 [&>*:first-child]:md:col-span-2"
         >
           <AnimatePresence>
             {filteredProjects.map((project) => (
