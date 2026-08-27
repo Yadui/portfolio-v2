@@ -186,7 +186,11 @@
      as a window onto the artwork rather than a separate picture. Fixed, so it
      stays locked to the viewport while the bar travels and the page scrolls. */
   .hero-painting {
-    position: fixed;
+    /* Absolute, not fixed. Fixed kept the painting pinned to the viewport, so
+       once the hero had scrolled away its clipped band — which the scroll
+       sequence widens — sat on top of every later section. Anchoring it to the
+       hero box means it leaves with the hero. */
+    position: absolute;
     inset: 0;
     background-color: #000;
     background-image: url("/hero/intro-painting.png");
