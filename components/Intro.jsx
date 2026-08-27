@@ -9,9 +9,9 @@ import { useGSAP } from "@gsap/react";
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 /** Half-width of the resting rule, in px. The rule is RULE_W * 2 wide.
- *  Deliberately hairline at rest so the painting reads as a sliver, and the
- *  stretch response below does the talking when the pointer moves. */
-const RULE_W = 3;
+ *  A true hairline at rest — the reference is a 2px rule — so all of the
+ *  drama comes from the stretch response when the pointer moves. */
+const RULE_W = 1;
 
 /** Maps 0..1 across a sub-range of the scroll, clamped and eased. */
 const phase = (p, start, end, ease) => {
@@ -285,8 +285,10 @@ export default function Intro() {
             targetScale = 1;
             if (distance < 2) settling = false;
           } else {
-            // 6px at rest, opening to ~144px when the pointer outruns it.
-            targetScale = gsap.utils.clamp(1, 24, 1 + distance / 7);
+            // 2px at rest, opening to a ~144px band when the pointer
+            // outruns it. The ceiling is expressed against the 2px base, so
+            // it is far higher than it looks: 72 * 2px = 144px.
+            targetScale = gsap.utils.clamp(1, 72, 1 + distance / 2.2);
           }
           kx = 0.12;
           // Fast attack, slow release: the rule snaps open when it has

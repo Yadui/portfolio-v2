@@ -632,3 +632,12 @@
 - **After:** 6px at rest, opening to ~144px, with the close starting around 4.13s.
 - **Why:** User asked for a much thinner idle bar, a bigger one on movement, and more delay before the closing animation.
 - **Fix/Notes:** Halving `RULE_W` alone would have shrunk the moving state too, since the width is `RULE_W * 2 * scale` — from a 6px base the old ceiling of 9 would only reach 54px, narrower than before. Both the ceiling and the sensitivity divisor were raised so the moving state gets wider in absolute terms while the resting state gets thinner, taking the idle-to-moving contrast from 9x to 24x. Measured with a pre-load recorder and a scripted pointer sweep: full bleed now holds to 4129ms with the close starting at 4138ms (was ~2671ms); resting width 6px; peak width during a fast sweep 143.7px; returns to 6px after settling. Confirmed visually that the painted fingers still register with the crosshatch fingers either side of the window at the wide state. Lint 0 errors / 13 warnings (baseline); isolated clean-install build compiled.
+
+#### [FEAT] Hairline rule at rest, wide band on movement
+- **Template/File:** `components/Intro.jsx`
+- **Record:** `hero-painting-window`
+- **What changed:** `RULE_W` 3 -> 1 (6px -> 2px at rest) and the stretch response from `clamp(1, 24, 1 + distance / 7)` to `clamp(1, 72, 1 + distance / 2.2)`.
+- **Before:** 6px at rest opening to ~144px, a 24x contrast.
+- **After:** 2px at rest opening to ~143px, a 72x contrast.
+- **Why:** User supplied two references — a 2px hairline rule and a wide vertical band — and asked for both extremes.
+- **Fix/Notes:** The ceiling had to rise in step with the thinner base, since width is `RULE_W * 2 * scale`; leaving it at 24 would have capped the moving state at 48px, well short of the reference band. The divisor also dropped so the bar opens on smaller pointer movements rather than only on fast sweeps. Measured: 2px idle, 38.6px on a slow drift, 143.7px on a fast sweep, 143px on a single-step jump, settling back to 2px. Note the stretch is driven by how far the bar lags the pointer, so it reads as a speed response — a screenshot taken 120ms after a stepped sweep already showed it relaxed, and capturing the peak required a single-step jump. Confirmed visually against both references: hairline at rest, wide painted band mid-movement with the crosshatch and painting still registered either side. Lint 0 errors / 13 warnings (baseline); isolated clean-install build compiled.
