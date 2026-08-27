@@ -18,7 +18,7 @@ const OPEN_HOLD_MS = 1500;
 
 /** Hard ceiling on the open band, as a fraction of viewport width. The rule
  *  never exceeds this however fast or however long the pointer moves. */
-const MAX_BAND_FRACTION = 0.14;
+const MAX_BAND_FRACTION = 0.07;
 
 /** Maps 0..1 across a sub-range of the scroll, clamped and eased. */
 const phase = (p, start, end, ease) => {
@@ -252,6 +252,10 @@ export default function Intro() {
       let curX = window.innerWidth / 2;
       let curScale = 1;
       let anchorX = null;
+      // Snapshot the visible pointer-band scale at the moment scrolling
+      // begins. Scroll expansion must grow from the current window, never
+      // snap back to the 2px resting rule before opening again.
+      let scrollStartScale = null;
       // After the scroll returns to the top the rule glides back to the
       // pointer at its base width before the stretch response is re-armed,
       // so it does not lunge across the screen the moment the hero lands.
@@ -266,11 +270,15 @@ export default function Intro() {
 
         if (p > 0.0005) {
           // Freeze the launch point at wherever the rule was last sitting.
-          if (anchorX == null) anchorX = curX;
+          if (anchorX == null) {
+            anchorX = curX;
+            scrollStartScale = curScale;
+          }
         } else if (anchorX != null) {
           // Back at the top with the hero fully in view: hand control back
           // to the pointer, but settle first.
           anchorX = null;
+          scrollStartScale = null;
           settling = true;
         }
 
@@ -318,8 +326,15 @@ export default function Intro() {
           // factor, which would reach full coverage before the end of the
           // scroll and make the fill look like it finished early.
           const reach = Math.max(targetX, vw - targetX) + 2;
+          const endScale = reach / RULE_W;
+          // Keep a short dead-zone at the beginning of the scroll, but map
+          // the following expansion from the captured live width rather than
+          // from the hairline. This makes an already-open pointer band flow
+          // directly into the scroll reveal.
+          const startScale = Math.min(scrollStartScale ?? 1, endScale);
           const half =
-            RULE_W + (reach - RULE_W) * phase(p, 0.05, 1, easeInOut);
+            RULE_W *
+            (startScale + (endScale - startScale) * phase(p, 0.05, 1, easeInOut));
           targetScale = half / RULE_W;
           kx = 0.3;
           kUp = 0.24;
