@@ -13,23 +13,12 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
  *  drama comes from the stretch response when the pointer moves. */
 const RULE_W = 1;
 
-/** Pointer speed, in px/ms, at which the rule reaches full viewport width.
- *  Width is driven by how fast the pointer is moving, not by how far the rule
- *  is lagging behind it. Lag stays high for as long as you keep moving, so it
- *  read as "permanently wide" and jittered as the rule chased the cursor;
- *  speed is bounded and drops to zero the instant you stop. ~5px/ms is a
- *  deliberate flick. */
-const FULL_OPEN_SPEED = 4.5;
-
 /** How long the rule holds its width after the pointer stops, in ms. */
-const OPEN_HOLD_MS = 900;
-
-/** Below this gap since the last pointer event the pointer counts as moving. */
-const MOVING_MS = 130;
+const OPEN_HOLD_MS = 1500;
 
 /** Hard ceiling on the open band, as a fraction of viewport width. The rule
  *  never exceeds this however fast or however long the pointer moves. */
-const MAX_BAND_FRACTION = 0.28;
+const MAX_BAND_FRACTION = 0.14;
 
 /** Maps 0..1 across a sub-range of the scroll, clamped and eased. */
 const phase = (p, start, end, ease) => {
@@ -76,8 +65,6 @@ export default function Intro() {
   // Timestamp of the last pointer movement. The rule stays open for a beat
   // after the pointer stops before it collapses back to the hairline.
   const lastMoveRef = useRef(0);
-  /** Smoothed pointer speed in px/ms, updated on each pointermove. */
-  const pointerVelRef = useRef(0);
   const [reduce, setReduce] = useState(false);
 
   useEffect(() => {
@@ -91,15 +78,6 @@ export default function Intro() {
   useEffect(() => {
     const onMove = (event) => {
       const now = performance.now();
-      const prevX = pointerXRef.current;
-      const prevT = lastMoveRef.current;
-      if (prevX != null && prevT) {
-        // Smoothed at source: raw per-event deltas are noisy, and the rule
-        // width follows this directly.
-        const dt = Math.max(1, now - prevT);
-        const v = Math.abs(event.clientX - prevX) / dt;
-        pointerVelRef.current += (v - pointerVelRef.current) * 0.35;
-      }
       pointerXRef.current = event.clientX;
       lastMoveRef.current = now;
     };
@@ -279,17 +257,6 @@ export default function Intro() {
       // so it does not lunge across the screen the moment the hero lands.
       let settling = false;
       let rendering = false;
-      // Openness (0..1) captured at the moment the pointer stopped, used for
-      // the hold. A fraction rather than a scale: the rule keeps travelling
-      // during the hold, so the half-width needed to touch both edges changes
-      // with it, and the fraction is re-resolved against the current reach
-      // every frame.
-      let heldOpenness = 0;
-      // Smoothed openness. The raw value is derived from the pointer/rule gap,
-      // which jumps frame to frame and made the width visibly jitter; this is
-      // a low-pass on that signal, quick to open and slower to relax.
-      let openSmooth = 0;
-
       const render = () => {
         // Progress is read from the trigger rather than pushed in from
         // onUpdate. onUpdate only fires for scrolls ScrollTrigger hears
@@ -329,59 +296,15 @@ export default function Intro() {
             targetScale = 1;
             if (distance < 2) settling = false;
           } else {
-            // Full-bleed at the top of the range. The ceiling has to be the
-            // distance to the *furthest* edge, not half the viewport: the band
-            // is centred on the rule, so an off-centre rule needs a wider
-            // half-width to touch both sides. Using vw / (RULE_W * 2) capped a
-            // move to the right-hand side at ~75% of the screen.
-            const sinceMoveNow = performance.now() - lastMoveRef.current;
-            const maxScale = Math.max(curX, vw - curX) / RULE_W;
-            // Velocity is only meaningful while the pointer is actually
-            // moving; once it stops there are no events to decay it, so treat
-            // it as zero and let the hold below own the tail.
-            const vel = sinceMoveNow < MOVING_MS ? pointerVelRef.current : 0;
-            // Curved, not linear. A linear map made ordinary movement sit at a
-            // third of the screen; the exponent keeps gentle movement to a
-            // sliver while leaving the top of the range for a real flick.
-            const speedRatio = gsap.utils.clamp(0, 1, vel / FULL_OPEN_SPEED);
-            const rawOpenness = Math.pow(speedRatio, 1.6);
-            // Attack and release are close together on purpose. A fast attack
-            // with a slow release behaves as an envelope follower: repeated
-            // left-right strokes are a series of bursts, so the value ratcheted
-            // up on every stroke and never fell back between them.
-            openSmooth +=
-              (rawOpenness - openSmooth) * (rawOpenness > openSmooth ? 0.2 : 0.16);
-            const openness = openSmooth;
-
-            // Once the pointer stops, `distance` collapses to zero within a
-            // few frames, which would snap the rule shut instantly. Hold the
-            // openness it reached until the delay expires, then let it fall.
-            // Latching the *fraction* rather than the scale matters: the rule
-            // keeps travelling during the hold, so the half-width needed to
-            // reach both edges changes. A latched scale goes stale and
-            // under-covers; a fraction is re-resolved against the current
-            // reach every frame.
-            const sinceMove = sinceMoveNow;
-            let held;
-            if (sinceMove < MOVING_MS) {
-              // Actively moving: track the live openness so the width reflects
-              // how fast the pointer is going *right now*. Snapshotting rather
-              // than accumulating is the point — a running max never reset
-              // while the pointer kept moving, so the rule ratcheted open and
-              // stayed there.
-              held = openness;
-              heldOpenness = openness;
-            } else if (sinceMove < OPEN_HOLD_MS) {
-              // Stopped, inside the hold: freeze at the width it had when the
-              // pointer came to rest.
-              held = heldOpenness;
-            } else {
-              heldOpenness = 0;
-              held = openness;
-            }
-            // Hard cap, applied last so nothing above can exceed it.
+            // Explicit two-state gate: any pointer movement opens the rule to
+            // the fixed cap. Every subsequent event restarts the 1.5s idle
+            // timer, so continuous movement cannot make it grow further and
+            // cannot start the collapse. Only a full idle interval closes it.
+            const hasMoved = lastMoveRef.current > 0;
+            const idleFor = performance.now() - lastMoveRef.current;
+            const shouldStayOpen = hasMoved && idleFor < OPEN_HOLD_MS;
             const cappedScale = (vw * MAX_BAND_FRACTION) / (RULE_W * 2);
-            targetScale = Math.min(1 + (maxScale - 1) * held, cappedScale);
+            targetScale = shouldStayOpen ? cappedScale : 1;
           }
           kx = 0.12;
           // Fast attack, slow release: the rule snaps open when it has
