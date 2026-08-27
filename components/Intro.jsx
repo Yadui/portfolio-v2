@@ -27,6 +27,10 @@ const OPEN_HOLD_MS = 900;
 /** Below this gap since the last pointer event the pointer counts as moving. */
 const MOVING_MS = 130;
 
+/** Hard ceiling on the open band, as a fraction of viewport width. The rule
+ *  never exceeds this however fast or however long the pointer moves. */
+const MAX_BAND_FRACTION = 0.28;
+
 /** Maps 0..1 across a sub-range of the scroll, clamped and eased. */
 const phase = (p, start, end, ease) => {
   const t = gsap.utils.clamp(0, 1, (p - start) / (end - start));
@@ -341,8 +345,12 @@ export default function Intro() {
             // sliver while leaving the top of the range for a real flick.
             const speedRatio = gsap.utils.clamp(0, 1, vel / FULL_OPEN_SPEED);
             const rawOpenness = Math.pow(speedRatio, 1.6);
+            // Attack and release are close together on purpose. A fast attack
+            // with a slow release behaves as an envelope follower: repeated
+            // left-right strokes are a series of bursts, so the value ratcheted
+            // up on every stroke and never fell back between them.
             openSmooth +=
-              (rawOpenness - openSmooth) * (rawOpenness > openSmooth ? 0.22 : 0.09);
+              (rawOpenness - openSmooth) * (rawOpenness > openSmooth ? 0.2 : 0.16);
             const openness = openSmooth;
 
             // Once the pointer stops, `distance` collapses to zero within a
@@ -371,7 +379,9 @@ export default function Intro() {
               heldOpenness = 0;
               held = openness;
             }
-            targetScale = 1 + (maxScale - 1) * held;
+            // Hard cap, applied last so nothing above can exceed it.
+            const cappedScale = (vw * MAX_BAND_FRACTION) / (RULE_W * 2);
+            targetScale = Math.min(1 + (maxScale - 1) * held, cappedScale);
           }
           kx = 0.12;
           // Fast attack, slow release: the rule snaps open when it has
