@@ -164,13 +164,36 @@
   /* The resting rule carries the same palette the shader resolves into,
      so the hand-off from the live canvas is not a visible change. Stops
      follow the Halo preset top-to-bottom. */
+  /* The bar is a window, not a painted object: the artwork lives in its own
+     viewport-fixed layer and is clipped to the bar's geometry, so sliding the
+     bar across the dark hero reveals the painting only inside it. The old
+     linear-gradient fill is gone. */
   .hero-rule {
-    background: linear-gradient(
-      180deg,
-      #d0bce1 0%,
-      #dbba95 45%,
-      #ff5005 100%
-    );
+    background: transparent;
+  }
+
+  /* Dark hero backdrop — the resting state behind the bar. */
+  .hero-stage {
+    background-color: #000;
+    background-image: url("/hero/hero-crosshatch.png");
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+  }
+
+  /* The painting. Same sizing rules as .hero-stage so the two images register
+     exactly on top of one another — that alignment is what makes the bar read
+     as a window onto the artwork rather than a separate picture. Fixed, so it
+     stays locked to the viewport while the bar travels and the page scrolls. */
+  .hero-painting {
+    position: fixed;
+    inset: 0;
+    background-color: #000;
+    background-image: url("/hero/intro-painting.png");
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    will-change: clip-path;
   }
 
   .hero-rule-fill {

@@ -5,7 +5,6 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 
-import HeroGradient from "./hero/HeroGradient";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -55,7 +54,6 @@ export default function Intro() {
   // trigger a React render.
   const pointerXRef = useRef(null);
   const [reduce, setReduce] = useState(false);
-  const [shaderActive, setShaderActive] = useState(true);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -107,6 +105,18 @@ export default function Intro() {
       // suppress the greeting it is meant to sequence.
       const releasePaint = () => doc.classList.remove("hero-unpainted");
 
+      /**
+       * The bar's geometry expressed as a clip on the painting layer. Both the
+       * bar and the painting are viewport-fixed, so the same centre/half-width
+       * describes both and the window can never drift out of register.
+       */
+      const clipForBand = (centerX, halfWidth) => {
+        const vw = window.innerWidth;
+        const left = Math.max(0, centerX - halfWidth);
+        const right = Math.max(0, vw - centerX - halfWidth);
+        return `inset(0px ${right}px 0px ${left}px)`;
+      };
+
       /** Publishes the band geometry the work section clips itself against. */
       const publishBand = (centerX, halfWidth) => {
         const vw = window.innerWidth || 1;
@@ -120,7 +130,12 @@ export default function Intro() {
        * ------------------------------------------------------------- */
       if (reduceMotion) {
         const x = window.innerWidth / 2;
-        gsap.set(field, { autoAlpha: 0 });
+        // The painting is not hidden any more; it is clipped to the resting
+        // bar so the window still reads correctly without any animation.
+        gsap.set(field, {
+          autoAlpha: 1,
+          clipPath: clipForBand(x, RULE_W),
+        });
         gsap.set(rule, { autoAlpha: 1, x, scaleX: 1 });
         gsap.set(hello, { autoAlpha: 0 });
         gsap.set(copyLines, { yPercent: 0, autoAlpha: 1 });
@@ -176,17 +191,14 @@ export default function Intro() {
             ease: "power3.inOut",
             clipPath: () => {
               restedX = startX();
-              const right = Math.max(0, window.innerWidth - restedX - RULE_W);
-              const left = Math.max(0, restedX - RULE_W);
-              return `inset(0px ${right}px 0px ${left}px)`;
+              return clipForBand(restedX, RULE_W);
             },
             onComplete: () => {
-              // Hand the live shader off to the DOM rule. The rule carries
-              // the same gradient, so the swap is invisible, and from here
-              // the rule can be moved with transforms alone.
+              // No hand-off to a painted bar any more. The rule becomes an
+              // empty frame that only carries the scroll fill, while the
+              // painting layer stays visible and is clipped to the same
+              // geometry every frame by the ticker below.
               gsap.set(rule, { x: restedX, scaleX: 1, autoAlpha: 1 });
-              gsap.set(field, { autoAlpha: 0 });
-              setShaderActive(false);
               publishBand(restedX, RULE_W);
               startRender(restedX);
             },
@@ -296,9 +308,15 @@ export default function Intro() {
         curScale +=
           (targetScale - curScale) * (targetScale > curScale ? kUp : kDown);
 
+        const halfWidth = RULE_W * curScale;
         gsap.set(rule, { x: curX, scaleX: curScale });
+        // The window travels with the bar. Clipping the fixed painting layer
+        // (rather than transforming artwork inside the bar) keeps the image
+        // locked to the viewport, so the bar uncovers the painting instead of
+        // dragging it along.
+        gsap.set(field, { clipPath: clipForBand(curX, halfWidth) });
         restedX = curX;
-        publishBand(curX, RULE_W * curScale);
+        publishBand(curX, halfWidth);
       };
 
       function startRender(x) {
@@ -362,10 +380,15 @@ export default function Intro() {
       ref={rootRef}
       className="hero-stage relative isolate z-0 min-h-[100dvh] overflow-hidden"
     >
-      {/* Live shader field — full bleed, then sliced down to the rule */}
-      <div ref={fieldRef} className="absolute inset-0 z-0" aria-hidden="true">
-        <HeroGradient active={shaderActive} />
-      </div>
+      {/* The painting. Opens full bleed, then is sliced down to the bar and
+          stays there — the bar is a window onto this layer, not a painted
+          object of its own. Fixed so it stays registered with the fixed bar
+          and with the dark backdrop on .hero-stage. */}
+      <div
+        ref={fieldRef}
+        className="hero-painting z-0"
+        aria-hidden="true"
+      />
 
       {/* The rule. Carries the shader's gradient at rest and the work orange
           once the scroll wipe takes over. Fixed so it stays in the viewport
