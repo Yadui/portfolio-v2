@@ -239,10 +239,17 @@ export default function WorkIndex({ items }) {
                   {/* Category always stays visible; the description opens on
                       hover or keyboard focus and lifts the category with it. */}
                   <span className="work-row-body">
-                    <span className="work-row-label">{item.label}</span>
-                    <span className="work-row-desc" data-erase>
-                      {item.description}
+                    {/* The label carries `data-erase` so it fades with the row
+                        during the scroll dismantle. The description must not:
+                        the dismantle writes an inline opacity every frame,
+                        which would beat the CSS and leave every row's
+                        description showing. It is hover/focus-only in CSS, and
+                        the dismantle disables pointer events, so it cannot be
+                        open while a row is being stripped. */}
+                    <span className="work-row-label" data-erase>
+                      <span className="work-row-label-inner">{item.label}</span>
                     </span>
+                    <span className="work-row-desc">{item.description}</span>
                   </span>
 
                   <span className="work-arrow" data-erase aria-hidden="true">

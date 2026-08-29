@@ -764,8 +764,17 @@
   .work-row-label {
     grid-area: 1 / 1;
     color: rgba(255, 255, 255, 0.75);
+  }
+
+  /* The lift lives on an inner element because the label itself is a
+     `data-erase` target, and the scroll dismantle writes `translate: none`
+     (alongside transform) inline on every one of those. Anything animated
+     with `translate` or `transform` on the outer span is overwritten the
+     moment the stage activates, which is what made the label jump. */
+  .work-row-label-inner {
+    display: block;
     transform: translateY(0);
-    transition: transform 0.35s ease;
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .work-row-desc {
@@ -778,16 +787,14 @@
     line-height: 1.4;
     color: #fff;
     opacity: 0;
-    transform: translateY(4px);
-    transition: opacity 0.35s ease, transform 0.35s ease;
+    translate: 0 0.35rem;
+    transition: opacity 0.35s ease,
+      translate 0.35s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  .work-row:hover .work-row-label,
-  .work-row:focus-within .work-row-label {
-    /* `translate` composes with the GSAP transform used by the scroll
-       dismantle, so hover can move the persistent label without fighting
-       that animation's inline transform. */
-    translate: 0 -1.05rem;
+  .work-row:hover .work-row-label-inner,
+  .work-row:focus-within .work-row-label-inner {
+    transform: translateY(-1.05rem);
   }
 
   .work-row:hover .work-row-desc,
@@ -879,13 +886,10 @@
       padding: 0;
     }
 
-    .work-row-label {
+    .work-row-label-inner,
+    .work-row:hover .work-row-label-inner,
+    .work-row:focus-within .work-row-label-inner {
       transform: none;
-    }
-
-    .work-row:hover .work-row-label,
-    .work-row:focus-within .work-row-label {
-      translate: none;
     }
 
     /* On touch there is no hover, so every row shows its description. */

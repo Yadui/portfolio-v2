@@ -14,6 +14,7 @@ import WorkIndex from "./work/WorkIndex";
 const FEATURED = [
   {
     match: "hidden-order-dex",
+    blurb: "Private order flow with verifiable settlement fairness.",
     title: "Hidden Order DEX",
     label: "Zero-knowledge exchange",
     year: "2025",
@@ -22,6 +23,7 @@ const FEATURED = [
   },
   {
     match: "VirtuAI",
+    blurb: "One layer across providers, quota and billing.",
     title: "VirtuAI",
     label: "Multi-model AI platform",
     year: "2024",
@@ -30,6 +32,7 @@ const FEATURED = [
   },
   {
     match: "Automify",
+    blurb: "Trigger-based graphs with persisted runs and retries.",
     title: "Automify",
     label: "Workflow engine",
     year: "2024",
@@ -38,6 +41,7 @@ const FEATURED = [
   },
   {
     match: "Business OS",
+    blurb: "Finance, sales and operations in one tenant.",
     title: "Business OS",
     label: "Multi-tenant ERP",
     year: "2025",
@@ -46,6 +50,7 @@ const FEATURED = [
   },
   {
     match: "structra",
+    blurb: "Isolated environments and guardrails for TRF reports.",
     title: "Structra",
     label: "Report engine",
     year: "2026",
@@ -69,7 +74,9 @@ const items = FEATURED.map((entry, index) => {
     year: entry.year,
     kind: entry.kind,
     tags: entry.tags,
-    description: project?.thesis ?? "",
+    // Deliberately short: the ledger row gives this one line, and the
+    // full thesis overflowed the row and collided with the separator.
+    description: entry.blurb,
     link: href,
     external: Boolean(live || github),
   };
