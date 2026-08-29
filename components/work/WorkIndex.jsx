@@ -156,21 +156,18 @@ export default function WorkIndex({ items }) {
 
       {/* ── Section header ─────────────────────────────────────────── */}
       <div className="work-head" data-reveal>
-        <span className="work-eyebrow">Selected work</span>
-        <span className="work-counter" aria-live="polite">
-          Active {pad(active)} / {pad(count - 1)}
-        </span>
+        <span className="work-eyebrow">Selected systems</span>
       </div>
 
       <div className="work-intro">
         <h2 className="work-title" data-reveal>
-          Selected work,
+          Products built to hold up,
           <br />
-          shaped as systems.
+          from first principles.
         </h2>
         <p className="work-standfirst" data-reveal>
-          Cloud, AI and product work, each one resolved as a single connected
-          system rather than a pile of features.
+          Cloud, AI and product systems, designed from first principles and
+          carried through to the details that make them dependable.
         </p>
       </div>
 
@@ -222,8 +219,8 @@ export default function WorkIndex({ items }) {
                   onFocus={() => activate(i)}
                   aria-label={`${item.title} — ${item.label}. ${item.description}`}
                 >
-                  {/* Left meta bracket (active only) */}
-                  <span className="work-meta" data-erase aria-hidden="true">
+                  {/* Left meta bracket — revealed by direct inspection */}
+                  <span className="work-meta" aria-hidden="true">
                     [ {item.year} · {item.kind}
                     <br />
                     {item.tags} ]
@@ -239,10 +236,13 @@ export default function WorkIndex({ items }) {
                     <span>{pad(i)}</span>
                   </span>
 
-                  {/* Category + description, right of the spine */}
-                  <span className="work-row-body" data-erase>
+                  {/* Category always stays visible; the description opens on
+                      hover or keyboard focus and lifts the category with it. */}
+                  <span className="work-row-body">
                     <span className="work-row-label">{item.label}</span>
-                    <span className="work-row-desc">{item.description}</span>
+                    <span className="work-row-desc" data-erase>
+                      {item.description}
+                    </span>
                   </span>
 
                   <span className="work-arrow" data-erase aria-hidden="true">

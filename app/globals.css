@@ -665,7 +665,9 @@
     outline-offset: -4px;
   }
 
-  /* Left meta bracket — active row only */
+  /* Left meta bracket — direct inspection only. The active row is still used
+     by the travelling marker, but it must not leak its metadata before the
+     pointer or keyboard reaches the row. */
   .work-meta {
     position: absolute;
     left: 0;
@@ -673,13 +675,18 @@
     transform: translateY(-50%);
     line-height: 1.7;
     color: rgba(255, 255, 255, 0.85);
-    opacity: 0;
+    opacity: 0 !important;
     transition: opacity 0.35s ease;
     white-space: nowrap;
   }
 
-  .work-row[data-active="true"] .work-meta {
-    opacity: 1;
+  .work-row:hover .work-meta,
+  .work-row:focus-within .work-meta {
+    opacity: 1 !important;
+  }
+
+  .work-row[data-erased="true"] .work-meta {
+    opacity: 0 !important;
   }
 
   /* Title */
@@ -745,19 +752,27 @@
   /* Right-hand copy */
   .work-row-body {
     grid-column: 3;
-    display: flex;
-    flex-direction: column;
-    gap: 0.55rem;
+    position: relative;
+    display: grid;
+    align-items: center;
+    min-height: 4.25rem;
     padding-left: clamp(0.75rem, 1.5vw, 1.5rem);
     padding-right: clamp(2.5rem, 5vw, 5rem);
     min-width: 0;
   }
 
   .work-row-label {
+    grid-area: 1 / 1;
     color: rgba(255, 255, 255, 0.75);
+    transform: translateY(0);
+    transition: transform 0.35s ease;
   }
 
   .work-row-desc {
+    position: absolute;
+    top: calc(50% + 0.35rem);
+    left: clamp(0.75rem, 1.5vw, 1.5rem);
+    right: clamp(2.5rem, 5vw, 5rem);
     max-width: 46ch;
     font-size: clamp(0.9rem, 1.05vw, 1.05rem);
     line-height: 1.4;
@@ -767,9 +782,22 @@
     transition: opacity 0.35s ease, transform 0.35s ease;
   }
 
-  .work-row[data-active="true"] .work-row-desc {
-    opacity: 1;
-    transform: translateY(0);
+  .work-row:hover .work-row-label,
+  .work-row:focus-within .work-row-label {
+    /* `translate` composes with the GSAP transform used by the scroll
+       dismantle, so hover can move the persistent label without fighting
+       that animation's inline transform. */
+    translate: 0 -1.05rem;
+  }
+
+  .work-row:hover .work-row-desc,
+  .work-row:focus-within .work-row-desc {
+    opacity: 1 !important;
+    translate: 0 0;
+  }
+
+  .work-row[data-erased="true"] .work-row-desc {
+    opacity: 0 !important;
   }
 
   .work-arrow {
@@ -843,24 +871,34 @@
     .work-row-body {
       grid-column: 2;
       grid-row: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      min-height: 0;
+      gap: 0.55rem;
       padding: 0;
+    }
+
+    .work-row-label {
+      transform: none;
+    }
+
+    .work-row:hover .work-row-label,
+    .work-row:focus-within .work-row-label {
+      translate: none;
     }
 
     /* On touch there is no hover, so every row shows its description. */
     .work-row-desc {
+      position: static;
+      max-width: 46ch;
+      translate: none;
       opacity: 1;
-      transform: none;
     }
 
     /* Rows are not hover-driven on touch, so the fill would read as an
        arbitrary highlight. Keep every number in its outlined state. */
     .work-num::before {
-      display: none;
-    }
-
-    /* The counter reports a hover state that does not exist on touch, and
-       it sits underneath the fixed header pill at this width. */
-    .work-counter {
       display: none;
     }
 
