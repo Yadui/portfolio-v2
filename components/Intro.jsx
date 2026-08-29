@@ -126,25 +126,48 @@ export default function Intro() {
        * That means the measurement survives scrolling and is invalidated
        * only by a resize, so no layout is read on the ticker.
        * ------------------------------------------------------------- */
-      const hotLayers = Array.from(copy.querySelectorAll("[data-band-hot]"));
+      const bandLines = Array.from(copy.querySelectorAll(".hero-band-line"));
       const HOT_HIDDEN = "inset(0 100% 0 0)";
       let hotBoxes = [];
 
       const measureHot = () => {
-        hotBoxes = hotLayers.map((el) => {
-          const r = (el.parentElement ?? el).getBoundingClientRect();
-          return { el, left: r.left, right: r.right };
+        hotBoxes = bandLines.map((line) => {
+          const r = line.getBoundingClientRect();
+          return {
+            hot: line.querySelector("[data-band-hot]"),
+            cold: line.querySelector("[data-band-cold]"),
+            left: r.left,
+            width: r.width,
+          };
         });
       };
 
       const paintHot = (bandLeft, bandRight) => {
         for (const box of hotBoxes) {
-          const width = box.right - box.left;
-          if (width <= 0) continue;
-          const l = Math.max(0, bandLeft - box.left);
-          const r = Math.max(0, box.right - bandRight);
-          box.el.style.clipPath =
-            l + r >= width ? HOT_HIDDEN : `inset(0px ${r}px 0px ${l}px)`;
+          const { hot, cold, left, width } = box;
+          if (!hot || !cold || width <= 0) continue;
+          const l = Math.max(0, bandLeft - left);
+          const r = Math.max(0, left + width - bandRight);
+
+          if (l + r >= width) {
+            hot.style.clipPath = HOT_HIDDEN;
+            cold.style.maskImage = "";
+            cold.style.webkitMaskImage = "";
+            continue;
+          }
+
+          hot.style.clipPath = `inset(0px ${r}px 0px ${l}px)`;
+          // Knock the white layer out over exactly the span the orange
+          // covers. Stacking the two and letting the orange paint on top
+          // left a light fringe around every glyph: both layers antialias
+          // their edges, and the orange's semi-transparent edge pixels blend
+          // with the white beneath instead of replacing them. Masking means
+          // only ever one layer paints a given column.
+          const cut = `linear-gradient(to right, #000 0 ${l}px, transparent ${l}px ${
+            width - r
+          }px, #000 ${width - r}px 100%)`;
+          cold.style.maskImage = cut;
+          cold.style.webkitMaskImage = cut;
         }
       };
 
@@ -518,7 +541,7 @@ export default function Intro() {
           >
             <span data-hero-line className="block overflow-hidden pb-[0.08em]">
               <span className="hero-band-line block">
-                <span className="block">I&apos;m Abhinav</span>
+                <span data-band-cold className="block">I&apos;m Abhinav</span>
                 <span
                   aria-hidden="true"
                   data-band-hot
@@ -535,7 +558,7 @@ export default function Intro() {
           <p className="hero-role max-w-[34ch] text-white/70">
             <span data-hero-line className="block overflow-hidden pb-[0.12em]">
               <span className="hero-band-line block">
-                <span className="block">
+                <span data-band-cold className="block">
                   Azure and AI engineer, based in Gurugram, India.
                 </span>
                 <span

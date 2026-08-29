@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -8,6 +8,12 @@ import { useGSAP } from "@gsap/react";
 import { ArrowRight } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
+
+// The height hand-off has to be written before the browser paints, otherwise
+// the expanded card flashes at full size for a frame before the tween starts.
+// useLayoutEffect would warn during SSR, so fall back to useEffect there.
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 /**
  * Contact — direct conversation panel.
@@ -23,46 +29,89 @@ export default function Contact() {
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Opening the form changes the panel's intrinsic height after the scroll
-  // timeline has already measured it. Re-anchor it on the next paint so the
-  // larger card grows upward and its bottom edge stays inside the section.
+  // Opening the form changes the panel's intrinsic height. Height and vertical
+  // offset are driven from a single tweened value so that the card's centre is
+  // fixed by construction: it opens equally toward the top and the bottom.
   const skipFirstAnchor = useRef(true);
-  useEffect(() => {
+  // Height the card settled at before this toggle. It cannot be measured
+  // inside the effect: React has already committed the new content by then,
+  // so the panel is standing at its *target* height and a measurement there
+  // would make the tween a no-op.
+  const settledH = useRef(null);
+  useIsomorphicLayoutEffect(() => {
     const panel = panelRef.current;
     const section = sectionRef.current;
+    if (!panel || !section) return;
     // On mount the card must stay in its collapsed pre-scroll state, so the
-    // first run is skipped; afterwards both opening *and* closing re-anchor.
-    // Closing without this left the shrunken card floating mid-section.
+    // first run only records the starting height.
     if (skipFirstAnchor.current) {
       skipFirstAnchor.current = false;
+      settledH.current = panel.offsetHeight;
       return;
     }
-    if (!panel || !section) return;
-    // min-height is transitioned over 0.5s, so a single rAF measures a
-    // mid-transition height and anchors the card past the section bottom.
-    // Re-anchor on each frame of the transition and once more when it ends.
-    const anchor = () => {
+
+    const from = settledH.current ?? panel.offsetHeight;
+    gsap.set(panel, { height: "auto" });
+    const to = panel.offsetHeight;
+    settledH.current = to;
+
+    // One writer for both properties. Deriving y from the same height in the
+    // same frame is what keeps the centre still — the old version transitioned
+    // min-height in CSS and re-anchored y from a rAF loop, so y was always
+    // reacting to a height it had already been painted against.
+    const place = (h) => {
       gsap.set(panel, {
+        height: h,
+        // `.is-form-open` raises min-height to the open size, and min-height
+        // beats height in the cascade. Without neutralising it the opening
+        // tween had no visible effect — the card snapped to full height and
+        // only the y offset moved — while closing animated fine because the
+        // floor had already dropped. Restored by settle().
+        minHeight: 0,
         xPercent: -50,
         clipPath: "inset(0px 0px)",
-        y: (section.clientHeight - panel.offsetHeight) / 2,
+        y: (section.clientHeight - h) / 2,
       });
     };
-    let frame = requestAnimationFrame(function loop() {
-      anchor();
-      frame = requestAnimationFrame(loop);
+
+    const settle = () => {
+      panel.style.minHeight = "";
+      gsap.set(panel, { height: "auto" });
+      const h = panel.offsetHeight;
+      settledH.current = h;
+      // Hand the height back to the content so later reflows are not pinned
+      // to a stale pixel value.
+      gsap.set(panel, {
+        height: "auto",
+        xPercent: -50,
+        clipPath: "inset(0px 0px)",
+        y: (section.clientHeight - h) / 2,
+      });
+    };
+
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    if (reduceMotion || from === to) {
+      settle();
+      return;
+    }
+
+    // Paint the starting height before the browser gets a frame, so the card
+    // never flashes at full size.
+    place(from);
+
+    const proxy = { h: from };
+    const tween = gsap.to(proxy, {
+      h: to,
+      duration: 0.55,
+      ease: "power3.inOut",
+      onUpdate: () => place(proxy.h),
+      onComplete: settle,
     });
-    const stop = () => {
-      cancelAnimationFrame(frame);
-      anchor();
-    };
-    panel.addEventListener("transitionend", stop);
-    const safety = setTimeout(stop, 900);
-    return () => {
-      cancelAnimationFrame(frame);
-      clearTimeout(safety);
-      panel.removeEventListener("transitionend", stop);
-    };
+
+    return () => tween.kill();
   }, [formOpen]);
 
   const handleSubmit = async (event) => {
