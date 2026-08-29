@@ -113,6 +113,41 @@ export default function Intro() {
         "(prefers-reduced-motion: reduce)"
       ).matches;
 
+      /* ---------------------------------------------------------------
+       * Band-intersection recolour.
+       *
+       * Each display line carries a duplicate layer in the work orange,
+       * hidden behind a fully-collapsed clip. Every frame the clip is
+       * reopened to exactly the span the bar covers, so the orange shows
+       * only inside the bar and the white copy shows everywhere else.
+       *
+       * Only the horizontal edges are needed: the bar is full-height, and
+       * the copy is translated vertically on scroll but never horizontally.
+       * That means the measurement survives scrolling and is invalidated
+       * only by a resize, so no layout is read on the ticker.
+       * ------------------------------------------------------------- */
+      const hotLayers = Array.from(copy.querySelectorAll("[data-band-hot]"));
+      const HOT_HIDDEN = "inset(0 100% 0 0)";
+      let hotBoxes = [];
+
+      const measureHot = () => {
+        hotBoxes = hotLayers.map((el) => {
+          const r = (el.parentElement ?? el).getBoundingClientRect();
+          return { el, left: r.left, right: r.right };
+        });
+      };
+
+      const paintHot = (bandLeft, bandRight) => {
+        for (const box of hotBoxes) {
+          const width = box.right - box.left;
+          if (width <= 0) continue;
+          const l = Math.max(0, bandLeft - box.left);
+          const r = Math.max(0, box.right - bandRight);
+          box.el.style.clipPath =
+            l + r >= width ? HOT_HIDDEN : `inset(0px ${r}px 0px ${l}px)`;
+        }
+      };
+
       const releaseHeader = () => doc.classList.remove("intro-running");
       // Hand the hero copy over to GSAP. Must run immediately after the
       // initial states are set, otherwise the first-paint guard would also
@@ -352,6 +387,7 @@ export default function Intro() {
         // locked to the viewport, so the bar uncovers the painting instead of
         // dragging it along.
         gsap.set(field, { clipPath: clipForBand(curX, halfWidth) });
+        paintHot(curX - halfWidth, curX + halfWidth);
         restedX = curX;
         publishBand(curX, halfWidth);
       };
@@ -361,6 +397,9 @@ export default function Intro() {
           curX = x;
           curScale = 1;
         }
+        // Measure once the copy has settled into its final layout, so the
+        // orange layers are keyed to the boxes they actually occupy.
+        measureHot();
         if (rendering) return;
         rendering = true;
         gsap.ticker.add(render);
@@ -395,10 +434,17 @@ export default function Intro() {
       });
 
       const onResize = () => {
+        // Horizontal geometry is the only thing the recolour depends on, so
+        // a resize is the one event that can invalidate it.
+        measureHot();
         if (intro.progress() < 1) return;
         ScrollTrigger.refresh();
       };
       window.addEventListener("resize", onResize);
+
+      // Web fonts change the measured width of every line. Re-measure once
+      // they land, otherwise the orange layer stays keyed to fallback metrics.
+      document.fonts?.ready.then(measureHot).catch(() => {});
 
       return () => {
         window.removeEventListener("resize", onResize);
@@ -453,37 +499,69 @@ export default function Intro() {
         <span className="hero-hello font-heading">Hello</span>
       </div>
 
-      {/* Left column: name, role, action */}
+      {/* Hero copy, set into the painting's negative space: the name rides
+          above Adam's hand on the right, the role and action sit below God's
+          hand on the left. Below `md` there is not enough width to hold the
+          diagonal, so the two blocks collapse back to a single left column.
+
+          Each display line carries a duplicate `[data-band-hot]` layer in the
+          work orange, clipped every frame to the bar's span, so the type
+          recolours only where the bar crosses it. */}
       <div
         ref={copyRef}
-        className="relative z-[3] flex min-h-[100dvh] flex-col justify-center px-[clamp(1.25rem,4vw,4rem)]"
+        className="pointer-events-none absolute inset-0 z-[3] flex flex-col justify-center gap-[clamp(1.5rem,4vh,3rem)] px-[clamp(1.25rem,4vw,4rem)] py-[clamp(5.5rem,13vh,9rem)] md:justify-between"
       >
-        <h2
-          className="hero-name font-heading text-white"
-          aria-label="I'm Abhinav, an Azure and AI engineer based in Gurugram, India"
-        >
-          <span data-hero-line className="block overflow-hidden pb-[0.08em]">
-            <span className="block">I&apos;m Abhinav</span>
-          </span>
-        </h2>
-
-        <p className="hero-role mt-[clamp(0.75rem,2vh,1.5rem)] max-w-[34ch] text-white/70">
-          <span data-hero-line className="block overflow-hidden pb-[0.12em]">
-            <span className="block">
-              Azure and AI engineer, based in Gurugram, India.
-            </span>
-          </span>
-        </p>
-
-        <div data-hero-line className="mt-[clamp(1.25rem,3vh,2rem)] overflow-hidden">
-          <a
-            href="#contact"
-            onClick={handleContactClick}
-            className="hero-action inline-flex items-center gap-2 text-white/80 transition-colors hover:text-white focus-visible:text-white"
+        <div className="pointer-events-auto md:self-end md:text-right">
+          <h2
+            className="hero-name font-heading text-white"
+            aria-label="I'm Abhinav, an Azure and AI engineer based in Gurugram, India"
           >
-            <span aria-hidden="true">↗</span>
-            Let&apos;s work together
-          </a>
+            <span data-hero-line className="block overflow-hidden pb-[0.08em]">
+              <span className="hero-band-line block">
+                <span className="block">I&apos;m Abhinav</span>
+                <span
+                  aria-hidden="true"
+                  data-band-hot
+                  className="hero-band-hot block"
+                >
+                  I&apos;m Abhinav
+                </span>
+              </span>
+            </span>
+          </h2>
+        </div>
+
+        <div className="pointer-events-auto">
+          <p className="hero-role max-w-[34ch] text-white/70">
+            <span data-hero-line className="block overflow-hidden pb-[0.12em]">
+              <span className="hero-band-line block">
+                <span className="block">
+                  Azure and AI engineer, based in Gurugram, India.
+                </span>
+                <span
+                  aria-hidden="true"
+                  data-band-hot
+                  className="hero-band-hot block"
+                >
+                  Azure and AI engineer, based in Gurugram, India.
+                </span>
+              </span>
+            </span>
+          </p>
+
+          <div
+            data-hero-line
+            className="mt-[clamp(1.25rem,3vh,2rem)] overflow-hidden"
+          >
+            <a
+              href="#contact"
+              onClick={handleContactClick}
+              className="hero-action inline-flex items-center gap-2 text-white/80 transition-colors hover:text-white focus-visible:text-white"
+            >
+              <span aria-hidden="true">↗</span>
+              Let&apos;s work together
+            </a>
+          </div>
         </div>
       </div>
     </section>

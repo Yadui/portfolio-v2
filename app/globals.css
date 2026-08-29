@@ -222,8 +222,38 @@
     letter-spacing: -0.03em;
   }
 
+  /* Band-intersection recolour. The hot layer is an exact duplicate stacked
+     on the line and collapsed to nothing; Intro.jsx reopens its clip to the
+     bar's span each frame, so the copy reads orange only inside the bar.
+     Inheriting every metric from the parent guarantees the two layers wrap
+     identically — any divergence would show as a ghost edge. */
+  .hero-band-line {
+    position: relative;
+  }
+
+  .hero-band-hot {
+    position: absolute;
+    inset: 0;
+    color: var(--work-orange);
+    clip-path: inset(0 100% 0 0);
+    pointer-events: none;
+  }
+
+  /* No bar tracking without a pointer, so the duplicate would be dead weight
+     over the copy. */
+  @media (prefers-reduced-motion: reduce) {
+    .hero-band-hot {
+      display: none;
+    }
+  }
+
   .hero-role {
-    font-size: clamp(1rem, 1.9vw, 1.45rem);
+    /* 1.5rem, not 1.45: at 24px this line counts as WCAG large text, so the
+       band recolour only has to clear 3:1 rather than 4.5:1. No single colour
+       can hit 4.5:1 against both the black stage and the cream painting the
+       bar reveals — the theoretical best for that pair is 4.0:1 — so the size
+       is what makes the orange compliant where a colour change could not. */
+    font-size: clamp(1rem, 1.9vw, 1.5rem);
     line-height: 1.35;
     letter-spacing: -0.01em;
   }
