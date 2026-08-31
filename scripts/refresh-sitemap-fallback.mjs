@@ -10,7 +10,13 @@
  */
 import fs from "node:fs";
 
-const ORIGIN = process.env.SITE_ORIGIN || "https://abhinav.maoverse.xyz";
+const ORIGIN =
+  process.env.SITE_ORIGIN ||
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  // Canonical origin since the migration. The old maoverse host still 308s
+  // here, but pointing at it meant regenerating the fallback from a redirect
+  // chain rather than the live sitemap.
+  "https://yadui.dev";
 const xml = await (await fetch(`${ORIGIN}/sitemap.xml`)).text();
 
 const entries = [...xml.matchAll(/<url>\s*<loc>([^<]+)<\/loc>(?:\s*<lastmod>([^<]+)<\/lastmod>)?/g)]
