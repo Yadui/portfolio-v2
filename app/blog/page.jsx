@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { posts } from "@/lib/schema";
 import { desc } from "drizzle-orm";
+import Image from "next/image";
 import Link from "next/link";
 import PageIntro from "@/components/PageIntro";
 import { Button } from "@/components/ui/button";
@@ -41,6 +42,31 @@ export const metadata = {
 
 export const dynamic = 'force-dynamic';
 
+/** Day-month-year, the format already used across the site. */
+const formatDate = (value) =>
+  new Date(value).toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+
+/** First tag only. Rows carry one topic; the full set lives on the post. */
+const primaryTag = (tags) =>
+  String(tags || "")
+    .split(",")
+    .map((t) => t.trim())
+    .filter(Boolean)[0] || null;
+
+/**
+ * Roughly half the posts carry a generated `data:` SVG rather than real cover
+ * art. Leading the page with those would be dressing the index in placeholder
+ * assets, so only a genuine file path counts as a usable image.
+ */
+const realCover = (post) =>
+  typeof post.coverImage === "string" && post.coverImage.startsWith("/")
+    ? post.coverImage
+    : null;
+
 export default async function BlogList() {
   let storedPosts = [];
   try {
@@ -55,6 +81,19 @@ export default async function BlogList() {
   const isAdmin = !!user;
   // Login button always visible — security is enforced by the login API itself
   const canShowLogin = !isAdmin;
+
+  // The newest post leads; everything behind it is the archive, grouped by
+  // year. `allPosts` is already sorted newest-first, so a single pass groups
+  // it without sorting again.
+  const [lead, ...archive] = allPosts;
+  const leadCover = lead ? realCover(lead) : null;
+  const groups = [];
+  for (const post of archive) {
+    const year = new Date(post.createdAt).getFullYear();
+    const current = groups[groups.length - 1];
+    if (current && current.year === year) current.posts.push(post);
+    else groups.push({ year, posts: [post] });
+  }
 
   const blogJsonLd = {
     "@context": "https://schema.org",
@@ -87,8 +126,23 @@ export default async function BlogList() {
     ],
   };
 
+  /** Admin controls, rendered as a sibling of the row link rather than inside
+   *  it: nesting a control in an anchor is invalid and steals the row click. */
+  const adminControls = (post) =>
+    isAdmin && post.sourceType === "database" ? (
+      <div className="absolute right-0 top-3 z-10 flex items-center gap-1.5">
+        <Link
+          href={`/blog/edit/${post.id}`}
+          className="flex h-8 items-center rounded-full border border-[#101828]/15 px-3 font-mono text-[0.68rem] uppercase tracking-[0.12em] text-[#536074] transition-colors hover:border-[#101828]/40 hover:text-[#101828]"
+        >
+          Edit
+        </Link>
+        <DeleteButton id={post.id} />
+      </div>
+    ) : null;
+
   return (
-    <div className="min-h-screen bg-[#fffdf8] px-4 pt-32 text-[#101828] md:px-12">
+    <div className="blog-index min-h-screen bg-[#fffdf8] px-4 pt-32 text-[#101828] md:px-12">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(blogJsonLd) }}
@@ -106,94 +160,145 @@ export default async function BlogList() {
                 </Link>
                 <LogoutButton />
               </div>
-            ) : canShowLogin ? (
-              <Link href="/login">
-                <Button
-                  variant="outline"
-                  className="border-[#101828]/20 text-[#101828] hover:bg-[#101828]/5 hover:text-[#101828]"
-                >
-                  Login
-                </Button>
-              </Link>
             ) : null
           }
         />
 
-        {/* Editorial list rather than a three-up card grid: the posts differ in
-            weight, and equal cards flattened that. Structural rules carry the
-            grouping, so no elevation is needed. */}
-        <div className="border-t border-[#101828]/10 pb-24">
-          {allPosts.map((post, index) => (
-            <article
-              key={post.id}
-              className="group relative border-b border-[#101828]/10"
+        {/* Lead post. The newest piece carries the weight the old list gave to
+            nothing: larger type, its standfirst, and its cover when a real one
+            exists. Everything else is archive. */}
+        {lead && (
+          <article className="group relative border-t border-[#101828]/10">
+            <Link
+              href={`/blog/${lead.slug}`}
+              className="grid gap-6 py-10 md:grid-cols-12 md:gap-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#101828]"
             >
-              <Link
-                href={`/blog/${post.slug}`}
-                className="grid gap-3 py-8 md:grid-cols-12 md:items-baseline md:gap-8"
-              >
-                <span className="font-mono text-xs text-[#8892a4] md:col-span-1">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
+              <div className={leadCover ? "md:col-span-7" : "md:col-span-9"}>
+                <p className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[0.68rem] uppercase tracking-[0.16em] text-[#8892a4]">
+                  <span className="text-[#00805b]">Latest</span>
+                  <time dateTime={new Date(lead.createdAt).toISOString()}>
+                    {formatDate(lead.createdAt)}
+                  </time>
+                  {primaryTag(lead.tags) && <span>{primaryTag(lead.tags)}</span>}
+                </p>
 
-                <div className="md:col-span-7">
-                  <h2 className="portfolio-title text-2xl transition-colors group-hover:text-[#00805b] md:text-3xl">
-                    {post.title}
-                  </h2>
-                  {(post.excerpt || post.content) && (
-                    <p className="portfolio-body mt-2 max-w-[62ch] line-clamp-2 text-sm">
-                      {post.excerpt || `${post.content.substring(0, 150)}...`}
-                    </p>
-                  )}
-                </div>
+                <h2 className="portfolio-title mt-4 text-[clamp(1.75rem,3.6vw,2.75rem)] leading-[1.1] transition-colors group-hover:text-[#00805b]">
+                  {lead.title}
+                </h2>
 
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 md:col-span-3 md:justify-end">
-                  {post.tags &&
-                    post.tags
-                      .split(",")
-                      .slice(0, 2)
-                      .map((tag) => (
-                        <span
-                          key={tag}
-                          className="font-mono text-[0.68rem] uppercase tracking-[0.14em] text-[#8892a4]"
-                        >
-                          {tag.trim()}
-                        </span>
-                      ))}
-                </div>
+                {(lead.excerpt || lead.content) && (
+                  <p className="portfolio-body mt-4 max-w-[62ch] text-[0.95rem] leading-relaxed">
+                    {lead.excerpt || `${lead.content.substring(0, 190)}...`}
+                  </p>
+                )}
 
-                <time
-                  dateTime={new Date(post.createdAt).toISOString()}
-                  className="font-mono text-xs text-[#8892a4] md:col-span-1 md:text-right"
-                >
-                  {new Date(post.createdAt).toLocaleDateString("en-GB", {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                  })}
-                </time>
-              </Link>
-
-              {isAdmin && post.sourceType === "database" && (
-                <div className="absolute right-0 top-3 z-10 flex items-center gap-1.5">
-                  <Link
-                    href={`/blog/edit/${post.id}`}
-                    className="flex h-8 items-center rounded-full border border-[#101828]/15 px-3 font-mono text-[0.68rem] uppercase tracking-[0.12em] text-[#536074] transition-colors hover:border-[#101828]/40 hover:text-[#101828]"
+                <span className="mt-5 inline-flex items-center gap-2 font-mono text-[0.68rem] uppercase tracking-[0.16em] text-[#101828]">
+                  Read
+                  <span
+                    aria-hidden="true"
+                    className="transition-transform duration-300 group-hover:translate-x-1"
                   >
-                    Edit
-                  </Link>
-                  <DeleteButton id={post.id} />
+                    &rarr;
+                  </span>
+                </span>
+              </div>
+
+              {leadCover && (
+                <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-[#101828]/10 md:col-span-5">
+                  <Image
+                    src={leadCover}
+                    alt=""
+                    fill
+                    sizes="(max-width: 768px) 100vw, 40vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                    priority
+                  />
                 </div>
               )}
-            </article>
+            </Link>
+            {adminControls(lead)}
+          </article>
+        )}
+
+        {/* Archive, grouped by year. The year rail replaces the old running
+            01..20 counter, which numbered the list without telling the reader
+            anything; the group heading sticks so the year stays legible while
+            its posts scroll past. */}
+        <div className="pb-24">
+          {groups.map((group) => (
+            <section
+              key={group.year}
+              className="border-t border-[#101828]/10 md:grid md:grid-cols-12 md:gap-10"
+            >
+              <h2 className="pt-8 font-mono text-[0.68rem] uppercase tracking-[0.16em] text-[#8892a4] md:col-span-2 md:sticky md:top-28 md:self-start">
+                {group.year}
+              </h2>
+
+              <div className="md:col-span-10">
+                {group.posts.map((post) => (
+                  <article
+                    key={post.id}
+                    className="group relative border-b border-[#101828]/10 last:border-b-0"
+                  >
+                    <Link
+                      href={`/blog/${post.slug}`}
+                      className="flex flex-col gap-1.5 py-6 md:flex-row md:items-baseline md:gap-8 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#101828]"
+                    >
+                      {/* Fixed date column plus a truncating tag. Letting the
+                          pair wrap made every row with a long tag two lines
+                          tall and broke the baseline the list reads along. */}
+                      <p className="order-2 flex shrink-0 items-baseline gap-x-3 font-mono text-[0.68rem] uppercase tracking-[0.16em] text-[#8892a4] md:order-none md:w-[16rem] md:flex-nowrap">
+                        <time
+                          dateTime={new Date(post.createdAt).toISOString()}
+                          className="shrink-0 tabular-nums"
+                        >
+                          {formatDate(post.createdAt)}
+                        </time>
+                        {primaryTag(post.tags) && (
+                          <span className="truncate">{primaryTag(post.tags)}</span>
+                        )}
+                      </p>
+
+                      <h3 className="portfolio-title order-1 text-lg leading-snug transition-colors group-hover:text-[#00805b] md:order-none md:text-xl">
+                        {post.title}
+                      </h3>
+                    </Link>
+                    {adminControls(post)}
+                  </article>
+                ))}
+              </div>
+            </section>
           ))}
 
           {allPosts.length === 0 && (
-            <p className="portfolio-body py-16 text-center">
-              No posts published yet.
-            </p>
+            <div className="border-t border-[#101828]/10 py-20 text-center">
+              <p className="portfolio-title text-xl">Nothing published yet.</p>
+              <p className="portfolio-body mx-auto mt-3 max-w-[42ch] text-sm">
+                Writing on cloud architecture and AI systems will appear here.
+                In the meantime, the work is on the{" "}
+                <Link href="/work" className="underline underline-offset-4">
+                  projects page
+                </Link>
+                .
+              </p>
+            </div>
           )}
         </div>
+
+        {/* Admin entry point. Kept quiet: it is a maintenance door, not a call
+            to action, so it no longer competes with the writing for weight.
+            Padded to clear the 24px minimum target: at this type size the text
+            box alone was only 12px tall. */}
+        {canShowLogin && (
+          <div className="border-t border-[#101828]/10 py-5">
+            <Link
+              href="/login"
+              className="-mx-2 inline-flex min-h-[2.75rem] items-center px-2 font-mono text-[0.68rem] uppercase tracking-[0.16em] text-[#8892a4] underline-offset-4 transition-colors hover:text-[#101828] hover:underline"
+            >
+              Login
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );

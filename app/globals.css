@@ -1754,3 +1754,20 @@
     }
   }
 }
+
+/* ── Blog index ────────────────────────────────────────────────────────
+   The index is a scanning surface, so its only motion is hover and focus
+   feedback. There is no global reduced-motion catch-all in this sheet, so
+   the rows opt out explicitly rather than relying on one.
+─────────────────────────────────────────────────────────────────────── */
+@layer components {
+  @media (prefers-reduced-motion: reduce) {
+    .blog-index a,
+    .blog-index h2,
+    .blog-index h3,
+    .blog-index img,
+    .blog-index span {
+      transition: none;
+    }
+  }
+}
