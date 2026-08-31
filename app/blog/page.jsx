@@ -4,6 +4,7 @@ import { desc } from "drizzle-orm";
 import Image from "next/image";
 import Link from "next/link";
 import PageIntro from "@/components/PageIntro";
+import CoverPeek from "@/components/blog/CoverPeek";
 import { Button } from "@/components/ui/button";
 import { verifyAuth } from "@/lib/auth";
 import DeleteButton from "@/components/DeleteButton";
@@ -224,7 +225,7 @@ export default async function BlogList() {
             01..20 counter, which numbered the list without telling the reader
             anything; the group heading sticks so the year stays legible while
             its posts scroll past. */}
-        <div className="pb-24">
+        <div id="blog-archive" className="relative pb-24">
           {groups.map((group) => (
             <section
               key={group.year}
@@ -242,6 +243,7 @@ export default async function BlogList() {
                   >
                     <Link
                       href={`/blog/${post.slug}`}
+                      data-cover={realCover(post) || undefined}
                       className="flex flex-col gap-1.5 py-6 md:flex-row md:items-baseline md:gap-8 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#101828]"
                     >
                       {/* Fixed date column plus a truncating tag. Letting the
@@ -284,6 +286,8 @@ export default async function BlogList() {
             </div>
           )}
         </div>
+
+        <CoverPeek />
 
         {/* Admin entry point. Kept quiet: it is a maintenance door, not a call
             to action, so it no longer competes with the writing for weight.
