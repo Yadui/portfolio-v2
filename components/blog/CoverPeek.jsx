@@ -20,8 +20,10 @@ import { useEffect, useRef, useState } from "react";
 
 const W = 260;
 const H = 164;
-/** Distance from the cursor, so the panel never sits under the pointer. */
-const GAP = 28;
+/** Gutter inset from the right edge. The panel is pinned there rather than
+ *  trailing the cursor horizontally: following both axes meant it sat on top
+ *  of the very title being hovered. */
+const RIGHT = 28;
 /** Viewport inset, to keep the panel off the edges. */
 const EDGE = 12;
 /** Follow easing per frame. Low enough to trail the cursor, high enough not
@@ -33,7 +35,7 @@ const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 export default function CoverPeek({ scopeId = "blog-archive" }) {
   const boxRef = useRef(null);
   const [cover, setCover] = useState(null);
-  const s = useRef({ tx: 0, ty: 0, x: 0, y: 0, raf: 0, running: false });
+  const s = useRef({ ty: 0, y: 0, raf: 0, running: false });
 
   useEffect(() => {
     // Pointer-only affordance: touch has no hover, and a panel that chases the
@@ -49,10 +51,31 @@ export default function CoverPeek({ scopeId = "blog-archive" }) {
 
     const state = s.current;
 
+    /**
+     * Clearance is decided at the moment of showing, from the same live values
+     * the loop uses. A mount-time check drifted from them: at an emulated
+     * 1700px it passed, then the panel rendered 51px further left than the
+     * check had assumed and landed on the text. Pinning right is not on its
+     * own enough either, because the container stops growing at its max width
+     * while the panel tracks the viewport edge, so at 1440px and below there
+     * is simply no gutter and the panel stays away.
+     */
+    const CLEAR = 24;
+    const hasRoom = () => {
+      const titles = scope.querySelectorAll("h3");
+      if (!titles.length) return false;
+      let widest = 0;
+      for (const t of titles) widest = Math.max(widest, t.getBoundingClientRect().right);
+      return panelX() >= widest + CLEAR;
+    };
+
+    const panelX = () => Math.max(EDGE, window.innerWidth - W - RIGHT);
+
     const tick = () => {
-      state.x += (state.tx - state.x) * EASE;
+      // Vertical tracking only. X is pinned to the right gutter, so the panel
+      // sits beside the list instead of over it.
       state.y += (state.ty - state.y) * EASE;
-      const x = clamp(state.x + GAP, EDGE, window.innerWidth - W - EDGE);
+      const x = panelX();
       const y = clamp(state.y - H / 2, EDGE, window.innerHeight - H - EDGE);
       box.style.transform = `translate3d(${x}px, ${y}px, 0)`;
       state.raf = requestAnimationFrame(tick);
@@ -76,21 +99,20 @@ export default function CoverPeek({ scopeId = "blog-archive" }) {
     };
 
     const onMove = (event) => {
-      state.tx = event.clientX;
       state.ty = event.clientY;
     };
 
     const onOver = (event) => {
       const row = event.target.closest("[data-cover]");
       const src = row?.getAttribute("data-cover");
-      if (!src) {
+      if (!src || !hasRoom()) {
         hide();
         return;
       }
-      // Jump straight to the cursor the first time, so the panel does not fly
-      // in from the last position it happened to be left at.
+      box.style.display = "block";
+      // Align to the cursor's row the first time, so the panel does not glide
+      // in from the last row it happened to be left at.
       if (box.dataset.on !== "true") {
-        state.x = state.tx = event.clientX;
         state.y = state.ty = event.clientY;
       }
       setCover(src);
@@ -123,7 +145,7 @@ export default function CoverPeek({ scopeId = "blog-archive" }) {
          orders the `md:` variant after `motion-reduce:`, so without it the
          responsive `md:block` wins and the reduced-motion guard silently does
          nothing. The effect also bails out in JS; this is the second lock. */
-      className="pointer-events-none fixed left-0 top-0 z-50 hidden overflow-hidden rounded-xl border border-[#101828]/10 bg-[#fffdf8] opacity-0 shadow-[0_18px_40px_-18px_rgba(16,24,40,0.35)] transition-[opacity,scale] duration-200 ease-out [scale:0.96] data-[on=true]:opacity-100 data-[on=true]:[scale:1] md:block motion-reduce:!hidden"
+      className="pointer-events-none fixed left-0 top-0 z-50 hidden overflow-hidden rounded-xl border border-[#101828]/10 bg-[#fffdf8] opacity-0 shadow-[0_18px_40px_-18px_rgba(16,24,40,0.35)] transition-[opacity,scale] duration-200 ease-out [scale:0.96] data-[on=true]:opacity-100 data-[on=true]:[scale:1] motion-reduce:!hidden"
     >
       {cover && (
         <Image
