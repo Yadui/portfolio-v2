@@ -9,6 +9,7 @@ import SiteHeader from "@/components/SiteHeader";
 import AudioPlayer from "@/components/AudioPlayer";
 import { SITE_URL } from "@/lib/site";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const morsa = localFont({
   src: "../public/fonts/MORSA.ttf",
@@ -245,6 +246,7 @@ export default function RootLayout({ children }) {
         <PageTransition>{children}</PageTransition>
         <AudioPlayer />
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
