@@ -8,6 +8,7 @@ import SmoothScroll from "@/components/SmoothScroll";
 import SiteHeader from "@/components/SiteHeader";
 import AudioPlayer from "@/components/AudioPlayer";
 import { SITE_URL } from "@/lib/site";
+import { Analytics } from "@vercel/analytics/next";
 
 const morsa = localFont({
   src: "../public/fonts/MORSA.ttf",
@@ -243,6 +244,7 @@ export default function RootLayout({ children }) {
         <SiteHeader />
         <PageTransition>{children}</PageTransition>
         <AudioPlayer />
+        <Analytics />
       </body>
     </html>
   );
