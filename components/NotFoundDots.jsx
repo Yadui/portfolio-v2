@@ -15,10 +15,18 @@ import { useEffect, useRef } from "react";
  * touched per frame, and the loop is cancelled on unmount.
  */
 
-/** Sample step in device-independent px. Lower = denser field, more work. */
-const SAMPLE_STEP = 6;
-/** Radius around the pointer that pushes dots away. */
-const REPEL_RADIUS = 110;
+/**
+ * Sampling grid and dot size both scale with the rendered glyph. A fixed 6px
+ * step looked right at the old 300px cap, but at full-bleed size it would
+ * multiply the particle count several times over for no visual gain and cost
+ * frame time. Scaling both keeps the density ratio and the look constant, so
+ * the field simply gets bigger rather than denser.
+ */
+const stepFor = (size) => Math.max(6, Math.min(14, Math.round(size / 44)));
+const dotFor = (size) => Math.max(1.7, Math.min(3.6, size / 150));
+/** Radius around the pointer that pushes dots away. Scales with the glyph so
+ *  the hole the cursor opens stays proportional at any size. */
+const REPEL_BASE = 110;
 const REPEL_STRENGTH = 34;
 /** Spring back toward home, and velocity damping. */
 const RETURN = 0.055;
@@ -37,7 +45,7 @@ export default function NotFoundDots() {
     if (!ctx) return;
 
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const state = { dots: [], raf: 0, px: -9999, py: -9999, dpr: 1 };
+    const state = { dots: [], raf: 0, px: -9999, py: -9999, dpr: 1, step: 6, dot: 1.7, repel: REPEL_BASE };
 
     /** Read the real display face so the dots match the site's type. */
     const displayFont = () => {
@@ -73,8 +81,12 @@ export default function NotFoundDots() {
       const octx = off.getContext("2d", { willReadFrequently: true });
       if (!octx) return;
 
-      // Fill the available width, capped so it never dominates a tall screen.
-      const size = Math.min(w * 0.42, h * 0.9, 300);
+      // Full-bleed: the number is the page, so it takes the width it can get.
+      // Still bounded by height so it cannot overflow a short viewport.
+      const size = Math.min(w * 0.52, h * 0.95);
+      state.repel = Math.max(REPEL_BASE, size * 0.55);
+      state.step = stepFor(size);
+      state.dot = dotFor(size);
       octx.fillStyle = "#000";
       octx.textAlign = "center";
       octx.textBaseline = "middle";
@@ -83,8 +95,9 @@ export default function NotFoundDots() {
 
       const { data } = octx.getImageData(0, 0, w, h);
       const dots = [];
-      for (let y = 0; y < h; y += SAMPLE_STEP) {
-        for (let x = 0; x < w; x += SAMPLE_STEP) {
+      const step = state.step;
+      for (let y = 0; y < h; y += step) {
+        for (let x = 0; x < w; x += step) {
           // Alpha channel of this pixel; anything mostly opaque becomes a dot.
           if (data[(y * w + x) * 4 + 3] > 128) {
             dots.push({ hx: x, hy: y, x, y, vx: 0, vy: 0 });
@@ -100,7 +113,7 @@ export default function NotFoundDots() {
       ctx.fillStyle = "#101828";
       for (const d of state.dots) {
         ctx.beginPath();
-        ctx.arc(d.x, d.y, 1.7, 0, Math.PI * 2);
+        ctx.arc(d.x, d.y, state.dot, 0, Math.PI * 2);
         ctx.fill();
       }
     };
@@ -111,9 +124,10 @@ export default function NotFoundDots() {
         const dy = d.y - state.py;
         const dist = Math.hypot(dx, dy);
 
-        if (dist < REPEL_RADIUS && dist > 0.01) {
+        const radius = state.repel;
+        if (dist < radius && dist > 0.01) {
           // Falls off with distance, so the edge of the field barely moves.
-          const force = (1 - dist / REPEL_RADIUS) * REPEL_STRENGTH;
+          const force = (1 - dist / radius) * REPEL_STRENGTH;
           d.vx += (dx / dist) * force * 0.08;
           d.vy += (dy / dist) * force * 0.08;
         }
@@ -181,7 +195,7 @@ export default function NotFoundDots() {
   return (
     <div
       ref={wrapRef}
-      className="relative h-[clamp(9rem,26vw,17rem)] w-full max-w-[38rem]"
+      className="relative h-[clamp(10rem,34vw,26rem)] w-full max-w-[min(94vw,84rem)]"
       role="img"
       aria-label="404"
     >
