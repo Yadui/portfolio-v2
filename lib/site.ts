@@ -7,10 +7,10 @@
  * changing domains a find-and-replace with no way to verify completeness.
  *
  * Override per environment with NEXT_PUBLIC_SITE_URL, e.g.
- *   NEXT_PUBLIC_SITE_URL=https://abhinavyadav.com
+ *   NEXT_PUBLIC_SITE_URL=https://yadui.dev
  * so a domain migration is a single env change plus a redirect.
  */
-const FALLBACK_ORIGIN = "https://abhinav.maoverse.xyz";
+const FALLBACK_ORIGIN = "https://yadui.dev";
 
 function normalise(value: string): string {
   // Trailing slashes would double up in `${SITE_URL}/blog`.

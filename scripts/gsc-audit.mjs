@@ -10,7 +10,7 @@
  *
  * Optional:
  *   GSC_SITE   explicit property, e.g. "sc-domain:maoverse.xyz"
- *              or "https://abhinav.maoverse.xyz/"
+ *              or "https://yadui.dev/"
  *   GSC_LIMIT  max URLs to inspect (default 30)
  *
  * The URL Inspection API is quota-limited (~2000/day, 600/min per property),
@@ -20,7 +20,7 @@
 const TOKEN = process.env.GSC_ACCESS_TOKEN;
 const SITE_OVERRIDE = process.env.GSC_SITE;
 const LIMIT = Number(process.env.GSC_LIMIT || 30);
-const ORIGIN = "https://abhinav.maoverse.xyz";
+const ORIGIN = "https://yadui.dev";
 
 if (!TOKEN) {
   console.error("GSC_ACCESS_TOKEN is not set. See the header of this file.");
@@ -101,7 +101,7 @@ function pick(result) {
 
   const site =
     SITE_OVERRIDE ||
-    sites.find((s) => s.siteUrl.includes("abhinav.maoverse.xyz"))?.siteUrl ||
+    sites.find((s) => s.siteUrl.includes("yadui.dev"))?.siteUrl ||
     sites.find((s) => s.siteUrl.includes("maoverse.xyz"))?.siteUrl;
 
   if (!site) {

@@ -6,9 +6,10 @@ import ReactMarkdown from "react-markdown";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { FiHeart, FiBookmark, FiShare2, FiGithub, FiTwitter, FiLinkedin, FiLink, FiInfo, FiAlertCircle, FiCheckCircle } from "react-icons/fi";
+import { FiGithub, FiTwitter, FiLinkedin, FiInfo, FiAlertCircle, FiCheckCircle } from "react-icons/fi";
 import Image from "next/image";
 import AdminEditButton from "@/components/blog/AdminEditButton";
+import ArticleActions from "@/components/blog/ArticleActions";
 import { getSeededBlogPostBySlug, mergeBlogPosts, normalizeStoredPost } from "@/data/blogPosts";
 
 
@@ -364,34 +365,20 @@ export default async function BlogPost({ params }) {
             </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-            
-            {/* LEFT SIDEBAR: Actions (Sticky) */}
-            <aside className="hidden lg:flex flex-col gap-6 col-span-1 sticky top-32 h-fit items-center">
-                <div className="flex flex-col gap-4 rounded-full border border-[#101828]/10 bg-white/80 p-3 shadow-[0_14px_50px_rgba(16,24,40,0.08)] backdrop-blur-sm">
-                    <button className="group relative rounded-full p-3 text-[#8892a4] transition-all hover:bg-[#101828]/5 hover:text-red-500">
-                        <FiHeart size={22} className="group-hover:fill-current" />
-                        <span className="absolute left-10 md:left-14 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 bg-[#101828] text-white text-xs px-2 py-1 rounded whitespace-nowrap pointer-events-none transition-opacity">Like</span>
-                    </button>
-                    <button className="group relative rounded-full p-3 text-[#8892a4] transition-all hover:bg-[#101828]/5 hover:text-[#00805b]">
-                        <FiBookmark size={22} className="group-hover:fill-current" />
-                        <span className="absolute left-10 md:left-14 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 bg-[#101828] text-white text-xs px-2 py-1 rounded whitespace-nowrap pointer-events-none transition-opacity">Bookmark</span>
-                    </button>
-                    <div className="mx-auto my-1 h-px w-6 bg-[#101828]/10"></div>
-                    <button className="rounded-full p-3 text-[#8892a4] transition-all hover:bg-[#101828]/5 hover:text-blue-500">
-                        <FiTwitter size={20} />
-                    </button>
-                     <button className="rounded-full p-3 text-[#8892a4] transition-all hover:bg-[#101828]/5 hover:text-blue-700">
-                        <FiLinkedin size={20} />
-                    </button>
-                    <button className="rounded-full p-3 text-[#8892a4] transition-all hover:bg-[#101828]/5 hover:text-[#101828]">
-                        <FiLink size={20} />
-                    </button>
-                </div>
-            </aside>
+         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
+             {/* A single client leaf owns the reader actions. There are no
+                 fake public counters: this page has no engagement backend. */}
+             <aside className="hidden lg:col-span-1 lg:flex lg:items-start lg:justify-center">
+               <div className="sticky top-32">
+                 <ArticleActions slug={slug} title={post.title} url={postUrl} />
+               </div>
+             </aside>
 
             {/* MIDDLE: Main Content */}
-            <main className="col-span-1 lg:col-span-8 flex flex-col gap-8">
+             <main className="col-span-1 flex flex-col gap-8 lg:col-span-8">
+                 <div className="lg:hidden">
+                   <ArticleActions slug={slug} title={post.title} url={postUrl} />
+                 </div>
                 {/* Image & Tags */}
                 <div className="space-y-6">
                     {post.tags && (
@@ -446,26 +433,26 @@ export default async function BlogPost({ params }) {
             </main>
 
             {/* RIGHT SIDEBAR: Author & TOC (Sticky) */}
-            <aside className="flex flex-col gap-8 col-span-1 lg:col-span-3 h-full order-last lg:order-none">
+             <aside className="order-last col-span-1 flex h-full flex-col gap-8 lg:order-none lg:col-span-3">
                 <div className="sticky top-32 flex flex-col gap-8">
                     
                     {/* Author Profile */}
                     <div className="rounded-2xl border border-[#101828]/10 bg-white/80 p-6 shadow-[0_14px_50px_rgba(16,24,40,0.08)] backdrop-blur-sm">
                         <div className="flex items-center gap-4 mb-4">
                             <div className="relative h-16 w-16 overflow-hidden rounded-full border-2 border-[#00b86b]">
-                                <Image src="/assets/photo.png" alt="Abhinav" fill sizes="64px" className="object-cover" />
+                                 <Image src="/assets/blog-dp.jpeg" alt="Abhinav" fill sizes="64px" className="object-cover" />
                             </div>
                             <div>
                                 <h4 className="text-lg font-light text-[#101828]">Abhinav</h4>
                                 <div className="mt-1 flex gap-2 text-[#8892a4]">
-                                    <a href="https://github.com/Yadui" target="_blank" rel="noopener noreferrer" aria-label="GitHub" className="transition-colors hover:text-[#101828]"><FiGithub /></a>
-                                    <a href="https://x.com/abhinav2302055" target="_blank" rel="noopener noreferrer" aria-label="Twitter / X" className="transition-colors hover:text-blue-500"><FiTwitter /></a>
-                                    <a href="https://www.linkedin.com/in/abhinavyadav88" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="transition-colors hover:text-blue-700"><FiLinkedin /></a>
+                                     <a href="https://github.com/Yadui" target="_blank" rel="noopener noreferrer" aria-label="GitHub" className="profile-social-link transition-colors hover:text-[#101828]"><FiGithub /></a>
+                                     <a href="https://x.com/abhinav2302055" target="_blank" rel="noopener noreferrer" aria-label="Twitter / X" className="profile-social-link transition-colors hover:text-[#101828]"><FiTwitter /></a>
+                                     <a href="https://www.linkedin.com/in/abhinavyadav88" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="profile-social-link transition-colors hover:text-[#101828]"><FiLinkedin /></a>
                                 </div>
                             </div>
                         </div>
                         <p className="mb-4 text-sm leading-relaxed text-[#536074]">
-                            Full Stack Engineer passionate about building scalable web apps and AI solutions.
+                             Cloud and AI engineer writing about systems, interfaces, and the details that make software reliable.
                         </p>
                         <Link href="/" className="block">
                           <Button className="h-9 w-full rounded-lg bg-[#101828] font-bold text-white hover:bg-[#1d2839]">

@@ -95,7 +95,7 @@ export default function Image() {
                 fontFamily: "monospace",
               }}
             >
-              abhinav.maoverse.xyz
+              yadui.dev
             </span>
           </div>
 

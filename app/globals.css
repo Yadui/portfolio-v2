@@ -493,6 +493,102 @@
    straddling it, category copy to its right.
 ─────────────────────────────────────────────────────────────────────── */
 @layer components {
+  /* ── Individual article actions ───────────────────────────────────────
+     Reader preferences are local, not public engagement. The rail therefore
+     gives Like and Save equal visual weight without counters that suggest a
+     database-backed popularity signal. ──────────────────────────────── */
+  .article-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+    width: fit-content;
+    border: 1px solid rgba(16, 24, 40, 0.1);
+    border-radius: 1rem;
+    padding: 0.3rem;
+    background: rgba(255, 255, 255, 0.86);
+    box-shadow: 0 14px 50px rgba(16, 24, 40, 0.08);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+
+  .article-actions-group {
+    display: flex;
+    align-items: center;
+    gap: 0.1rem;
+  }
+
+  .article-actions-rule {
+    width: 1px;
+    height: 1.4rem;
+    margin: 0 0.2rem;
+    background: rgba(16, 24, 40, 0.12);
+  }
+
+  .article-action-button {
+    display: inline-flex;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.75rem;
+    color: #8892a4;
+    transition: color 0.2s ease, background-color 0.2s ease;
+  }
+
+  .article-action-button:hover,
+  .article-action-button:focus-visible {
+    background: rgba(16, 24, 40, 0.05);
+  }
+
+  .article-action-button:focus-visible,
+  .profile-social-link:focus-visible {
+    outline: 2px solid #101828;
+    outline-offset: 2px;
+  }
+
+  .profile-social-link {
+    display: inline-flex;
+    min-width: 2rem;
+    min-height: 2rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+  }
+
+  /* Desktop rail: a slim vertical pill beside the column. A single column is
+     what makes the pill radius read correctly; the previous two-column box
+     with a 999px radius rendered as an ellipse. */
+  @media (min-width: 1024px) {
+    .article-actions {
+      flex-direction: column;
+      gap: 0.3rem;
+      border-radius: 999px;
+      padding: 0.4rem;
+    }
+
+    .article-actions-group {
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+
+    .article-actions-rule {
+      width: 1.25rem;
+      height: 1px;
+      margin: 0.2rem 0;
+    }
+
+    .article-action-button {
+      border-radius: 999px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .article-action-button,
+    .profile-social-link {
+      transition: none;
+    }
+  }
+
   .work-section {
     background-color: var(--work-orange);
     color: #fff;
