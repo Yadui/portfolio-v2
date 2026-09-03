@@ -7,6 +7,7 @@ import PageIntro from "@/components/PageIntro";
 import CoverPeek from "@/components/blog/CoverPeek";
 import { Button } from "@/components/ui/button";
 import { verifyAuth } from "@/lib/auth";
+import { ADMIN_ENABLED } from "@/lib/adminEnabled";
 import DeleteButton from "@/components/DeleteButton";
 import LogoutButton from "@/components/LogoutButton";
 import { mergeBlogPosts } from "@/data/blogPosts";
@@ -84,10 +85,14 @@ export default async function BlogList() {
 
   const allPosts = mergeBlogPosts(storedPosts);
 
-  const user = await verifyAuth();
+  // Only read the session where an admin surface actually exists. This is not
+  // just belt and braces: `verifyAuth` calls `cookies()`, and reading cookies
+  // opts the route out of static rendering entirely, which is why `revalidate`
+  // had no effect and the index kept serving at ~0.8s with x-vercel-cache MISS.
+  // With the admin surface gone from production, this page is static there.
+  const user = ADMIN_ENABLED ? await verifyAuth() : null;
   const isAdmin = !!user;
-  // Login button always visible — security is enforced by the login API itself
-  const canShowLogin = !isAdmin;
+  const canShowLogin = ADMIN_ENABLED && !isAdmin;
 
   // The newest post leads; everything behind it is the archive, grouped by
   // year. `allPosts` is already sorted newest-first, so a single pass groups

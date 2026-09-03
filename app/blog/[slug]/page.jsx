@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { FiGithub, FiTwitter, FiLinkedin, FiInfo, FiAlertCircle, FiCheckCircle } from "react-icons/fi";
 import Image from "next/image";
 import AdminEditButton from "@/components/blog/AdminEditButton";
+import { ADMIN_ENABLED } from "@/lib/adminEnabled";
 import ArticleActions from "@/components/blog/ArticleActions";
 import { getSeededBlogPostBySlug, mergeBlogPosts, normalizeStoredPost } from "@/data/blogPosts";
 
@@ -452,7 +453,7 @@ export default async function BlogPost({ params }) {
                   </aside>
                 )}
                 
-                {post.sourceType === "database" && (
+                {ADMIN_ENABLED && post.sourceType === "database" && (
                   <AdminEditButton postId={post.id} />
                 )}
             </main>
