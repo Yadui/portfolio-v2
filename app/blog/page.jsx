@@ -16,7 +16,9 @@ import { SITE_URL, SITE_URL as BASE_URL } from "@/lib/site";
 export const metadata = {
   // "Blog" becomes the title suffix; root template makes it "Blog | Abhinav Yadav"
   // This page OWNS the blogging/writing cluster — no keyword overlap with homepage.
-  title: "Blog",
+  // "Blog" rendered as a 20-character SERP title, well under the useful
+  // length. This states the subject the page actually ranks for.
+  title: "Cloud & AI Engineering Notes",
   description: "Technical writing by Abhinav Yadav — deep-dives on Azure, AI pipelines, full-stack development, and cloud engineering from Gurugram, India.",
   alternates: { canonical: `${SITE_URL}/blog` },
   openGraph: {
@@ -41,7 +43,11 @@ export const metadata = {
   },
 };
 
-export const dynamic = 'force-dynamic';
+// force-dynamic meant every crawl and every visitor paid an uncached DB round
+// trip: the live index measured 3838ms TTFB, by far the slowest page on the
+// site. ISR serves it from cache; the write paths call revalidatePath("/blog")
+// so an admin create, edit or delete still shows up immediately.
+export const revalidate = 600;
 
 /** Day-month-year, the format already used across the site. */
 const formatDate = (value) =>

@@ -49,20 +49,45 @@ async function getRelatedPosts(currentPost) {
     .map(({ post }) => post);
 }
 
+
+/**
+ * Google truncates the SERP title near 60 characters and the snippet near 160.
+ * Post titles here ran to 79 chars before the "| Abhinav Yadav" suffix pushed
+ * them to 95-105, so the part carrying the search intent was cut off. Search
+ * Console showed the cost directly: the Azure deployment post had 28
+ * impressions and zero clicks. Clamp on a word boundary and drop the brand
+ * suffix for articles, since the domain already carries it.
+ */
+const SERP_TITLE_MAX = 60;
+const SERP_DESC_MAX = 155;
+
+const clampAtWord = (value, max) => {
+  const clean = String(value || "").replace(/\s+/g, " ").trim();
+  if (clean.length <= max) return clean;
+  const cut = clean.slice(0, max);
+  const space = cut.lastIndexOf(" ");
+  return (space > max * 0.5 ? cut.slice(0, space) : cut).replace(/[\s\u2014\u2013,;:.-]+$/, "");
+};
+
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const post = await getPost(slug);
 
   if (!post) return {};
 
-  const title = post.title;
-  const description = post.excerpt || post.content.replace(/[#*`>\[\]]/g, "").slice(0, 155).trim();
+  const title = clampAtWord(post.title, SERP_TITLE_MAX);
+  const description = clampAtWord(
+    post.excerpt || post.content.replace(/[#*`>\[\]]/g, " "),
+    SERP_DESC_MAX
+  );
   const url = `${BASE_URL}/blog/${slug}`;
   const image = post.coverImage && !post.coverImage.startsWith("data:") ? post.coverImage : `${BASE_URL}/opengraph-image`;
   const tags = post.tags ? post.tags.split(",").map((t) => t.trim()).filter(Boolean) : [];
 
   return {
-    title,
+    // `absolute` suppresses the "| Abhinav Yadav" template suffix, which
+    // was pushing every article title past the truncation point.
+    title: { absolute: title },
     description,
     keywords: tags,
     authors: [{ name: "Abhinav Yadav", url: BASE_URL }],
