@@ -233,6 +233,12 @@ export default function Contact() {
       gsap.set(panel, { y: startY(), autoAlpha: 1 });
       applyClip(0);
 
+      // Both phases run through proxies so every frame recomputes from live
+      // dimensions. A function-based `y` is evaluated once and cached by GSAP,
+      // so after the form changed the panel height from 216 to 528 the cached
+      // centre was 156px too low and the panel re-opened near the section
+      // floor instead of its original place.
+      const travel = { p: 0 };
       const reveal = { p: 0 };
 
       const tween = gsap.timeline({
@@ -259,7 +265,20 @@ export default function Contact() {
         // The square outruns the rising section if it starts immediately and
         // eases out, dropping below the fold mid-descent. Starting at 15% and
         // moving linearly keeps it on screen for the whole travel.
-        .to(panel, { y: finalY, duration: 0.6, ease: "none" }, 0.15)
+        .to(
+          travel,
+          {
+            p: 1,
+            duration: 0.6,
+            ease: "none",
+            onUpdate: () => {
+              const from = startY();
+              const to = finalY();
+              gsap.set(panel, { y: from + (to - from) * travel.p });
+            },
+          },
+          0.15
+        )
         // The window opens over the already-rendered content. Driven through
         // a proxy so the shape is recomputed from live dimensions each frame
         // rather than interpolating two fixed pixel insets.

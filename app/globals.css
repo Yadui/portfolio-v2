@@ -1596,9 +1596,9 @@
        which read as the card growing downward first. */
   }
 
-  .contact-panel.is-form-open {
-    min-height: 33rem;
-  }
+  /* No min-height. Contact.jsx animates the height explicitly and settles to
+     `height: auto`, so a floor here only added dead space under the Send
+     button whenever the form's natural height came in under 33rem. */
 
   .contact-panel-kicker {
     margin-bottom: clamp(2rem, 5vw, 4rem);
@@ -1830,9 +1830,7 @@
       padding: 1.1rem 1.25rem;
     }
 
-    .contact-panel.is-form-open {
-      min-height: 31rem;
-    }
+    /* See the desktop rule: the height is animated in JS, so no floor. */
 
     .contact-panel-title {
       font-size: clamp(2rem, 9vw, 3.5rem);
