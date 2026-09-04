@@ -172,10 +172,51 @@ export default function Contact() {
       // The clipped window is centred, so the travelling square's centre is
       // the panel's centre; offset the panel so that centre starts at the top.
       const startY = () => -panel.offsetHeight / 2 + SQUARE / 2;
-      const closedClip = () =>
-        `inset(${(panel.offsetHeight - SQUARE) / 2}px ${
-          (panel.offsetWidth - SQUARE) / 2
-        }px)`;
+      /**
+       * The reveal, expressed as a two-phase shape rather than one linear
+       * interpolation of both insets.
+       *
+       * Interpolating top and side insets on the same progress keeps the
+       * visible region at the panel's own aspect ratio, which is roughly 3:1.
+       * The window therefore reads as a bar shrinking for the whole
+       * transition and only resolves to a square in the last instant, so
+       * scrolling away looked like the box closing to a bar.
+       *
+       * Now the window is square while it grows to the panel's short side,
+       * and only then extends along the long side. Reversed by the scrub,
+       * that reads as the panel narrowing back to the square it came from and
+       * the square shrinking away.
+       *
+       * Dimensions are read live on every call, so a panel whose height has
+       * changed (the form opening) still closes to a true square.
+       */
+      const SHAPE_SPLIT = 0.55;
+      const applyClip = (progress) => {
+        const w = panel.offsetWidth;
+        const h = panel.offsetHeight;
+        if (!w || !h) return;
+
+        const short = Math.min(w, h);
+        let visW;
+        let visH;
+
+        if (progress <= SHAPE_SPLIT) {
+          // Square, growing from the mark to the panel's short side.
+          const t = SHAPE_SPLIT === 0 ? 1 : progress / SHAPE_SPLIT;
+          const side = SQUARE + (short - SQUARE) * t;
+          visW = side;
+          visH = side;
+        } else {
+          // Square reached; extend along whichever axis is longer.
+          const t = (progress - SHAPE_SPLIT) / (1 - SHAPE_SPLIT);
+          visW = w >= h ? short + (w - short) * t : short;
+          visH = h > w ? short + (h - short) * t : short;
+        }
+
+        const insetX = Math.max(0, (w - Math.min(visW, w)) / 2);
+        const insetY = Math.max(0, (h - Math.min(visH, h)) / 2);
+        gsap.set(panel, { clipPath: `inset(${insetY}px ${insetX}px)` });
+      };
 
       const applyBase = () => {
         gsap.set(panel, { xPercent: -50 });
@@ -183,20 +224,16 @@ export default function Contact() {
 
       if (reduceMotion) {
         applyBase();
-        gsap.set(panel, {
-          y: finalY(),
-          clipPath: "inset(0px 0px)",
-          autoAlpha: 1,
-        });
+        gsap.set(panel, { y: finalY(), autoAlpha: 1 });
+        applyClip(1);
         return;
       }
 
       applyBase();
-      gsap.set(panel, {
-        y: startY(),
-        clipPath: closedClip(),
-        autoAlpha: 1,
-      });
+      gsap.set(panel, { y: startY(), autoAlpha: 1 });
+      applyClip(0);
+
+      const reveal = { p: 0 };
 
       const tween = gsap.timeline({
         scrollTrigger: {
@@ -223,10 +260,17 @@ export default function Contact() {
         // eases out, dropping below the fold mid-descent. Starting at 15% and
         // moving linearly keeps it on screen for the whole travel.
         .to(panel, { y: finalY, duration: 0.6, ease: "none" }, 0.15)
-        // The window opens over the already-rendered content.
+        // The window opens over the already-rendered content. Driven through
+        // a proxy so the shape is recomputed from live dimensions each frame
+        // rather than interpolating two fixed pixel insets.
         .to(
-          panel,
-          { clipPath: "inset(0px 0px)", duration: 0.25, ease: "power2.out" },
+          reveal,
+          {
+            p: 1,
+            duration: 0.25,
+            ease: "power2.out",
+            onUpdate: () => applyClip(reveal.p),
+          },
           0.75
         );
 
