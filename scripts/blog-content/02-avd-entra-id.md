@@ -1,104 +1,86 @@
-## The Problem with Passwords in VDI Environments
+## Secure the service and the session host
 
-Traditional Virtual Desktop Infrastructure relies on Active Directory and password-based authentication. In a cloud-first world, that model has three critical failure points: password spray attacks, stale credentials in hybrid sync, and no conditional access at the session level.
+Azure Virtual Desktop (AVD) uses Microsoft Entra ID for service authentication. Entra single sign-on (SSO) extends that authentication to Windows on supported session hosts, enabling passwordless sign-in to the remote desktop.
 
-When we deployed Azure Virtual Desktop for a 200-seat enterprise client, passwordless authentication wasn't optional — it was a compliance requirement under their cyber insurance policy.
+MFA, SSO, and profile-storage access are separate configuration decisions. This overview follows Microsoft documentation; it does not report a customer deployment or measured security outcomes.
 
-## Entra ID vs. Active Directory: The Architecture Decision
+Microsoft distinguishes [three authentication phases](https://learn.microsoft.com/en-us/azure/virtual-desktop/authentication): the AVD service, the remote session, and applications inside that session. Validate each phase your users need.
 
-[!INFO] Azure Virtual Desktop supports two identity models: **Entra ID-joined** (cloud-native) and **Hybrid Entra ID-joined** (synced from on-premises AD). The right choice depends on your existing identity footprint.
+## Choose the host identity and resource-access model
 
-### Entra ID-Joined (Pure Cloud)
+For **Entra SSO**, session hosts must be Microsoft Entra joined or Microsoft Entra hybrid joined. AD DS-only and Entra Domain Services-joined hosts do not support this particular SSO configuration.
 
-Best for: greenfield deployments, remote-first orgs, no on-premises DC.
+This is an SSO prerequisite, not a complete list of AVD identity options. User identity and device join state are different choices: an Entra-joined host can serve supported cloud-only or hybrid user identities.
 
-```
-User Device → Entra ID Authentication → Conditional Access Evaluation
-     → AVD Session Host (Entra ID-joined) → FSLogix Profile (Azure Files)
-```
+- **Entra joined:** evaluate this for a cloud-managed host fleet. Check application and storage authentication separately rather than assuming every dependency becomes cloud-only.
+- **Hybrid joined:** evaluate this where hosts still need AD DS membership and existing domain management. Account for domain connectivity and Kerberos dependencies.
 
-Key configuration: the session hosts must be joined to Entra ID, not a local domain. This means your Azure Files share for FSLogix profiles needs **Kerberos authentication via Entra ID** — a step that's easy to miss.
+Use the same Entra identity for service and session-host sign-in. Microsoft's authentication guidance does not support signing into the service as one account and Windows as another.
 
-### Hybrid Entra ID-Joined
+## Target the correct Conditional Access applications
 
-Best for: organisations with existing AD DS, line-of-business apps requiring Kerberos, or complex GPO requirements.
+For current Azure Resource Manager-based AVD with Entra SSO, Microsoft recommends separate, aligned policies for these resources in its [MFA setup guide](https://learn.microsoft.com/en-us/azure/virtual-desktop/set-up-mfa):
 
-```
-User Device → Entra ID (cloud) ↔ Azure AD Connect Sync ↔ On-prem AD DS
-     → AVD Session Host (Hybrid Joined) → SMB share (domain auth)
-```
+| Resource | Application ID | Authentication boundary |
+| --- | --- | --- |
+| Azure Virtual Desktop | `9cdead84-a844-4324-93f2-b2e6bb768d07` | Feed subscription and gateway connection |
+| Windows Cloud Login | `270efc09-cd0d-444b-a71f-39af4910ec45` | Session-host sign-in with Entra SSO |
 
-We went hybrid because the client had 15 years of Group Policy Objects managing software deployments that were not worth rewriting.
+Older tenants may display **Windows Virtual Desktop** for the first application. Match the application ID, not just the display name. AVD classic has different guidance.
 
-## Configuring MFA-Enforced Authentication
+**Do not enforce MFA on Azure Virtual Desktop Azure Resource Manager Provider**, application ID `50e95039-b200-4007-bc97-8d5790743a63`. Microsoft explicitly warns against targeting this feed-retrieval application.
 
-### Step 1: Conditional Access Policy
+Scope new policies to a pilot user group. Include the browser and mobile/desktop client categories you intend to support. Review existing all-resource policies, device and location conditions, and Windows App dependencies before enforcement.
 
-Create a policy targeting the **Windows Virtual Desktop** cloud app:
+Conditional Access requires licenses including Entra ID P1 or P2. It cannot be used with Security Defaults enabled. Plan replacement protection before that transition, and review legacy per-user MFA conflicts on Entra-joined hosts.
 
-```json
-{
-  "displayName": "AVD - Require MFA",
-  "conditions": {
-    "applications": {
-      "includeApplications": ["9cdead84-a844-4324-93f2-b2e6bb768d07"]
-    },
-    "users": {
-      "includeGroups": ["avd-users-group-id"]
-    }
-  },
-  "grantControls": {
-    "operator": "AND",
-    "builtInControls": ["mfa"],
-    "authenticationStrength": "passwordlessMFA"
-  }
-}
-```
+## Select passwordless methods deliberately
 
-[!WARNING] The application ID `9cdead84-a844-4324-93f2-b2e6bb768d07` is the **Windows Virtual Desktop** service principal. Do not confuse it with the Azure Virtual Desktop ARM resource. Both need to be targeted for full coverage.
+Enable and register a supported method before requiring it. Check the client, host, and authentication phase: successful passwordless service sign-in does not prove that applications inside the desktop support the same method.
 
-### Step 2: Passwordless Credential Options
+Microsoft's [authentication strengths](https://learn.microsoft.com/en-us/entra/identity/authentication/concept-authentication-strengths) distinguish passwordless MFA from phishing-resistant MFA. FIDO2 passkeys and Windows Hello for Business are phishing-resistant options.
 
-We rolled out **FIDO2 security keys** (YubiKey 5) for privileged users and **Microsoft Authenticator passkeys** for standard users.
+Authenticator phone sign-in and Authenticator-hosted passkeys are different methods. Do not treat every passwordless or Authenticator flow as having the same phishing resistance.
 
-Entra ID configuration:
-1. **Authentication Methods Policy** → Enable FIDO2 Security Keys + Authenticator passkeys
-2. **Named Locations** — restrict AVD access to corporate IPs for non-compliant devices
-3. **Sign-in risk policy** → Block High, require MFA on Medium
+For a basic MFA policy, use **Require multifactor authentication**. To restrict accepted methods, choose an appropriate **Require authentication strength** control instead. Microsoft does not support combining those two grant controls in one policy.
 
-### Step 3: FSLogix + Azure Files with Entra Kerberos
+Use the documented policy workflow rather than treating illustrative JSON as an importable policy. Test enrollment and recovery with the selected strength before requiring it for the pilot.
 
-This is the configuration step that most guides skip. FSLogix stores roaming user profiles on Azure Files via SMB. For Entra ID-joined hosts, you need Kerberos tickets issued by Entra ID, not an on-prem DC.
+## Configure SSO and profile access independently
 
-```powershell
-# Enable Entra Kerberos on the storage account
-Update-AzStorageAccount `
-  -ResourceGroupName "rg-avd-prod" `
-  -Name "stavdprofiles" `
-  -EnableAzureActiveDirectoryKerberosForFile $true `
-  -ActiveDirectoryDomainName "yourtenant.onmicrosoft.com" `
-  -ActiveDirectoryDomainGuid "your-tenant-guid"
+Follow Microsoft's [SSO configuration guide](https://learn.microsoft.com/en-us/azure/virtual-desktop/configure-single-sign-on) for supported host updates and client versions, then complete the tenant and host-pool configuration:
 
-# Assign Storage File Data SMB Share Contributor to AVD users group
-New-AzRoleAssignment `
-  -ObjectId "avd-users-group-object-id" `
-  -RoleDefinitionName "Storage File Data SMB Share Contributor" `
-  -Scope "/subscriptions/.../resourceGroups/rg-avd-prod/providers/Microsoft.Storage/storageAccounts/stavdprofiles"
-```
+- Enable Entra authentication for RDP on Windows Cloud Login.
+- Configure trusted session-host groups for pre-consent where appropriate.
+- Create the documented Kerberos server object for hybrid-joined hosts, or Entra-joined hosts accessing on-premises resources in the applicable AD DS scenario.
+- Review Conditional Access, then enable Entra SSO on the host pool with `enablerdsaadauth:i:1`.
 
-## The Nuances Nobody Tells You
+**Intune enrollment is not a blanket SSO prerequisite.** Supported Windows clients do not universally require a domain-joined or Entra-joined local PC. Your Conditional Access policies can separately require a compliant device.
 
-**Single Sign-On requires the AVD feed to be enrolled via Intune or a compliant device.** If a user's personal device isn't Intune-managed, they'll get a second authentication prompt when launching a session app — even with SSO configured.
+For FSLogix profiles on Azure Files, choose a supported storage authentication path. Entra Kerberos is one documented option; the host join type alone does not establish all its prerequisites.
 
-**Conditional Access re-evaluation at session level** is enabled via the `Sign-in frequency` setting. We set it to 4 hours for privileged roles and 8 hours for standard users. Without this, a stolen session token is valid until the session terminates.
+The [FSLogix Azure Files guide](https://learn.microsoft.com/en-us/fslogix/how-to-configure-profile-container-entra-id-hybrid) separates hybrid from cloud-only/external identities. Follow the relevant path for permissions and host configuration.
 
-**Break-glass accounts** must be excluded from passwordless policies. We maintain two emergency accounts with long passwords, hardware TOTP, and Entra ID Privileged Identity Management activation — and they've never been used outside of quarterly DR drills.
+Check share-level and file/directory permissions, ticket retrieval, and actual profile-container loading. A successful desktop sign-in is not proof that profile storage works. Avoid substituting a tenant domain or GUID for AD DS details in commands.
 
-## Security Outcomes
+## Understand reauthentication and emergency access
 
-Post-deployment security metrics (90-day window):
+Sign-in frequency is not a timer that interrupts an established desktop. Microsoft documents reauthentication when another authentication and access token are needed, including qualifying reconnects after the interval expires.
 
-- **Phishing-related credential compromise attempts**: 0 (down from 3 in prior quarter)
-- **Password reset tickets**: down 87% (from 42/month to 5/month)
-- **MFA fatigue attack surface**: eliminated — no push notifications, only presence-based FIDO2
-- **Conditional Access policy coverage**: 100% of AVD app access
+For this SSO flow, **Every time** is supported only on Windows Cloud Login. Choose intervals for your requirements and test the actual reconnect and lock behavior instead of promising a fixed prompt count or token lifetime.
+
+Microsoft's [emergency-access guidance](https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/security-emergency-access) recommends at least two cloud-only emergency accounts with phishing-resistant authentication and independent recovery dependencies.
+
+Their Global Administrator assignments should be **permanent active, not eligible for PIM activation**. Exclude them from Conditional Access policies that block or restrict sign-in; this does not exempt them from Microsoft's mandatory MFA requirements.
+
+Secure the credentials and designated workstations, alert on account use, and validate access at least every 90 days. Emergency access should remain usable when normal administrator authentication or approval paths fail.
+
+## Next action: document and validate a pilot
+
+Start with an inventory of host join types, user identities, supported clients, registered methods, existing policies, and profile storage. Record the current configuration and verify emergency access before changing enforcement.
+
+Evaluate new pilot policies in [report-only mode](https://learn.microsoft.com/en-us/entra/identity/conditional-access/concept-conditional-access-report-only) while retaining baseline protection. Report-only evaluation cannot prove users can complete an MFA challenge.
+
+Then enforce for the pilot and check service sign-in, desktop launch, reconnect, and profile loading. Inspect both applications' sign-in records for the intended policy results. Agree on a rollback owner and restore the recorded baseline if needed.
+
+Expand only after representative client and user scenarios succeed. This overview defines the architecture and rollout boundary; use Microsoft's linked setup instructions for configuration details and error-specific diagnosis.
