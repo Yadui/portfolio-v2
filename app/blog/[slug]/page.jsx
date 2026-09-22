@@ -12,6 +12,7 @@ import AdminEditButton from "@/components/blog/AdminEditButton";
 import { ADMIN_ENABLED } from "@/lib/adminEnabled";
 import ArticleActions from "@/components/blog/ArticleActions";
 import { getSeededBlogPostBySlug, mergeBlogPosts, normalizeStoredPost } from "@/data/blogPosts";
+import { getArticleSeoTitle, serializeJsonLd } from "@/lib/seo";
 
 
 async function getPost(slug) {
@@ -51,15 +52,8 @@ async function getRelatedPosts(currentPost) {
 }
 
 
-/**
- * Google truncates the SERP title near 60 characters and the snippet near 160.
- * Post titles here ran to 79 chars before the "| Abhinav Yadav" suffix pushed
- * them to 95-105, so the part carrying the search intent was cut off. Search
- * Console showed the cost directly: the Azure deployment post had 28
- * impressions and zero clicks. Clamp on a word boundary and drop the brand
- * suffix for articles, since the domain already carries it.
- */
-const SERP_TITLE_MAX = 60;
+// Keep descriptions concise as an editorial choice. Google may truncate or
+// rewrite snippets; this character limit does not guarantee their display.
 const SERP_DESC_MAX = 155;
 
 const clampAtWord = (value, max) => {
@@ -76,7 +70,7 @@ export async function generateMetadata({ params }) {
 
   if (!post) return {};
 
-  const title = clampAtWord(post.title, SERP_TITLE_MAX);
+  const title = getArticleSeoTitle(post.title, slug);
   const description = clampAtWord(
     post.excerpt || post.content.replace(/[#*`>\[\]]/g, " "),
     SERP_DESC_MAX
@@ -86,8 +80,7 @@ export async function generateMetadata({ params }) {
   const tags = post.tags ? post.tags.split(",").map((t) => t.trim()).filter(Boolean) : [];
 
   return {
-    // `absolute` suppresses the "| Abhinav Yadav" template suffix, which
-    // was pushing every article title past the truncation point.
+    // Keep the article title independent of the site's brand suffix template.
     title: { absolute: title },
     description,
     keywords: tags,
@@ -233,24 +226,21 @@ const MarkdownComponents = {
     return <div className="mb-6 leading-relaxed text-[#2a3648]">{children}</div>;
   },
 
-  // Unwrap pre to avoid hydration mismatches with div-in-pre
-  pre: ({ children }) => <>{children}</>,
+  // ReactMarkdown 10 identifies blocks by their pre parent, not an inline prop.
+  pre: ({ children }) => {
+    const code = React.Children.only(children);
+    const match = /language-(\S+)/.exec(code.props.className || "");
+    const content = String(code.props.children ?? "").replace(/\n$/, "");
 
-  // Code Blocks
-  code: ({ node, inline, className, children, ...props }) => {
-    const match = /language-(\w+)/.exec(className || "");
-    const lang = match ? match[1] : "";
-    const isMultiLine = !inline;
-    const content = String(children).replace(/\n$/, "");
+    return (
+      <CodeBlock code={content} language={match ? match[1] : "plaintext"} className="my-6 border-white/10 shadow-2xl">
+        <CodeBlockCopyButton />
+      </CodeBlock>
+    );
+  },
 
-    if (isMultiLine) {
-       return (
-         <CodeBlock code={content} language={lang || "plaintext"} className="my-6 border-white/10 shadow-2xl">
-            <CodeBlockCopyButton />
-         </CodeBlock>
-       );
-    } 
-
+  // Block code is consumed by pre; this handler only renders inline code.
+  code: ({ node, className, children, ...props }) => {
     return (
       <code className="rounded border border-[#101828]/10 bg-[#101828]/5 px-1.5 py-0.5 font-mono text-sm text-[#00734a]" {...props}>
         {children}
@@ -365,7 +355,7 @@ export default async function BlogPost({ params }) {
     <>
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
     />
     <div className="min-h-screen bg-[#fffdf8] px-4 pb-20 pt-32 text-[#101828] md:px-8">
       <div className="container mx-auto max-w-[1400px]">

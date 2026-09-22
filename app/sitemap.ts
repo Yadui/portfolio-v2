@@ -7,6 +7,7 @@ import { seededBlogPosts } from "@/data/blogPosts";
 // unreachable. Regenerate with: node scripts/refresh-sitemap-fallback.mjs
 import blogSlugsFallback from "@/data/blogSlugsFallback.json";
 import { SITE_URL as BASE_URL } from "@/lib/site";
+import { sitemapLastModified, type SeoDate } from "@/lib/seo";
 
 
 // Regenerate the sitemap at most once an hour so blog posts added to the DB
@@ -44,8 +45,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Blog post pages. The publish date (createdAt) is the one authentic date we
   // have, so it is the only place we attach `lastModified`. Fetch from DB, fall
   // back to seeded slugs when the DB is unavailable.
-  let blogSlugs: { slug: string; createdAt: Date | number }[] = seededBlogPosts.map(
-    (p: { slug: string; createdAt: string }) => ({ slug: p.slug, createdAt: new Date(p.createdAt) })
+  let blogSlugs: { slug: string; createdAt: SeoDate }[] = seededBlogPosts.map(
+    (p: { slug: string; createdAt: string }) => ({ slug: p.slug, createdAt: p.createdAt })
   );
   // The seeded array is now empty (every post was migrated to the DB), so a
   // swallowed DB error here used to emit a sitemap containing only the 8
@@ -58,7 +59,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .from(posts)
       .orderBy(desc(posts.createdAt));
 
-  let dbPosts: { slug: string; createdAt: Date | number }[] = [];
+  let dbPosts: { slug: string; createdAt: SeoDate }[] = [];
   try {
     dbPosts = await fetchDbPosts();
   } catch {
@@ -83,15 +84,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   if (blogRoutesWouldBeEmpty(blogSlugs)) {
     blogSlugs = blogSlugsFallback.map((p) => ({
       slug: p.slug,
-      createdAt: p.createdAt ? new Date(p.createdAt) : new Date(),
+      createdAt: p.createdAt,
     }));
   }
 
+  const now = new Date();
   const blogRoutes: MetadataRoute.Sitemap = blogSlugs
     .filter(({ slug }) => typeof slug === "string" && slug.trim().length > 0)
     .map(({ slug, createdAt }) => ({
       url: `${BASE_URL}/blog/${slug.trim()}`,
-      lastModified: createdAt instanceof Date ? createdAt : new Date(createdAt),
+      ...sitemapLastModified(createdAt, now),
     }));
 
   return [...staticRoutes, ...workRoutes, ...blogRoutes];

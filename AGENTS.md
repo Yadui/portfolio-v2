@@ -26,6 +26,10 @@ Do not wait for the user to mention Taste Skill. This is the default for portfol
 - Never hardcode credentials or secrets. Never commit `.env` files.
 - Do not delete existing files or user work without a backup or explicit confirmation.
 
+## Search and editorial work
+
+For SEO audits, AI-search discoverability, structured data, crawler policy, or blog-content expansion, read `docs/GEO_SEO_INTEGRATION.md` first. It adapts the pinned `vendor/geo-seo-claude/` toolkit to this repository and defines the shared-database publication boundary.
+
 ## Verification
 
 For UI changes, run the relevant lint and build checks, then verify the affected page at mobile and desktop widths when browser tooling is available. Check both the normal motion path and reduced-motion behavior. Report any limitation instead of claiming an unchecked result.

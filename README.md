@@ -42,6 +42,10 @@ npm run lint
 - [Design Roadmap](docs/DESIGN_ROADMAP.md)
 - [Content Strategy](docs/CONTENT_STRATEGY.md)
 - [Technical Architecture](docs/TECH_ARCHITECTURE.md)
+- [GEO/SEO toolkit integration](docs/GEO_SEO_INTEGRATION.md)
+- [Search audit, September 2026](docs/seo/AUDIT_2026-09-22.md)
+- [Source-grounded content plan and drafts](docs/seo/CONTENT_PLAN_2026-09-22.md)
+- [SEO/security release and remaining owner actions](docs/seo/RELEASE_2026-09-22.md)
 
 ## Historical Implementation Notes
 

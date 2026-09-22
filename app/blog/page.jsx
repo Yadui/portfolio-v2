@@ -12,6 +12,7 @@ import DeleteButton from "@/components/DeleteButton";
 import LogoutButton from "@/components/LogoutButton";
 import { mergeBlogPosts } from "@/data/blogPosts";
 import { SITE_URL, SITE_URL as BASE_URL } from "@/lib/site";
+import { serializeJsonLd } from "@/lib/seo";
 
 
 export const metadata = {
@@ -157,7 +158,7 @@ export default async function BlogList() {
     <div className="blog-index min-h-screen bg-[#fffdf8] px-4 pt-32 text-[#101828] md:px-12">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(blogJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(blogJsonLd) }}
       />
       <div className="container mx-auto">
         <PageIntro

@@ -857,3 +857,49 @@
 - **After:** The panel returns to the section centre on every cycle and the panel ends just below Send.
 - **Why:** User reported both.
 - **Fix/Notes:** The position bug was a caching issue rather than a maths error. `y: finalY` passed a function to GSAP, which evaluates function-based values once and caches the result, so the centre was computed while the panel was 216 tall. Opening the form takes it to 461, and `(sectionHeight - panelHeight) / 2` differs by about 156px between those two, which is exactly the offset that pushed the panel toward the section floor when the scrub re-applied the stale value. Travel now runs through a proxy whose `onUpdate` reads `startY()` and `finalY()` each frame, matching the approach already used for the clip shape, so no cached geometry survives a height change. The gap under Send was `.contact-panel.is-form-open { min-height: 33rem }`, a 528px floor left over from before the height was animated in JS; the form's natural height is 461px, so the floor was padding the panel with 67px of nothing. Both the desktop rule and the 31rem mobile variant were removed, since `Contact.jsx` animates the height explicitly and settles to `height: auto`. Verified against an isolated production build: three consecutive toggles report the panel centred in the section with an offset of 0 at heights 216, 461 and 216, and scrolling away to the square and back also returns 0, where the stale value would have shown roughly -156. The remaining 30px under Send is the panel's own bottom padding, not dead space. At 390px the panel is 130px closed and 450px open, centred, with 14px below Send and no horizontal overflow. Lint 0 errors, 12 warnings.
+
+### 2026-09-22
+#### [FEAT] Add pinned GEO/SEO toolkit, audit and source-grounded content drafts
+- **Template/File:** `.gitattributes`, `vendor/geo-seo-claude/`, `docs/GEO_SEO_INTEGRATION.md`, `AGENTS.md`, `README.md`, `docs/seo/AUDIT_2026-09-22.md`, `docs/seo/CONTENT_PLAN_2026-09-22.md`, `scripts/blog-content/drafts/draft-avd-mfa-sso-troubleshooting.md`, `scripts/blog-content/drafts/draft-entra-passwordless-migration.md`, `scripts/blog-content/drafts/draft-kv-cache-memory-sizing.md`
+- **Record:** `geo-seo-content-audit`
+- **What changed:** Preserved MIT upstream snapshot at `f79987f75f369b3aa5e25b7e317c40e8b06db90f`, added safe project-specific usage/publication boundaries, audited 28 live sitemap pages and authored three distinct technical drafts with official citations.
+- **Before:** No repository-local GEO toolkit or evidence-based plan for the supplied GSC query clusters.
+- **After:** Reviewed toolkit reference, dated findings and approximately 2,690 words of unapproved draft content; no runtime dependency or automatic publishing.
+- **Why:** User requested toolkit integration, comprehensive checks and more content based on Search Console.
+- **Fix/Notes:** All 28 live sitemap pages returned 200 with metadata/H1/parseable JSON-LD. Upstream offline suite 14 passed. Full findings and limitations in the audit. Shared database, live articles, crawler policy and user image left untouched. Global installers were not run.
+
+#### [FIX] Harden search dates and structured data, repair inline code and remove embedded database credentials
+- **Template/File:** `app/sitemap.ts`, `data/blogSlugsFallback.json`, `lib/seo.ts`, `app/blog/page.jsx`, `app/blog/[slug]/page.jsx`, `public/llms.txt` moved to `docs/seo/archive/llms-static-before-2026-09-22.txt`, `test-db.js`, `tests/seo.test.ts`, `tests/blog-markdown.test.mjs`, `package.json`, `package-lock.json`
+- **Record:** `seo-reliability-regressions`
+- **What changed:** Omit invalid/unverified sitemap dates; escape blog JSON-LD; separate inline code from fenced blocks with ReactMarkdown 10; preserve duplicate static llms file outside public routing; require environment-based DB probe configuration; add regression tests and explicit esbuild dev dependency.
+- **Before:** Fallback included a year-58634 date; missing dates could become today; two owners of llms.txt; inline snippets became code blocks; unsafe JSON-LD serialization and hardcoded DB probe credentials.
+- **After:** Single llms route, preserved archive, all 20 fallback slugs, validated dates, safe serialization and inline rendering. No credentials in probe source.
+- **Why:** Fix concrete defects discovered during the SEO/content audit without changing URLs or the database schema.
+- **Fix/Notes:** Nine Node tests pass; lint 0 errors/12 existing warnings; isolated file-DB build passes with temporary signing-key environment value. Ego Lite 1440/390px normal/reduced-motion checks show no horizontal overflow and inline code computes to inline. Credential rotation remains required; history was not rewritten. Dependency audit found 9 production affected-package entries, including critical Next.js; upgrades deferred to a dedicated tested change. No commit, push or deployment.
+
+#### [FIX] Preserve article URLs, complete metadata titles and harden contact delivery
+- **Template/File:** `app/api/blog/edit/route.js`, `app/api/contact/route.js`, `app/blog/[slug]/page.jsx`, `lib/seo.ts`, `tests/blog-edit.test.mjs`, `tests/contact.test.mjs`, `tests/blog-markdown.test.mjs`, `tests/seo.test.ts`, `package.json`
+- **Record:** `seo-security-follow-up`
+- **What changed:** Stable slugs and validated edit payloads; full meaningful SEO titles with an AVD-specific title; escaped and bounded contact data, required STARTTLS, disabled URL/file access, truthful missing-configuration errors.
+- **Before:** Title edits regenerated slugs, SEO titles lost meaning, contact mail could report success without sending and used unescaped input.
+- **After:** Tested slug-preserving update and generic errors; clear AVD search title; contact 400/503/500 states without logging PII.
+- **Why:** User authorized completing actionable audit follow-ups and pushing.
+- **Fix/Notes:** 112 application tests pass; no real email or shared-database write. Local browser checks at 1440/390px normal/reduced motion pass. Contact organization/otherService delivery and rate limiting remain unchanged.
+
+#### [CONFIG] Update vulnerable dependencies and record release checks
+- **Template/File:** `package.json`, `package-lock.json`, `docs/seo/RELEASE_2026-09-22.md`, `docs/seo/AUDIT_2026-09-22.md`, `README.md`
+- **Record:** `dependency-security-remediation`
+- **What changed:** Next/config 16.3.5, Nodemailer 10.0.10, Drizzle ORM 0.45.3, SimpleWebAuthn server 13.3.3, tooling and compatible vulnerable transitives updated.
+- **Before:** Nine production affected-package entries, including critical Next.js; high findings also in tooling.
+- **After:** Zero production vulnerabilities; zero high/critical overall. Four moderate development-only Drizzle loader-chain entries remain documented with review date.
+- **Why:** Remove known vulnerabilities while preserving React18/Tailwind3 and avoiding a forced Drizzle downgrade.
+- **Fix/Notes:** Full isolated build passes on Next16.3.5; lint 0 errors/12 existing warnings. Nodemailer actual local serialization and Drizzle actual local SQL tests pass. Provider token rotation still required; local fixture build must not be deployed as an artifact.
+
+#### [FIX] Correct AVD and KV editorial source material
+- **Template/File:** `scripts/blog-content/02-avd-entra-id.md`, `scripts/blog-content/13-llm-kv-cache-why-not-query.md`, `scripts/blog-content/drafts/draft-llm-kv-cache-why-not-query.md`, `docs/seo/ARTICLE_CORRECTIONS_2026-09-22.md`
+- **Record:** `article-accuracy-560ba1b`
+- **What changed:** Corrected AVD app targeting/SSO/emergency-access guidance and KV math; removed unsupported deployment/performance claims; added official citations.
+- **Before:** Unsafe or unsupported guidance and incorrect cache capacity estimates in editorial sources.
+- **After:** Source-grounded overview and explicitly hypothetical 1GiB/32GiB example with stated assumptions.
+- **Why:** Improve accuracy of existing search-visible topics before publishing companion material.
+- **Fix/Notes:** Source-only commit `560ba1b` pushed to v2/main; Vercel status success. Live database bodies are unchanged. Exact source checks and limitations are recorded in the correction document.
