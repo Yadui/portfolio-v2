@@ -21,10 +21,8 @@ Use the same Entra identity for service and session-host sign-in. Microsoft's au
 
 For current Azure Resource Manager-based AVD with Entra SSO, Microsoft recommends separate, aligned policies for these resources in its [MFA setup guide](https://learn.microsoft.com/en-us/azure/virtual-desktop/set-up-mfa):
 
-| Resource | Application ID | Authentication boundary |
-| --- | --- | --- |
-| Azure Virtual Desktop | `9cdead84-a844-4324-93f2-b2e6bb768d07` | Feed subscription and gateway connection |
-| Windows Cloud Login | `270efc09-cd0d-444b-a71f-39af4910ec45` | Session-host sign-in with Entra SSO |
+- **Azure Virtual Desktop:** application ID `9cdead84-a844-4324-93f2-b2e6bb768d07`, for feed subscription and gateway connection.
+- **Windows Cloud Login:** application ID `270efc09-cd0d-444b-a71f-39af4910ec45`, for session-host sign-in with Entra SSO.
 
 Older tenants may display **Windows Virtual Desktop** for the first application. Match the application ID, not just the display name. AVD classic has different guidance.
 

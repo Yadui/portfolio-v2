@@ -78,11 +78,9 @@ For full attention, this reads all retained values plus the current one. Caching
 
 ## Why K and V, Not Q
 
-| Tensor | Used in future steps? | Reason | Cache it? |
-|---|---|---|---|
-| Query `Q[1:m]` | No | The new output uses the current query, not past queries | No |
-| Key `K[1:m]` | Yes | `q[m+1] @ K[1:m]^T` references all past keys | Yes |
-| Value `V[1:m]` | Yes | `P[m+1,:] @ V[1:m+1]` references all past values | Yes |
+- **Query `Q[1:m]`: do not cache for future decode steps.** The new output uses the current query, not past queries.
+- **Key `K[1:m]`: cache for future decode steps.** `q[m+1] @ K[1:m]^T` references all past keys.
+- **Value `V[1:m]`: cache for future decode steps.** `P[m+1,:] @ V[1:m+1]` references all past values.
 
 For the full-attention case above:
 - **Keys** are compared with the current query to calculate attention weights.
@@ -120,11 +118,9 @@ Weights, activations, runtime workspaces, allocation overhead, and reserved capa
 
 The `n_kv` parameter varies by architecture and directly controls cache size:
 
-| Attention type | Relation | Cache implication, other dimensions equal |
-|---|---|---|
-| MHA (Multi-Head Attention) | `n_kv = n_q` | One KV head per query head |
-| GQA (Grouped Query Attention) | `1 < n_kv < n_q` | Query groups share KV heads |
-| MQA (Multi-Query Attention) | `n_kv = 1` | All query heads share one KV head |
+- **MHA (Multi-Head Attention):** `n_kv = n_q`. One KV head per query head.
+- **GQA (Grouped Query Attention):** `1 < n_kv < n_q`. Query groups share KV heads.
+- **MQA (Multi-Query Attention):** `n_kv = 1`. All query heads share one KV head.
 
 These head-count conventions are documented in [HF's Qwen2 configuration reference](https://huggingface.co/docs/transformers/en/model_doc/qwen2). They describe architectural choices, not interchangeable serving flags.
 

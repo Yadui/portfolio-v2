@@ -47,3 +47,6 @@ next-env.d.ts
 
 # Generated response cache (hash-named blobs)
 cache/
+
+# Private publication backups (article data, never deploy or commit)
+/.local/

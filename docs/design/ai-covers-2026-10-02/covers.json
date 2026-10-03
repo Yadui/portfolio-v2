@@ -1,0 +1,58 @@
+[
+  {
+    "key": "foundry-boundaries",
+    "slug": "foundry-agent-service-production-checklist",
+    "title": "Agents need boundaries.",
+    "label": "Foundry Agent Service",
+    "source": "nasa-discover-room.jpg",
+    "layout": "boundary",
+    "alt": "Editorial collage of a photographed supercomputer behind a green boundary, with the words Agents need boundaries.",
+    "path": "/blog-covers/ai-editorial-2026-10-02/foundry-boundaries.webp",
+    "width": 1600,
+    "height": 840,
+    "bytes": 37908,
+    "sha256": "975e8c3dccbf84e6efa953668b0faf4a0ce9eaa207c96b6bbe8b6ad86cb289f4"
+  },
+  {
+    "key": "openwebui-stream",
+    "slug": "openwebui-fastapi-model-discovery-streaming",
+    "title": "Make the stream work.",
+    "label": "Open WebUI + FastAPI",
+    "source": "taylor-vick-network.jpg",
+    "layout": "stream",
+    "alt": "Monochrome network-cable photograph with green stream bands and the words Make the stream work.",
+    "path": "/blog-covers/ai-editorial-2026-10-02/openwebui-stream.webp",
+    "width": 1600,
+    "height": 840,
+    "bytes": 198744,
+    "sha256": "521c44524dd0fb10bd0294edb831aae03e91cbc01f1ecbd1d87dc52461ec6285"
+  },
+  {
+    "key": "prefix-reuse",
+    "slug": "prefix-caching-vs-kv-cache",
+    "title": "Same prefix. Less prefill.",
+    "label": "Prefix caching / KV cache",
+    "source": "nasa-discover-detail.jpg",
+    "layout": "reuse",
+    "alt": "Three repeated crops of supercomputer hardware beside the words Same prefix. Less prefill., an editorial metaphor for prefix reuse.",
+    "path": "/blog-covers/ai-editorial-2026-10-02/prefix-reuse.webp",
+    "width": 1600,
+    "height": 840,
+    "bytes": 39036,
+    "sha256": "cffc43a03b90d1d865c432bbcbe9842960be6e7006ec8c89b287b8710b0fbe4c"
+  },
+  {
+    "key": "kv-memory",
+    "slug": "kv-cache-memory-sizing-gqa-optimization",
+    "title": "Context has a memory bill.",
+    "label": "KV cache memory sizing",
+    "source": "nasa-discover-detail.jpg",
+    "layout": "memory",
+    "alt": "Close-cropped monochrome supercomputer cabinets beside a large KV monogram and the words Context has a memory bill.",
+    "path": "/blog-covers/ai-editorial-2026-10-02/kv-memory.webp",
+    "width": 1600,
+    "height": 840,
+    "bytes": 72622,
+    "sha256": "a9df7f77b81e9b03fbdd593a269940f2b3876e3a91f1970831fece1341e93d19"
+  }
+]

@@ -903,3 +903,41 @@
 - **After:** Source-grounded overview and explicitly hypothetical 1GiB/32GiB example with stated assumptions.
 - **Why:** Improve accuracy of existing search-visible topics before publishing companion material.
 - **Fix/Notes:** Source-only commit `560ba1b` pushed to v2/main; Vercel status success. Live database bodies are unchanged. Exact source checks and limitations are recorded in the correction document.
+
+#### [FEAT] Publish corrected existing articles with guarded Turso updates
+- **Template/File:** `scripts/publish-blog-corrections.mjs`, `scripts/lib/blog-publisher.mjs`, `scripts/blog-corrections.json`, `tests/blog-publisher.test.mjs`, `package.json`, `.gitignore`, `scripts/blog-content/02-avd-entra-id.md`, `scripts/blog-content/13-llm-kv-cache-why-not-query.md`, `docs/seo/BLOG_PUBLISHER.md`, `docs/GEO_SEO_INTEGRATION.md`, `README.md`
+- **Record:** `turso-corrections-publication`
+- **What changed:** Added dry-run-first two-article publisher with exact reviewed plan hashes, durable private full-row backups, atomic CAS updates, metadata preservation and readback verification. Converted unsupported source tables to lists. Ran the authorized production update.
+- **Before:** Corrected sources were only in Git; live database retained inaccurate bodies. No repeatable safe update workflow existed.
+- **After:** Both approved existing article bodies and summaries match source; original URLs, titles, tags, images and publication dates preserved. Fresh plan shows zero differences. Three new drafts remain unpublished.
+- **Why:** User explicitly requested pushing corrected articles to Turso or an automated publishing pipeline.
+- **Fix/Notes:** 172 tests pass (60 publisher regressions); scoped lint and whitespace checks pass. Verified backup under ignored `.local/blog-backups/`; plan/apply receipts in publisher documentation. Remote ISR/RSS caches may serve stale data until regeneration. No new articles, schema changes, cron, provider-token rotation or mail delivery.
+- **Publication verification:** Both canonical article pages regenerated and return 200/cache HIT with corrected bodies and summaries, old claims absent, one H1 and valid JSON-LD. Live 1440px/390px checks had no document overflow; mobile screenshots inspected. Full lint: 0 errors/12 existing warnings. RSS propagation not independently verified; pipeline files remain local/uncommitted.
+
+### 2026-10-02
+#### [FEAT] Analyze Search Console and prepare distinct AI articles with editorial covers
+- **Template/File:** `docs/seo/GSC_ANALYSIS_2026-10-02.md`, `docs/seo/gsc-2026-10-02-summary.json`, `docs/seo/AI_SOURCE_REGISTER_2026-10-02.md`, `docs/seo/AI_EDITORIAL_PLAN_2026-10-02.md`, `scripts/analyze-gsc-export.py`, `scripts/blog-content/drafts/2026-10-02/`, `scripts/blog-content/drafts/draft-kv-cache-memory-sizing.md`, `scripts/build-ai-editorial-covers.mjs`, `public/blog-covers/ai-editorial-2026-10-02/`, `docs/design/ai-covers-2026-10-02/`, `tests/ai-editorial-assets.test.mjs`, `package.json`, `README.md`
+- **Record:** `ai-content-and-cover-expansion`
+- **What changed:** Computed the seven-file GSC export, preserved reproducible summary/source hashes, wrote three distinct AI companion drafts against 18 primary sources, and created four photographic/type cover treatments including existing KV sizing. Added source-rights provenance, preview/crop review and asset checks.
+- **Before:** Decisions relied on a screenshot; AI candidates and covers were not packaged against the complete export.
+- **After:** Measured baseline: 2 clicks/294 impressions over supplied Aug26–Sep29 rows, ~38.42 weighted position, zero September clicks. Named queries omit both clicks; no guessed query/page join or claimed CTR growth. Three new drafts total ~3,204 body words and remain unapproved. Four1600×840WebP covers retain the paper/ink/green system and existing stack.
+- **Why:** User asked for data-led AI blogs that can attract clicks and more distinctive covers.
+- **Fix/Notes:** No traffic promise. Dials8/0/3 preserve mode; licensed photographs and original editorial compositions, not fake screenshots or claimed image generation. Full/social,16:10and260×164 crops inspected in Ego at1440/390px with no overflow. 172 existing tests,9asset tests,3analyzer tests pass; lint0errors12existingwarnings; no app build needed for script/content-only changes. New covers/files local only; no DB publication, push, existing-cover replacement or scheduler. Existing uncommitted publisher and user image preserved.
+
+#### [FEAT] Add localhost-only draft article review in the running project
+- **Template/File:** `app/drafts/layout.jsx`, `app/drafts/page.jsx`, `app/drafts/[slug]/page.jsx`, `lib/draft-preview.mjs`, `lib/draft-preview-access.mjs`, `components/blog/MarkdownComponents.jsx`, `app/blog/[slug]/page.jsx`, `middleware.ts`, `next.config.mjs`, `tests/draft-preview.test.mjs`, `package.json`, `README.md`, `docs/seo/LOCAL_DRAFT_REVIEW.md`
+- **Record:** `local-draft-review-links`
+- **What changed:** Four read-only preview URLs with full bodies/covers and a local draft index. Extracted public Markdown renderer mechanically for shared behavior. Added explicit development/loopback gates, early middleware404, noindex and a localhost startup command that avoids the normal cleanup hook.
+- **Before:** Drafts were local Markdown files and covers; no in-project article links for the owner to review.
+- **After:** `http://localhost:3100/drafts` lists four unpublished previews. All require development plus explicit flag and loopback host. Production checks return404/emptybody even when flag enabled. No approval or database write occurs on opening a page.
+- **Why:** User asked to put drafts into the locally running project and confirm there.
+- **Fix/Notes:** Dials7/0/4 preserve existing system. Three new preview tests and172existingtests pass. Isolated production build passes after correcting stale fixture and overly broad filesystem tracing. Desktop/mobile checks on all4pages: loaded covers/alt,oneH1,nooverflow. Normal/reducedmotion checked; localserverleft running. Productioncheckserverstopped. No Gitpush or Turso publication. Nextdev auto-added its Next.js instructions block to AGENTS.md; retained generated instructions.
+
+#### [FEAT] Publish four approved AI drafts on a weekly schedule with text-free covers
+- **Template/File:** `scripts/publish-ai-drafts.mjs`, `scripts/build-ai-editorial-covers.mjs`, `public/blog-covers/ai-editorial-2026-10-02/`, `docs/seo/AI_PUBLISHER.md`, `docs/design/ai-covers-2026-10-02/`, `package.json`, `README.md`
+- **Record:** `ai-draft-publication`
+- **What changed:** Rebuilt four covers with no visible text, then inserted four approved article rows into Turso with allowlisted source paths, private backup, one transaction and post-insert verification.
+- **Before:** Four drafts existed only in local Markdown and cover previews.
+- **After:** Turso rows 25–28 exist with weekly dates 2026-09-07, 09-14, 09-21 and 09-28. Cover paths point at the new text-free WebP assets. Existing articles/rows were untouched.
+- **Why:** User approved pushing the four drafts and requested one post per week from the last upload date, with no cover typography.
+- **Fix/Notes:** A first apply attempt failed verification and rolled back; corrected retry succeeded. Private backup retained under ignored `.local`. 172 app tests, 3 draft tests, 9 cover tests and 3 analyzer tests pass. New deployment/ISR/sitemap/RSS regeneration still needs live verification. No indexing request or credential change.

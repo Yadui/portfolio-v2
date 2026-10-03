@@ -4,6 +4,8 @@ proposed_slug: "kv-cache-memory-sizing-gqa-optimization"
 proposed_title: "KV cache memory sizing: GQA math and optimization"
 proposed_excerpt: "Calculate KV cache bytes from model configuration, work through a Qwen example, and compare context limits, quantization and offloading."
 proposed_tags: [LLM, KV Cache, Inference, GQA, Memory, Transformers]
+proposed_cover: "/blog-covers/ai-editorial-2026-10-02/kv-memory.webp"
+proposed_cover_alt: "Close-cropped monochrome supercomputer cabinets beside a large KV monogram and the words Context has a memory bill."
 source_review_date: "2026-09-22"
 verified_sources:
   - "https://huggingface.co/docs/transformers/en/cache_explanation"

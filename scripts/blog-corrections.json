@@ -1,0 +1,12 @@
+[
+  {
+    "slug": "securing-azure-virtual-desktop-with-entra-id-and-passwordless-mfa",
+    "source": "scripts/blog-content/02-avd-entra-id.md",
+    "excerpt": "AVD service authentication, Entra SSO, Conditional Access, passwordless methods, and profile-storage prerequisites."
+  },
+  {
+    "slug": "llm-kv-cache-why-not-query",
+    "source": "scripts/blog-content/13-llm-kv-cache-why-not-query.md",
+    "excerpt": "Why causal decoding reuses keys and values, not past queries, and how architecture and retained tokens determine KV cache memory."
+  }
+]

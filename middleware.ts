@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { SITE_HOST as CANONICAL_HOST } from "@/lib/site";
+import { isDraftPreviewEnabled } from "@/lib/draft-preview-access.mjs";
 import {
   ADMIN_ENABLED,
   ADMIN_WRITE_METHODS,
@@ -13,6 +14,18 @@ import {
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // Local review must fail closed before rendering or streaming any page shell.
+  if ((pathname === "/drafts" || pathname.startsWith("/drafts/")) &&
+      !isDraftPreviewEnabled(process.env, request.headers.get("host"))) {
+    return new NextResponse(null, {
+      status: 404,
+      headers: {
+        "X-Robots-Tag": "noindex, nofollow, noarchive",
+        "Cache-Control": "private, no-store, max-age=0",
+      },
+    });
+  }
 
   // ── Admin surface ──────────────────────────────────────────────────────
   // Blocked before anything else, and on every deployed environment rather

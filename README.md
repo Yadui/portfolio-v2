@@ -46,6 +46,12 @@ npm run lint
 - [Search audit, September 2026](docs/seo/AUDIT_2026-09-22.md)
 - [Source-grounded content plan and drafts](docs/seo/CONTENT_PLAN_2026-09-22.md)
 - [SEO/security release and remaining owner actions](docs/seo/RELEASE_2026-09-22.md)
+- [Guarded Turso article publisher](docs/seo/BLOG_PUBLISHER.md)
+- [October 2 Search Console analysis](docs/seo/GSC_ANALYSIS_2026-10-02.md)
+- [AI article and cover package](docs/seo/AI_EDITORIAL_PLAN_2026-10-02.md)
+- [AI cover visual review](docs/design/ai-covers-2026-10-02/review.html)
+- [Local draft review links and startup](docs/seo/LOCAL_DRAFT_REVIEW.md)
+- [AI article publication and cover schedule](docs/seo/AI_PUBLISHER.md)
 
 ## Historical Implementation Notes
 

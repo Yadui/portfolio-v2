@@ -10,7 +10,15 @@
     "start": "next start -p 3100",
     "lint": "eslint .",
     "test:seo": "node --experimental-strip-types --test tests/seo.test.ts tests/blog-markdown.test.mjs",
-    "test": "node --experimental-strip-types --test tests/seo.test.ts tests/blog-markdown.test.mjs tests/blog-edit.test.mjs tests/contact.test.mjs"
+    "test": "node --experimental-strip-types --test tests/seo.test.ts tests/blog-markdown.test.mjs tests/blog-edit.test.mjs tests/contact.test.mjs tests/blog-publisher.test.mjs",
+    "blog:plan": "node scripts/publish-blog-corrections.mjs",
+    "blog:publish": "node scripts/publish-blog-corrections.mjs --apply",
+    "covers:build": "node scripts/build-ai-editorial-covers.mjs",
+    "test:editorial": "node --test tests/ai-editorial-assets.test.mjs",
+    "test:drafts": "node --test tests/draft-preview.test.mjs",
+    "dev:drafts": "PORTFOLIO_DRAFT_PREVIEW=1 next dev -H 127.0.0.1 -p 3100 --turbopack"
+    ,"blog:plan:new": "node scripts/publish-ai-drafts.mjs"
+    ,"blog:publish:new": "node scripts/publish-ai-drafts.mjs --apply"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

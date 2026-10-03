@@ -48,6 +48,11 @@ without explicit authorization. Existing articles need a verified export/backup
 and slug-preserving publication path before applying revisions. Draft front matter
 must be removed from the published body; the site does not parse it.
 
+For approved corrections to the two existing AVD/KV articles, use the guarded
+workflow in `docs/seo/BLOG_PUBLISHER.md`: review a dry-run, require its exact plan
+hash, create a verified private backup, then apply atomically. This does not grant
+standing permission to publish new drafts or schedule unattended database writes.
+
 ## Safety and compatibility review
 
 - Unix installer writes to `~/.claude`, replaces its venv, and rewrites matching
