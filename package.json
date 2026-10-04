@@ -18,7 +18,9 @@
     "test:drafts": "node --test tests/draft-preview.test.mjs",
     "dev:drafts": "PORTFOLIO_DRAFT_PREVIEW=1 next dev -H 127.0.0.1 -p 3100 --turbopack"
     ,"blog:plan:new": "node scripts/publish-ai-drafts.mjs"
-    ,"blog:publish:new": "node scripts/publish-ai-drafts.mjs --apply"
+     ,"blog:publish:new": "node scripts/publish-ai-drafts.mjs --apply"
+     ,"blog:keyword-plan": "node scripts/update-keyword-optimization.mjs"
+     ,"blog:keyword-apply": "node scripts/update-keyword-optimization.mjs --apply"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

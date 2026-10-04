@@ -941,3 +941,12 @@
 - **After:** Turso rows 25–28 exist with weekly dates 2026-09-07, 09-14, 09-21 and 09-28. Cover paths point at the new text-free WebP assets. Existing articles/rows were untouched.
 - **Why:** User approved pushing the four drafts and requested one post per week from the last upload date, with no cover typography.
 - **Fix/Notes:** A first apply attempt failed verification and rolled back; corrected retry succeeded. Private backup retained under ignored `.local`. 172 app tests, 3 draft tests, 9 cover tests and 3 analyzer tests pass. New deployment/ISR/sitemap/RSS regeneration still needs live verification. No indexing request or credential change.
+
+#### [FIX] Apply Search Console query-language optimization to relevant live articles
+- **Template/File:** `scripts/blog-content/02-avd-entra-id.md`, `scripts/blog-content/drafts/draft-kv-cache-memory-sizing.md`, `scripts/update-keyword-optimization.mjs`, `package.json`
+- **Record:** `gsc-query-language-optimization`
+- **What changed:** Added naturally relevant AVD terms from the export, including Azure Active Directory passwordless, MFA for VDI, Azure Virtual Desktop MFA, Windows Virtual Desktop MFA and Azure Virtual Desktop single sign-on. Added KV cache memory/math wording to the sizing article and updated both summaries.
+- **Before:** The export showed relevant zero-click queries, but the two matching pages did not use several exact task phrases in their opening copy/summary.
+- **After:** The two existing Turso rows were updated with a private backup and null-safe compare-and-swap transaction. Slugs, titles, dates, tags, covers and IDs were preserved.
+- **Why:** User requested the Search Console “high impressions, position above three” optimization workflow.
+- **Fix/Notes:** This uses obvious semantic matches only. Query/page tables were not joined, so no exact query attribution is claimed. The update is not keyword stuffing or a click guarantee. No new rows changed. Live ISR regeneration and post-update Search Console measurement remain pending.

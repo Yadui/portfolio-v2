@@ -21,7 +21,7 @@ review_notes:
 
 # KV cache memory sizing: GQA math and optimization
 
-For a decoder-only transformer with uniform full-attention layers, estimate the raw KV cache as `2 × L × B × T × H_kv × D × S` bytes. Use the number of key/value heads, not query heads. Count retained prompt and generated tokens, then add model weights, runtime allocations, and implementation overhead before deciding whether a workload fits.
+For a decoder-only transformer with uniform full-attention layers, estimate the raw KV cache as `2 × L × B × T × H_kv × D × S` bytes. This is the core KV cache math behind questions such as “what is KV cache memory?” and “how do I calculate KV cache size?” Use the number of key/value heads, not query heads. Count retained prompt and generated tokens, then add model weights, runtime allocations, and implementation overhead before deciding whether a workload fits.
 
 This is a capacity-planning calculation, not a GPU benchmark. If you need the underlying explanation, start with [why inference caches keys and values rather than queries](/blog/llm-kv-cache-why-not-query). Here the goal is to build a reproducible memory budget and choose an optimization based on the constraint.
 

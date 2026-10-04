@@ -1,6 +1,6 @@
 ## Secure the service and the session host
 
-Azure Virtual Desktop (AVD) uses Microsoft Entra ID for service authentication. Entra single sign-on (SSO) extends that authentication to Windows on supported session hosts, enabling passwordless sign-in to the remote desktop.
+Azure Virtual Desktop (AVD) uses Microsoft Entra ID for service authentication. Entra single sign-on (SSO) extends that authentication to Windows on supported session hosts, enabling passwordless sign-in to the remote desktop. If you are searching for Azure Active Directory passwordless authentication, MFA for VDI, Azure Virtual Desktop MFA, Windows Virtual Desktop MFA, or Azure Virtual Desktop single sign-on, start by separating these service, session-host, and in-session boundaries.
 
 MFA, SSO, and profile-storage access are separate configuration decisions. This overview follows Microsoft documentation; it does not report a customer deployment or measured security outcomes.
 
