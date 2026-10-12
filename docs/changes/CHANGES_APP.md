@@ -950,3 +950,12 @@
 - **After:** The two existing Turso rows were updated with a private backup and null-safe compare-and-swap transaction. Slugs, titles, dates, tags, covers and IDs were preserved.
 - **Why:** User requested the Search Console “high impressions, position above three” optimization workflow.
 - **Fix/Notes:** This uses obvious semantic matches only. Query/page tables were not joined, so no exact query attribution is claimed. The update is not keyword stuffing or a click guarantee. No new rows changed. Live ISR regeneration and post-update Search Console measurement remain pending.
+
+#### [FIX] Remove unlicensed Frieren soundtrack from public site
+- **Template/File:** `app/layout.tsx`, `components/AudioPlayer.jsx`, `public/assets/audio/Time Flows Ever Onward.mp3`, `tests/audio-removal.test.mjs`, `package.json`
+- **Record:** `remove-frieren-soundtrack`
+- **What changed:** Removed the site-wide background audio player and MP3 from the publicly served asset directory. Retained the original MP3 only as a private, mode-0600 temporary backup outside the repository.
+- **Before:** `Time Flows Ever Onward` by Evan Call from the Frieren soundtrack was self-hosted, looped and could start after a visitor interaction without a verified web-use license.
+- **After:** No player is mounted and the original public asset path is absent. The deployment test asserts both conditions.
+- **Why:** Owner requested disabling public use to avoid a copyright/licensing issue.
+- **Fix/Notes:** Local removal is not live until deployment completes. Track identity/source checked against the repository path and official listing; licensing not established. Full application test/build and public URL 404 verification required before claiming removed from production. No audio license procured.
