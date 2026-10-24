@@ -17,16 +17,16 @@ test('draft preview requires explicit development mode and a local host', async 
   }
 });
 
-test('four allowlisted local drafts contain body and approved asset assignments, without editorial headers', async () => {
+test('eleven allowlisted local drafts contain body and approved asset assignments, without editorial headers', async () => {
   const { listLocalDrafts } = await load();
   const drafts = await listLocalDrafts(local, 'localhost:3100');
-  assert.equal(drafts.length, 4);
-  assert.equal(new Set(drafts.map(x => x.slug)).size, 4);
+  assert.equal(drafts.length, 11);
+  assert.equal(new Set(drafts.map(x => x.slug)).size, 11);
   for (const draft of drafts) {
     assert.ok(draft.title);
     assert.ok(draft.excerpt);
     assert.ok(draft.coverAlt);
-    assert.match(draft.cover, /^\/blog-covers\/ai-editorial-2026-10-02\/[a-z-]+\.webp$/);
+    assert.match(draft.cover, /^\/blog-covers\/(ai-editorial-2026-10-02|ai-security-2026-10-24)\/[a-z0-9-]+\.webp$/);
     assert.doesNotMatch(draft.content, /^# /m);
     assert.doesNotMatch(draft.content, /^(status:|proposed_title:|\*\*Published:\*\*)/m);
   }

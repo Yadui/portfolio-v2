@@ -959,3 +959,13 @@
 - **After:** No player is mounted and the original public asset path is absent. The deployment test asserts both conditions.
 - **Why:** Owner requested disabling public use to avoid a copyright/licensing issue.
 - **Fix/Notes:** Local removal is not live until deployment completes. Track identity/source checked against the repository path and official listing; licensing not established. Full application test/build and public URL 404 verification required before claiming removed from production. No audio license procured.
+
+### 2026-10-24
+#### [FEAT] Publish six October AI/security posts with text-free covers
+- **Template/File:** `scripts/blog-content/drafts/2026-10-24/*`, `public/blog-covers/ai-security-2026-10-24/*`, `scripts/build-ai-security-covers.mjs`, `scripts/publish-ai-security-drafts.mjs`, `lib/draft-preview.mjs`, `app/drafts/[slug]/page.jsx`, `tests/draft-preview.test.mjs`
+- **Record:** `ai-security-october-2026`
+- **What changed:** Researched drafts on Flowise/Langflow/PraisonAI RCE, CERT-In agent credentials, NIST/NSA/CISA kill switches, PHP2Shell, LiteLLM 1.107.0 and the Railway/eMudhra/SBI breaches (dated Oct 9 to Oct 24), with SEO titles, internal links and FAQs. Seven text-free Unsplash covers with provenance. Threat-model draft held for a later date.
+- **Before:** Latest post dated 2026-09-28.
+- **After:** Six posts inserted via guarded, backed-up transaction; future dates refused.
+- **Why:** Owner requested news-led AI agent security posts between the last post and today.
+- **Fix/Notes:** Secondary-only claims are attributed in text; open verification items are recorded in each draft's review_notes and SOURCES_A–D.md.
