@@ -10,9 +10,10 @@ import { SITE_URL as BASE_URL } from "@/lib/site";
 import { sitemapLastModified, type SeoDate } from "@/lib/seo";
 
 
-// Regenerate the sitemap at most once an hour so blog posts added to the DB
-// after a deploy are picked up automatically (without a full rebuild).
-export const revalidate = 3600;
+// Render per request. The hourly ISR setting never regenerated on Vercel
+// (the build-time copy was served for 25h+), so posts inserted into the DB
+// after a deploy were missing. The query is one indexed SELECT per crawl.
+export const dynamic = "force-dynamic";
 
 function blogRoutesWouldBeEmpty(
   slugs: { slug: string }[]

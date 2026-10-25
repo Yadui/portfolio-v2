@@ -969,3 +969,13 @@
 - **After:** Six posts inserted via guarded, backed-up transaction; future dates refused.
 - **Why:** Owner requested news-led AI agent security posts between the last post and today.
 - **Fix/Notes:** Secondary-only claims are attributed in text; open verification items are recorded in each draft's review_notes and SOURCES_A–D.md.
+
+### 2026-10-25
+#### [FIX] Render sitemap.xml per request
+- **Template/File:** `app/sitemap.ts`, `tests/sitemap-dynamic.test.mjs`, `package.json`
+- **Record:** `sitemap-xml-stale-isr`
+- **What changed:** Replaced `revalidate = 3600` with `dynamic = "force-dynamic"`.
+- **Before:** Vercel served the build-time sitemap for 25h+ (`age: 91084`); six DB-inserted posts were absent while RSS and sitemap.txt had them. Search Console read the stale 32-URL sitemap on Oct 25.
+- **After:** sitemap.xml queries the DB on each request.
+- **Why:** New posts are published by DB insert, not redeploy.
+- **Fix/Notes:** sitemap.txt and rss.xml ISR were regenerating correctly and are unchanged.

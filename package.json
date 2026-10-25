@@ -10,7 +10,7 @@
     "start": "next start -p 3100",
     "lint": "eslint .",
     "test:seo": "node --experimental-strip-types --test tests/seo.test.ts tests/blog-markdown.test.mjs",
-    "test": "node --experimental-strip-types --test tests/seo.test.ts tests/blog-markdown.test.mjs tests/blog-edit.test.mjs tests/contact.test.mjs tests/blog-publisher.test.mjs tests/audio-removal.test.mjs",
+    "test": "node --experimental-strip-types --test tests/seo.test.ts tests/blog-markdown.test.mjs tests/blog-edit.test.mjs tests/contact.test.mjs tests/blog-publisher.test.mjs tests/audio-removal.test.mjs tests/sitemap-dynamic.test.mjs",
     "blog:plan": "node scripts/publish-blog-corrections.mjs",
     "blog:publish": "node scripts/publish-blog-corrections.mjs --apply",
     "covers:build": "node scripts/build-ai-editorial-covers.mjs",
