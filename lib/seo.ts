@@ -3,7 +3,7 @@ export type SeoDate = Date | string | number | null | undefined;
 /** Preserve title meaning; Google may truncate by pixel width or rewrite titles. */
 export function getArticleSeoTitle(title: string, slug: string): string {
   if (slug === "securing-azure-virtual-desktop-with-entra-id-and-passwordless-mfa") {
-    return "Azure Virtual Desktop: Passwordless MFA with Entra ID";
+    return "Azure Virtual Desktop Passwordless MFA and SSO with Entra";
   }
   return title.replace(/\s+/g, " ").trim();
 }

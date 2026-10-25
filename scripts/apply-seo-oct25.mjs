@@ -12,7 +12,7 @@ const edits = {
     excerpt: 'KV cache reuses keys and values inside one request; prefix caching reuses them across requests. How they differ, when hits fail and how to check.',
   },
   'securing-azure-virtual-desktop-with-entra-id-and-passwordless-mfa': {
-    title: 'Azure Virtual Desktop MFA and SSO with Entra ID',
+    title: 'Azure Virtual Desktop Passwordless MFA and SSO with Entra',
     excerpt: 'Set up Azure Virtual Desktop MFA, single sign-on and passwordless sign-in with Entra ID: Conditional Access targets, SSO steps and FSLogix access.',
     replace: [
       ['If you are searching for Azure Active Directory passwordless authentication, MFA for VDI, Azure Virtual Desktop MFA, Windows Virtual Desktop MFA, or Azure Virtual Desktop single sign-on, start by separating these service, session-host, and in-session boundaries.',

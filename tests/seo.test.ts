@@ -13,7 +13,7 @@ test("article SEO title uses the editorial AVD title only for its exact existing
   const { getArticleSeoTitle } = await loadSeo();
   const title = "Securing Azure Virtual Desktop with Entra ID and Passwordless MFA";
   const slug = "securing-azure-virtual-desktop-with-entra-id-and-passwordless-mfa";
-  assert.equal(getArticleSeoTitle(title, slug), "Azure Virtual Desktop: Passwordless MFA with Entra ID");
+  assert.equal(getArticleSeoTitle(title, slug), "Azure Virtual Desktop Passwordless MFA and SSO with Entra");
   assert.equal(getArticleSeoTitle(title, `${slug}-troubleshooting`), title);
 });
 
