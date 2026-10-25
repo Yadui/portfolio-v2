@@ -979,3 +979,12 @@
 - **After:** sitemap.xml queries the DB on each request.
 - **Why:** New posts are published by DB insert, not redeploy.
 - **Fix/Notes:** sitemap.txt and rss.xml ISR were regenerating correctly and are unchanged.
+
+#### [FIX] Search Console driven SEO edits to live posts
+- **Template/File:** `scripts/apply-seo-oct25.mjs` (Turso `posts` rows)
+- **Record:** `seo-gsc-oct25`
+- **What changed:** New titles/descriptions for prefix caching (pos 9.3, 0 clicks) and AVD MFA/SSO (145 impressions, pos 21.5); removed a keyword-stuffed sentence and aligned two AVD headings with real queries; added in-text links from 8 older posts to related newer posts; replaced 17 auto-truncated or over-long meta descriptions.
+- **Before:** GSC showed 0 external links, 9 internal links, 13 posts "Discovered - currently not indexed", and descriptions cut mid-sentence ending in "...".
+- **After:** 21 rows updated in one verified transaction; full prior rows backed up under `.local/blog-backups/seo-oct25-*.json`.
+- **Why:** Owner asked to apply the GSC findings.
+- **Fix/Notes:** Effect needs 2 to 4 weeks of GSC data; no ranking promise.
