@@ -115,7 +115,7 @@ export const metadata = {
     title: "Abhinav Yadav — Cloud & AI Engineer | Gurugram, India",
     description:
       "Portfolio of Abhinav Yadav — Cloud & AI Engineer at Foetron, Gurugram. Azure infrastructure, AI pipelines, and full-stack projects.",
-    creator: "@abhinavyadav88",
+    creator: "@abhinav2302055",
     images: [`${SITE_URL}/opengraph-image`],
   },
   icons: {

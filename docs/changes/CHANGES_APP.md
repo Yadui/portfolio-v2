@@ -988,3 +988,13 @@
 - **After:** 21 rows updated in one verified transaction; full prior rows backed up under `.local/blog-backups/seo-oct25-*.json`.
 - **Why:** Owner asked to apply the GSC findings.
 - **Fix/Notes:** Effect needs 2 to 4 weeks of GSC data; no ranking promise.
+
+### 2026-10-26
+#### [FEAT] Strengthen name and author signals for "Abhinav Yadav" searches
+- **Template/File:** `app/blog/[slug]/page.jsx`, `app/layout.tsx`, `components/Intro.jsx`
+- **Record:** `name-entity-signals`
+- **What changed:** Article author card now shows the full name, role and a factual one-line bio; photo alt names the person; byline and card link use `rel="author"`; BlogPosting author data adds jobTitle and image; Twitter creator corrected to the real X handle; hero accessible label uses the full name.
+- **Before:** Card said "Abhinav" with a generic tagline; Twitter creator `@abhinavyadav88` did not match the X profile `abhinav2302055`.
+- **After:** Every post repeats one consistent "Abhinav Yadav, Cloud & AI Engineer" entity linked to the homepage Person.
+- **Why:** GSC showed no name queries; owner asked to rank for their name.
+- **Fix/Notes:** Text and metadata only; no layout, motion or asset changes. Off-site profile links are the larger factor and need the owner.

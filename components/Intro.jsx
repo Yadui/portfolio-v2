@@ -537,7 +537,7 @@ export default function Intro() {
         <div className="pointer-events-auto md:self-end md:text-right">
           <h2
             className="hero-name font-heading text-white"
-            aria-label="I'm Abhinav, an Azure and AI engineer based in Gurugram, India"
+            aria-label="I'm Abhinav Yadav, an Azure and AI engineer based in Gurugram, India"
           >
             <span data-hero-line className="block overflow-hidden pb-[0.08em]">
               <span className="hero-band-line block">

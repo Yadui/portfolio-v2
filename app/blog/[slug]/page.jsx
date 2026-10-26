@@ -168,6 +168,8 @@ export default async function BlogPost({ params }) {
           "@id": `${BASE_URL}/#person`,
           name: "Abhinav Yadav",
           url: BASE_URL,
+          jobTitle: "Cloud & AI Engineer",
+          image: `${BASE_URL}/assets/Abhinav_Yadav.png`,
           sameAs: [
             "https://github.com/Yadui",
             "https://www.linkedin.com/in/abhinavyadav88",
@@ -231,7 +233,7 @@ export default async function BlogPost({ params }) {
             </h1>
             <div className="flex flex-wrap items-center justify-center gap-2 font-mono text-sm text-[#8892a4]">
                 <span>
-                  By <Link href="/" className="text-[#00805b] hover:underline">Abhinav Yadav</Link>
+                  By <Link href="/" rel="author" className="text-[#00805b] hover:underline">Abhinav Yadav</Link>
                 </span>
                 <span aria-hidden="true">·</span>
                 {new Date(post.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
@@ -313,10 +315,11 @@ export default async function BlogPost({ params }) {
                     <div className="rounded-2xl border border-[#101828]/10 bg-white/80 p-6 shadow-[0_14px_50px_rgba(16,24,40,0.08)] backdrop-blur-sm">
                         <div className="flex items-center gap-4 mb-4">
                             <div className="relative h-16 w-16 overflow-hidden rounded-full border-2 border-[#00b86b]">
-                                 <Image src="/assets/blog-dp.jpeg" alt="Abhinav" fill sizes="64px" className="object-cover" />
+                                 <Image src="/assets/blog-dp.jpeg" alt="Abhinav Yadav, Cloud and AI engineer" fill sizes="64px" className="object-cover" />
                             </div>
                             <div>
-                                <h4 className="text-lg font-light text-[#101828]">Abhinav</h4>
+                                <p className="text-lg font-light text-[#101828]">Abhinav Yadav</p>
+                                <p className="text-xs font-medium uppercase tracking-wider text-[#8892a4]">Cloud &amp; AI Engineer</p>
                                 <div className="mt-1 flex gap-2 text-[#8892a4]">
                                      <a href="https://github.com/Yadui" target="_blank" rel="noopener noreferrer" aria-label="GitHub" className="profile-social-link transition-colors hover:text-[#101828]"><FiGithub /></a>
                                      <a href="https://x.com/abhinav2302055" target="_blank" rel="noopener noreferrer" aria-label="Twitter / X" className="profile-social-link transition-colors hover:text-[#101828]"><FiTwitter /></a>
@@ -325,11 +328,11 @@ export default async function BlogPost({ params }) {
                             </div>
                         </div>
                         <p className="mb-4 text-sm leading-relaxed text-[#536074]">
-                             Cloud and AI engineer writing about systems, interfaces, and the details that make software reliable.
+                             Abhinav Yadav is a Cloud and AI engineer at Foetron in Gurugram, India, building Azure infrastructure, AI agents and full-stack apps.
                         </p>
-                        <Link href="/" className="block">
+                        <Link href="/" className="block" rel="author">
                           <Button className="h-9 w-full rounded-lg bg-[#101828] font-bold text-white hover:bg-[#1d2839]">
-                              More about me
+                              More about Abhinav Yadav
                           </Button>
                         </Link>
                     </div>
