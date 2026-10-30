@@ -998,3 +998,13 @@
 - **After:** Every post repeats one consistent "Abhinav Yadav, Cloud & AI Engineer" entity linked to the homepage Person.
 - **Why:** GSC showed no name queries; owner asked to rank for their name.
 - **Fix/Notes:** Text and metadata only; no layout, motion or asset changes. Off-site profile links are the larger factor and need the owner.
+
+### 2026-10-30
+#### [FEAT] Cross-posts, profile backlinks and rewritten ranking posts
+- **Template/File:** `app/layout.tsx`, `app/blog/[slug]/page.jsx`, `app/llms.txt/route.ts`, Turso `posts` rows (via `scripts/apply-post-rewrite.mjs`)
+- **Record:** `crosspost-and-profile-links`
+- **What changed:** Rewrote the SQL Server to Azure Blob backup post (verified against Microsoft Learn) and retargeted the KV cache post; clearer descriptions for PHP2Shell and GitHub Actions. Cross-posted four posts to DEV and Medium with canonical URLs pointing to yadui.dev, and short summaries linking to the full posts on Hashnode (Hashnode's editor has no canonical field). Added DEV, Medium and Hashnode to Person `sameAs` and llms.txt entity references.
+- **Before:** GSC showed 0 external links; profiles did not all point to yadui.dev.
+- **After:** 12 external posts link back; DEV, Hashnode, X, GitHub README and LinkedIn Featured link to yadui.dev.
+- **Why:** Owner asked to build backlinks and name signals.
+- **Fix/Notes:** Old post rows backed up under `.local/blog-backups/`. API keys stored only in ignored `.env.local`.

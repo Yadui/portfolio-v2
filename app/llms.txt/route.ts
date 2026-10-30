@@ -25,6 +25,9 @@ export function GET() {
 - GitHub: https://github.com/Yadui
 - LinkedIn: https://www.linkedin.com/in/abhinavyadav88
 - X: https://x.com/abhinav2302055
+- DEV: https://dev.to/abhinav_yadav_b42c8a717ab
+- Medium: https://medium.com/@abhinavyadav8
+- Hashnode: https://yadui.hashnode.dev
 `;
 
   return new Response(body, {

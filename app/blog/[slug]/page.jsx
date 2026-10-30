@@ -174,6 +174,9 @@ export default async function BlogPost({ params }) {
             "https://github.com/Yadui",
             "https://www.linkedin.com/in/abhinavyadav88",
             "https://x.com/abhinav2302055",
+            "https://dev.to/abhinav_yadav_b42c8a717ab",
+            "https://medium.com/@abhinavyadav8",
+            "https://yadui.hashnode.dev",
           ],
         },
         publisher: {
