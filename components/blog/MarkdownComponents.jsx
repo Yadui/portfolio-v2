@@ -59,7 +59,7 @@ export const MarkdownComponents = {
   // Images
   img: ({ src, alt }) => src?.startsWith("/blog-evidence/") ? (
     <span className="my-8 block w-full">
-      <img src={src} alt={alt} loading="lazy" className="block h-auto max-h-[32rem] w-full object-contain" />
+      <img src={src} alt={alt} loading="lazy" style={{ borderRadius: 0 }} className="block h-auto max-h-[32rem] w-full object-contain" />
     </span>
   ) : (
     <div className="relative my-8 aspect-video w-full overflow-hidden rounded-2xl border border-[#101828]/10 shadow-xl">

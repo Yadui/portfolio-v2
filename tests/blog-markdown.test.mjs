@@ -110,6 +110,7 @@ test("evidence screenshots retain their full aspect ratio and have no caption ov
   assert.match(html, /h-auto/);
   assert.doesNotMatch(html, /aspect-video|object-cover|absolute/);
   assert.match(html, /alt="Microsoft public service health"/);
+  assert.match(html, /border-radius:0/);
 });
 
 test("existing editorial images retain their current crop treatment", () => {
