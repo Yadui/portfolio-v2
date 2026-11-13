@@ -57,7 +57,11 @@ export const MarkdownComponents = {
   },
 
   // Images
-  img: ({ src, alt }) => (
+  img: ({ src, alt }) => src?.startsWith("/blog-evidence/") ? (
+    <span className="my-8 block w-full">
+      <img src={src} alt={alt} loading="lazy" className="block h-auto max-h-[32rem] w-full object-contain" />
+    </span>
+  ) : (
     <div className="relative my-8 aspect-video w-full overflow-hidden rounded-2xl border border-[#101828]/10 shadow-xl">
       <img src={src} alt={alt} className="w-full h-full object-cover" />
       {alt && <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm p-2 text-xs text-center text-white/70">{alt}</div>}

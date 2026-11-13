@@ -1008,3 +1008,12 @@
 - **After:** 12 external posts link back; DEV, Hashnode, X, GitHub README and LinkedIn Featured link to yadui.dev.
 - **Why:** Owner asked to build backlinks and name signals.
 - **Fix/Notes:** Old post rows backed up under `.local/blog-backups/`. API keys stored only in ignored `.env.local`.
+
+### 2026-11-13
+#### [FEAT] Publish a sourced Outlook and Microsoft 365 outage explainer
+- **Template/File:** `scripts/blog-content/drafts/2026-11-13/outlook-microsoft-365-outage-november-13-2026.md`, `scripts/publish-outage-nov13.mjs`, `public/blog-evidence/2026-11-13/microsoft-service-health.webp`, `components/blog/MarkdownComponents.jsx`, `tests/blog-markdown.test.mjs`
+- **What changed:** Wrote the incident timeline, feature-level impact, timestamped current status and user/admin guidance from Microsoft's public 09:14:20 UTC update and attributed reporting. Added an unaltered public-page screenshot and a licensed existing illustrative cover with credits.
+- **Before:** No coverage of EX1550543/MO1550821; all Markdown images were cropped to 16:9 with caption overlays.
+- **After:** Evidence images under `/blog-evidence/` preserve their full image at a bounded display size; existing image treatment remains unchanged. Publisher requires an exact reviewed hash, backs up all prior posts, and verifies its transaction without replacing any post.
+- **Why:** User explicitly requested writing and publishing today's outage report, with images and a light closing line about the incident report.
+- **Fix/Notes:** Current status is an explicitly dated snapshot, not an automatic live update. No final cause, recovery ETA or cyberattack is asserted. Unlicensed news photos were not copied. The unfinished ember footer is excluded from publication/deployment.

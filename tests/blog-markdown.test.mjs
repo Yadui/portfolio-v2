@@ -104,6 +104,20 @@ const [markdown] = findElements(page, (element) => element.type === ReactMarkdow
 assert.ok(markdown, "The article must render its content through ReactMarkdown");
 const markup = renderToStaticMarkup(markdown);
 
+test("evidence screenshots retain their full aspect ratio and have no caption overlay", () => {
+  const image = markdown.props.components.img;
+  const html = renderToStaticMarkup(image({ src: '/blog-evidence/outage/status.webp', alt: 'Microsoft public service health' }));
+  assert.match(html, /h-auto/);
+  assert.doesNotMatch(html, /aspect-video|object-cover|absolute/);
+  assert.match(html, /alt="Microsoft public service health"/);
+});
+
+test("existing editorial images retain their current crop treatment", () => {
+  const html = renderToStaticMarkup(markdown.props.components.img({ src: '/blog-covers/example.webp', alt: 'Cover' }));
+  assert.match(html, /aspect-video/);
+  assert.match(html, /object-cover/);
+});
+
 test("article inline code remains inline with no CodeBlock or copy button", () => {
   assert.match(markup, /Use <code\b[^>]*>npm install<\/code> here/);
   assert.match(markup, /<code\b[^>]*>a &lt; b &amp;&amp; c &gt; d<\/code>/);
