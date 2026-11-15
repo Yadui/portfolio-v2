@@ -1024,3 +1024,11 @@
 - **What changed:** Added a docs-sourced post on OpenChamber Agent Pages (in-chat charts/mockups/forms, answering later, link+PIN sharing and its limits) with a free-licence Unsplash cover by Hal Gatewood.
 - **Why:** Owner approved the draft and asked to publish it and post on X.
 - **Fix/Notes:** Product claims limited to docs.openchamber.dev/agent-pages; no invented usage history. Inserted via hash-confirmed, backed-up transaction.
+
+#### [FIX] Outage post restoration update and CTR title rewrites
+- **Template/File:** `scripts/apply-seo-nov15.mjs`, `lib/seo.ts`, `tests/seo.test.ts`, `tests/blog-markdown.test.mjs` (Turso `posts` rows)
+- **What changed:** Added a dated Nov 15 update to the Outlook/M365 outage post: service restored (MO1550821/EX1550543), incident window, and Microsoft's preliminary root cause from its admin-center notice; reframed the Nov 13 status as a snapshot. Rewrote titles/descriptions for persist-credentials, PHP2Shell and AVD MFA/SSO to match the queries they rank for on page 1-2 but rarely get clicked.
+- **Before:** Outage post said recovery ongoing; three posts had 183-250 impressions with 0-1 clicks.
+- **After:** Outage post reflects restoration and pending preliminary/final PIRs; titles lead with the searched terms.
+- **Why:** Owner requested both after the GSC review.
+- **Fix/Notes:** Final PIR not yet published; post promises an update. Rows backed up before the transactional update.

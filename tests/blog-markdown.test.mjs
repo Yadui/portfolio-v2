@@ -162,9 +162,10 @@ test("actual article metadata retains AVD passwordless MFA intent and the existi
   const metadata = await compiledModule.exports.generateMetadata({
     params: Promise.resolve({ slug: avdPost.slug }),
   });
-  const expectedTitle = "Azure Virtual Desktop Passwordless MFA and SSO with Entra";
+  const expectedTitle = "AVD MFA and SSO with Entra: passwordless setup for VDI";
   assert.deepEqual(metadata.title, { absolute: expectedTitle });
-  assert.match(metadata.title.absolute, /Passwordless MFA/);
+  assert.match(metadata.title.absolute, /MFA/);
+  assert.match(metadata.title.absolute, /passwordless/i);
   assert.equal(metadata.openGraph.title, expectedTitle);
   assert.equal(metadata.twitter.title, expectedTitle);
   const canonical = `${SITE_URL}/blog/securing-azure-virtual-desktop-with-entra-id-and-passwordless-mfa`;
