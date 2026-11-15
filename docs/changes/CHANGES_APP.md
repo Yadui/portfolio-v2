@@ -1017,3 +1017,10 @@
 - **After:** Evidence images under `/blog-evidence/` preserve their full image at a bounded display size; existing image treatment remains unchanged. Publisher requires an exact reviewed hash, backs up all prior posts, and verifies its transaction without replacing any post.
 - **Why:** User explicitly requested writing and publishing today's outage report, with images and a light closing line about the incident report.
 - **Fix/Notes:** Current status is an explicitly dated snapshot, not an automatic live update. No final cause, recovery ETA or cyberattack is asserted. Unlicensed news photos were not copied. The unfinished ember footer is excluded from publication/deployment.
+
+### 2026-11-15
+#### [FEAT] Publish OpenChamber Agent Pages explainer
+- **Template/File:** `scripts/blog-content/drafts/2026-11-15/openchamber-agent-pages-visual-decisions.md`, `scripts/publish-agent-pages-nov15.mjs`, `public/blog-covers/ai-security-2026-10-24/agent-pages-watercolor.webp`
+- **What changed:** Added a docs-sourced post on OpenChamber Agent Pages (in-chat charts/mockups/forms, answering later, link+PIN sharing and its limits) with a free-licence Unsplash cover by Hal Gatewood.
+- **Why:** Owner approved the draft and asked to publish it and post on X.
+- **Fix/Notes:** Product claims limited to docs.openchamber.dev/agent-pages; no invented usage history. Inserted via hash-confirmed, backed-up transaction.
